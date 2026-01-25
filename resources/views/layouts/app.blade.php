@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'صورك') | لوحة القيادة</title>
+    <title>@yield('title', 'لوحة التحكم') | صورك</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,90 +17,99 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: {
-                            DEFAULT: '#1D2B45',
-                            light: '#2d3f5f',
-                            dark: '#0d1621'
-                        },
-                        accent: {
-                            DEFAULT: '#3b82f6',
-                            hover: '#2563eb',
-                            soft: '#eff6ff'
-                        },
-                        surface: {
-                            DEFAULT: '#ffffff',
-                            alt: '#f8fafc'
-                        }
+                        primary: { DEFAULT: '#1D2B45', light: '#2d3f5f', dark: '#0d1621' },
+                        accent: { DEFAULT: '#3b82f6', hover: '#2563eb' }
                     },
-                    fontFamily: {
-                        sans: ['Cairo', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(26, 38, 57, 0.05)',
-                        'glow': '0 0 15px rgba(59, 130, 246, 0.3)'
-                    }
+                    fontFamily: { sans: ['Cairo', 'sans-serif'] }
                 }
             }
         }
     </script>
     
     <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* Smooth Transitions */
-        .transition-all-300 { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* Glass Effect Helper */
-        .glass {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
     </style>
-    
-    @stack('styles')
 </head>
-<body class="bg-[#f1f5f9] text-gray-800 font-sans antialiased overflow-hidden h-screen flex">
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-primary text-white flex-shrink-0">
+            <div class="p-6 border-b border-white/10">
+                <h1 class="text-2xl font-bold">صورك</h1>
+                <p class="text-xs text-blue-200 mt-1">لوحة التحكم</p>
+            </div>
+            
+            <nav class="p-4 space-y-2">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition">
+                    <i class="fas fa-home"></i>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="{{ route('spa.accounts') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition">
+                    <i class="fas fa-users"></i>
+                    <span>الحسابات</span>
+                </a>
+                <a href="{{ route('spa.roles') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition">
+                    <i class="fas fa-user-shield"></i>
+                    <span>الأدوار</span>
+                </a>
+                <a href="{{ route('spa.permissions') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition">
+                    <i class="fas fa-key"></i>
+                    <span>الصلاحيات</span>
+                </a>
+            </nav>
+        </aside>
 
-    <div id="backdrop" class="fixed inset-0 bg-primary-dark/50 z-20 hidden lg:hidden transition-opacity opacity-0" onclick="toggleSidebar()"></div>
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-800">@yield('page-title')</h2>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm text-gray-600" id="user-name">المستخدم</span>
+                        <button onclick="logout()" class="text-red-600 hover:text-red-700">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
 
-    @include('layouts.partials.sidebar')
-
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full">
-        
-        @include('layouts.partials.header')
-
-        <div class="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8 scroll-smooth">
-            @yield('content')
-
-            <footer class="mt-10 text-center text-gray-400 text-xs py-4">
-                <p>&copy; {{ date('Y') }} صورك. جميع الحقوق محفوظة. <span class="mx-1">|</span> تصميم وتطوير <span class="font-bold text-gray-500">إبراهيم الشامي</span></p>
-            </footer>
+            <!-- Content -->
+            <main class="flex-1 overflow-y-auto p-6">
+                @yield('content')
+            </main>
         </div>
-    </main>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        const sidebar = document.getElementById('sidebar');
-        const backdrop = document.getElementById('backdrop');
+        // Setup Axios
+        axios.defaults.baseURL = '/api';
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Accept'] = 'application/json';
+        
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
 
-        function toggleSidebar() {
-            if (sidebar.classList.contains('translate-x-full')) {
-                sidebar.classList.remove('translate-x-full');
-                backdrop.classList.remove('hidden');
-                setTimeout(() => {
-                    backdrop.classList.remove('opacity-0');
-                }, 10);
-            } else {
-                sidebar.classList.add('translate-x-full');
-                backdrop.classList.add('opacity-0');
-                setTimeout(() => {
-                    backdrop.classList.add('hidden');
-                }, 300);
+        // Logout function
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                axios.post('/auth/logout').finally(() => {
+                    localStorage.removeItem('auth_token');
+                    window.location.href = '/login';
+                });
             }
         }
+
+        // Load user info
+        axios.get('/auth/me').then(res => {
+            document.getElementById('user-name').textContent = res.data.data.account.full_name;
+        }).catch(() => {
+            window.location.href = '/login';
+        });
     </script>
     
     @stack('scripts')

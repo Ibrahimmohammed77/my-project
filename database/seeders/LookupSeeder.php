@@ -71,6 +71,7 @@ class LookupSeeder extends Seeder
                     ['code' => 'PENDING', 'name' => 'قيد المراجعة', 'description' => 'Account pending verification'],
                     ['code' => 'SUSPENDED', 'name' => 'موقوف', 'description' => 'Account suspended'],
                     ['code' => 'INACTIVE', 'name' => 'غير نشط', 'description' => 'Account deactivated'],
+                    ['code' => 'GUEST', 'name' => 'زائر', 'description' => 'Guest account with limited access'],
                 ];
             case 'STUDIO_STATUS':
                 return [

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id('account_id');
-            $table->string('username', 50);
+            $table->string('username', 50)->unique();
             $table->string('email', 100)->unique()->nullable();
             $table->boolean('email_verified')->default(false);
             $table->string('password_hash', 255);

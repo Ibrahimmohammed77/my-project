@@ -1,7 +1,13 @@
 <aside id="sidebar" class="fixed lg:static inset-y-0 right-0 z-30 w-[280px] bg-primary text-white transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl lg:shadow-none">
     <div class="h-20 flex items-center px-8 border-b border-white/10">
         <div class="flex items-center gap-3">
-            <img src="{{ asset('images/logo-white.jpg') }}" alt="صورك" class="h-12 w-auto object-contain">
+            <div class="relative flex items-center justify-center w-12 h-12 bg-white rounded-xl shadow-lg">
+                <i class="fa-solid fa-camera text-2xl text-primary"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-2xl font-bold tracking-wide leading-none text-white">صورك</span>
+                <span class="text-[10px] text-gray-400 font-medium tracking-widest mt-1">DASHBOARD</span>
+            </div>
         </div>
     </div>
 

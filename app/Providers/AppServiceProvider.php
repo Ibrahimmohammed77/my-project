@@ -11,7 +11,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Identity Repositories
+        $this->app->bind(
+            \App\Domain\Identity\Repositories\Contracts\AccountRepositoryInterface::class,
+            \App\Domain\Identity\Repositories\Eloquent\AccountRepository::class
+        );
+        
+        $this->app->bind(
+            \App\Domain\Identity\Repositories\Contracts\RoleRepositoryInterface::class,
+            \App\Domain\Identity\Repositories\Eloquent\RoleRepository::class
+        );
+        
+        $this->app->bind(
+            \App\Domain\Identity\Repositories\Contracts\PermissionRepositoryInterface::class,
+            \App\Domain\Identity\Repositories\Eloquent\PermissionRepository::class
+        );
     }
 
     /**

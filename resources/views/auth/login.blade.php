@@ -1,46 +1,62 @@
 @extends('layouts.guest')
 
-@section('title', 'Login')
+@section('title', 'تسجيل الدخول')
 
 @section('content')
-<div class="card card-md">
-  <div class="card-body">
-    <h2 class="h2 text-center mb-4">Login to your account</h2>
-    <form action="{{ route('login') }}" method="post" autocomplete="off" novalidate>
-      @csrf
-      <div class="mb-3">
-        <label class="form-label">Email address</label>
-        <input type="email" name="email" class="form-control" placeholder="your@email.com" autocomplete="off" required>
-      </div>
-      <div class="mb-2">
-        <label class="form-label">
-          Password
-          <span class="form-label-description">
-            <a href="#">I forgot password</a>
-          </span>
-        </label>
-        <div class="input-group input-group-flat">
-          <input type="password" name="password" class="form-control"  placeholder="Your password"  autocomplete="off" required>
-          <span class="input-group-text">
-            <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" /></svg>
-            </a>
-          </span>
+<div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-white/20">
+    <h2 class="text-2xl font-bold text-white text-center mb-6">تسجيل الدخول</h2>
+    
+    <form action="{{ route('login') }}" method="post" class="space-y-4">
+        @csrf
+        
+        <div>
+            <label class="block text-sm font-semibold text-white mb-2">البريد الإلكتروني</label>
+            <input 
+                type="email" 
+                name="email" 
+                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:border-white focus:ring-2 focus:ring-white/20 outline-none transition-all backdrop-blur-sm" 
+                placeholder="example@domain.com"
+                required
+            >
         </div>
-      </div>
-      <div class="mb-2">
-        <label class="form-check">
-          <input type="checkbox" class="form-check-input"/>
-          <span class="form-check-label">Remember me on this device</span>
-        </label>
-      </div>
-      <div class="form-footer">
-        <button type="submit" class="btn btn-primary w-100">Sign in</button>
-      </div>
+        
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-semibold text-white">كلمة المرور</label>
+                <a href="#" class="text-xs text-blue-200 hover:text-white transition-colors">نسيت كلمة المرور؟</a>
+            </div>
+            <input 
+                type="password" 
+                name="password" 
+                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:border-white focus:ring-2 focus:ring-white/20 outline-none transition-all backdrop-blur-sm" 
+                placeholder="••••••••"
+                required
+            >
+        </div>
+        
+        <div class="flex items-center">
+            <input 
+                type="checkbox" 
+                name="remember" 
+                id="remember" 
+                class="w-4 h-4 rounded border-white/20 bg-white/10 text-accent focus:ring-2 focus:ring-white/20"
+            >
+            <label for="remember" class="mr-2 text-sm text-blue-100">تذكرني على هذا الجهاز</label>
+        </div>
+        
+        <button 
+            type="submit" 
+            class="w-full bg-white hover:bg-blue-50 text-primary px-6 py-3 rounded-xl font-bold shadow-lg transition-all active:scale-95"
+        >
+            تسجيل الدخول
+        </button>
     </form>
-  </div>
 </div>
-<div class="text-center text-muted mt-3">
-  Don't have account yet? <a href="{{ route('register') }}" tabindex="-1">Sign up</a>
+
+<div class="text-center mt-6">
+    <p class="text-blue-100 text-sm">
+        ليس لديك حساب؟ 
+        <a href="{{ route('register') }}" class="text-white font-semibold hover:underline">إنشاء حساب جديد</a>
+    </p>
 </div>
 @endsection

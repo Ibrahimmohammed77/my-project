@@ -1,35 +1,31 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Account')
+@section('title', 'تعديل الحساب')
 
-@section('header')
-<div class="row g-2 align-items-center">
-  <div class="col">
-    <div class="page-pretitle">Accounts</div>
-    <h2 class="page-title">Edit Account: {{ $account->username }}</h2>
-  </div>
-</div>
-@endsection
+@section('page-title', 'تعديل الحساب: {{ $account->username }}')
 
 @section('content')
-<div class="row row-cards">
-  <div class="col-12">
-    <form action="{{ route('accounts.update', $account->account_id) }}" method="POST" class="card">
-      @csrf
-      @method('PUT')
-      <div class="card-header">
-        <h4 class="card-title">Account Details</h4>
-      </div>
-      <div class="card-body">
-         @include('accounts.form')
-      </div>
-      <div class="card-footer text-end">
-        <div class="d-flex">
-          <a href="{{ route('accounts.index') }}" class="btn btn-link">Cancel</a>
-          <button type="submit" class="btn btn-primary ms-auto">Update Account</button>
+<div class="max-w-4xl">
+    <form action="{{ route('accounts.update', $account->account_id) }}" method="POST" class="bg-surface rounded-2xl shadow-soft border border-gray-100 overflow-hidden">
+        @csrf
+        @method('PUT')
+        <div class="p-6 border-b border-gray-100">
+            <h3 class="font-bold text-lg text-primary">تفاصيل الحساب</h3>
+            <p class="text-sm text-gray-500 mt-1">تعديل معلومات الحساب</p>
         </div>
-      </div>
+        
+        <div class="p-6">
+            @include('accounts.form')
+        </div>
+        
+        <div class="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-3">
+            <a href="{{ route('accounts.index') }}" class="px-5 py-2.5 text-gray-600 hover:text-gray-800 font-medium transition-colors">
+                إلغاء
+            </a>
+            <button type="submit" class="bg-primary hover:bg-primary-light text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95">
+                تحديث الحساب
+            </button>
+        </div>
     </form>
-  </div>
 </div>
 @endsection

@@ -1,43 +1,84 @@
 @extends('layouts.guest')
 
-@section('title', 'Register')
+@section('title', 'إنشاء حساب جديد')
 
 @section('content')
-<form class="card card-md" action="{{ route('register') }}" method="post" autocomplete="off" novalidate>
-  @csrf
-  <div class="card-body">
-    <h2 class="card-title text-center mb-4">Create new account</h2>
-    <div class="mb-3">
-      <label class="form-label">Name</label>
-      <input type="text" name="name" class="form-control" placeholder="Enter name" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Email address</label>
-      <input type="email" name="email" class="form-control" placeholder="Enter email" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Password</label>
-      <div class="input-group input-group-flat">
-        <input type="password" name="password" class="form-control"  placeholder="Password"  autocomplete="off" required>
-        <span class="input-group-text">
-          <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" /></svg>
-          </a>
-        </span>
-      </div>
-    </div>
-    <div class="mb-3">
-      <label class="form-check">
-        <input type="checkbox" required class="form-check-input"/>
-        <span class="form-check-label">Agree the <a href="#" tabindex="-1">terms and policy</a>.</span>
-      </label>
-    </div>
-    <div class="form-footer">
-      <button type="submit" class="btn btn-primary w-100">Create new account</button>
-    </div>
-  </div>
-</form>
-<div class="text-center text-muted mt-3">
-  Already have account? <a href="{{ route('login') }}" tabindex="-1">Sign in</a>
+<div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-white/20">
+    <h2 class="text-2xl font-bold text-white text-center mb-6">إنشاء حساب جديد</h2>
+    
+    <form action="{{ route('register') }}" method="post" class="space-y-4">
+        @csrf
+        
+        <div>
+            <label class="block text-sm font-semibold text-white mb-2">الاسم الكامل</label>
+            <input 
+                type="text" 
+                name="name" 
+                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:border-white focus:ring-2 focus:ring-white/20 outline-none transition-all backdrop-blur-sm" 
+                placeholder="أدخل اسمك الكامل"
+                required
+            >
+        </div>
+        
+        <div>
+            <label class="block text-sm font-semibold text-white mb-2">البريد الإلكتروني</label>
+            <input 
+                type="email" 
+                name="email" 
+                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:border-white focus:ring-2 focus:ring-white/20 outline-none transition-all backdrop-blur-sm" 
+                placeholder="example@domain.com"
+                required
+            >
+        </div>
+        
+        <div>
+            <label class="block text-sm font-semibold text-white mb-2">كلمة المرور</label>
+            <input 
+                type="password" 
+                name="password" 
+                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:border-white focus:ring-2 focus:ring-white/20 outline-none transition-all backdrop-blur-sm" 
+                placeholder="••••••••"
+                required
+            >
+        </div>
+        
+        <div>
+            <label class="block text-sm font-semibold text-white mb-2">تأكيد كلمة المرور</label>
+            <input 
+                type="password" 
+                name="password_confirmation" 
+                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:border-white focus:ring-2 focus:ring-white/20 outline-none transition-all backdrop-blur-sm" 
+                placeholder="••••••••"
+                required
+            >
+        </div>
+        
+        <div class="flex items-start">
+            <input 
+                type="checkbox" 
+                name="terms" 
+                id="terms" 
+                class="w-4 h-4 mt-1 rounded border-white/20 bg-white/10 text-accent focus:ring-2 focus:ring-white/20"
+                required
+            >
+            <label for="terms" class="mr-2 text-sm text-blue-100">
+                أوافق على <a href="#" class="text-white font-semibold hover:underline">الشروط والأحكام</a>
+            </label>
+        </div>
+        
+        <button 
+            type="submit" 
+            class="w-full bg-white hover:bg-blue-50 text-primary px-6 py-3 rounded-xl font-bold shadow-lg transition-all active:scale-95"
+        >
+            إنشاء الحساب
+        </button>
+    </form>
+</div>
+
+<div class="text-center mt-6">
+    <p class="text-blue-100 text-sm">
+        لديك حساب بالفعل؟ 
+        <a href="{{ route('login') }}" class="text-white font-semibold hover:underline">تسجيل الدخول</a>
+    </p>
 </div>
 @endsection

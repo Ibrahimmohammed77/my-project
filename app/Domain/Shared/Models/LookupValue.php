@@ -8,6 +8,7 @@ class LookupValue extends Model
 {
     protected $primaryKey = 'lookup_value_id';
     protected $fillable = ['lookup_master_id', 'code', 'name', 'description', 'is_active', 'sort_order'];
+    public $timestamps = false;
 
     public function master()
     {

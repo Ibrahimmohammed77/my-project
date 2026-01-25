@@ -4,12 +4,12 @@ namespace App\Domain\Finance\Repositories\Eloquent;
 
 use App\Domain\Shared\Repositories\Eloquent\BaseRepository;
 use App\Domain\Finance\Repositories\Contracts\PaymentRepositoryInterface;
-use App\Domain\Finance\Models\\Payment;
+use App\Domain\Finance\Models\Payment;
 
 class PaymentRepository extends BaseRepository implements PaymentRepositoryInterface
 {
-    public function __construct(Payment \Payment)
+    public function __construct(Payment $payment)
     {
-        parent::__construct(\Payment);
+        parent::__construct($payment);
     }
 }

@@ -4,12 +4,12 @@ namespace App\Domain\Core\Repositories\Eloquent;
 
 use App\Domain\Shared\Repositories\Eloquent\BaseRepository;
 use App\Domain\Core\Repositories\Contracts\SchoolRepositoryInterface;
-use App\Domain\Core\Models\\School;
+use App\Domain\Core\Models\School;
 
 class SchoolRepository extends BaseRepository implements SchoolRepositoryInterface
 {
-    public function __construct(School \School)
+    public function __construct(School $school)
     {
-        parent::__construct(\School);
+        parent::__construct($school);
     }
 }

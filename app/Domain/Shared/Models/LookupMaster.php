@@ -8,6 +8,7 @@ class LookupMaster extends Model
 {
     protected $primaryKey = 'lookup_master_id';
     protected $fillable = ['code', 'name', 'description'];
+    public $timestamps = false;
 
     public function values()
     {

@@ -8,6 +8,7 @@ class Permission extends Model
 {
     protected $primaryKey = 'permission_id';
     protected $fillable = ['name', 'resource_type', 'action', 'description'];
+    public $timestamps = false;
 
     public function roles()
     {

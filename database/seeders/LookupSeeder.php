@@ -11,11 +11,21 @@ class LookupSeeder extends Seeder
 {
     public function run()
     {
-        // Disable FK checks to allow truncation
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // Disable FK checks (SQLite compatible)
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        } else {
+            DB::statement('PRAGMA foreign_keys = OFF;');
+        }
+        
         LookupValue::truncate();
         LookupMaster::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        } else {
+            DB::statement('PRAGMA foreign_keys = ON;');
+        }
 
         // Define Masters
         $masters = [
@@ -71,16 +81,16 @@ class LookupSeeder extends Seeder
             case 'SCHOOL_TYPE':
                 return [
                     ['code' => 'PUBLIC', 'name' => 'حكومية'],
-                    ['code' => 'PRIVATE', 'أهلية'],
-                    ['code' => 'INTERNATIONAL', 'عالمية'],
+                    ['code' => 'PRIVATE', 'name' => 'أهلية'],
+                    ['code' => 'INTERNATIONAL', 'name' => 'عالمية'],
                 ];
             case 'SCHOOL_LEVEL':
                 return [
                     ['code' => 'KINDERGARTEN', 'name' => 'روضة'],
                     ['code' => 'PRIMARY', 'name' => 'ابتدائي'],
-                    ['code' => 'MIDDLE', 'إعدادي'],
-                    ['code' => 'HIGH', 'ثانوي'],
-                    ['code' => 'UNIVERSITY', 'جامعي'],
+                    ['code' => 'MIDDLE', 'name' => 'إعدادي'],
+                    ['code' => 'HIGH', 'name' => 'ثانوي'],
+                    ['code' => 'UNIVERSITY', 'name' => 'جامعي'],
                 ];
             case 'SCHOOL_STATUS':
                 return [

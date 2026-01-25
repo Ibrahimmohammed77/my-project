@@ -8,6 +8,7 @@ class Role extends Model
 {
     protected $primaryKey = 'role_id';
     protected $fillable = ['name', 'description', 'is_system'];
+    public $timestamps = false;
 
     public function permissions()
     {

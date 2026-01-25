@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use App\Models\LookupMaster;
-use App\Models\LookupValue;
+use App\Domain\Shared\Models\LookupMaster;
+use App\Domain\Shared\Models\LookupValue;
 
 class LookupSeeder extends Seeder
 {
@@ -183,3 +183,4 @@ class LookupSeeder extends Seeder
         }
     }
 }
+

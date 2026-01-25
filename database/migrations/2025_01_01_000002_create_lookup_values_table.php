@@ -8,16 +8,6 @@ return new class extends Migration
 {
     public function up()
     {
-        // Lookup Masters
-        Schema::create('lookup_masters', function (Blueprint $table) {
-            $table->id('lookup_master_id');
-            $table->string('code', 50)->unique();
-            $table->string('name', 100);
-            $table->text('description')->nullable();
-            $table->timestamp('created_at')->useCurrent();
-        });
-
-        // Lookup Values
         Schema::create('lookup_values', function (Blueprint $table) {
             $table->id('lookup_value_id');
             $table->unsignedBigInteger('lookup_master_id');
@@ -37,6 +27,5 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('lookup_values');
-        Schema::dropIfExists('lookup_masters');
     }
 };

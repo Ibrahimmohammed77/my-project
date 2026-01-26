@@ -19,8 +19,8 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
-// Protected routes (تحتاج مصادقة)
-Route::middleware('auth:sanctum')->group(function () {
+// Protected routes (تحتاج مصادقة - using web session for SPA)
+Route::middleware('auth:web')->group(function () {
     
     // Auth routes
     Route::prefix('auth')->group(function () {

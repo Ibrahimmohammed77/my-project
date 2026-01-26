@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <h1>API Test</h1>
+    <div id="result"></div>
+
+    <script>
+        axios.defaults.baseURL = '/api';
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Accept'] = 'application/json';
+
+        async function testAPI() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<p>Testing API...</p>';
+
+            try {
+                // Test accounts
+                const accountsRes = await axios.get('/accounts');
+                console.log('Accounts Response:', accountsRes.data);
+
+                // Test roles
+                const rolesRes = await axios.get('/roles');
+                console.log('Roles Response:', rolesRes.data);
+
+                // Test permissions
+                const permissionsRes = await axios.get('/permissions');
+                console.log('Permissions Response:', permissionsRes.data);
+
+                result.innerHTML = `
+                    <h2>Success!</h2>
+                    <p>Accounts: ${accountsRes.data.data.accounts.length}</p>
+                    <p>Roles: ${rolesRes.data.data.roles.length}</p>
+                    <p>Permissions: ${permissionsRes.data.data.permissions.length}</p>
+                    <pre>${JSON.stringify(accountsRes.data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('API Error:', error);
+                result.innerHTML = `
+                    <h2>Error!</h2>
+                    <p>${error.message}</p>
+                    <p>Status: ${error.response?.status}</p>
+                    <pre>${JSON.stringify(error.response?.data, null, 2)}</pre>
+                `;
+            }
+        }
+
+        testAPI();
+    </script>
+</body>
+
+</html>

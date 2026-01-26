@@ -22,12 +22,8 @@ class AccountController extends Controller
 
     public function index()
     {
-        // Ideally usage of repository paginate, but service getAll returns collection.
-        // Assuming service has paginate or we use simple all() for now.
-        // BaseRepository usually has paginate. Service may not expose it yet.
-        // Let's use getAll() 
-        $accounts = $this->accountService->getAll();
-        return view('accounts.index', compact('accounts'));
+        // View is responsible for loading data via API (SPA-like)
+        return view('spa.accounts.index');
     }
 
     public function create()

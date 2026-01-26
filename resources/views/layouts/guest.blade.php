@@ -5,34 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'تسجيل الدخول') | صورك</title>
-    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
+    <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: {
-                            DEFAULT: '#1D2B45',
-                            light: '#2d3f5f',
-                            dark: '#0d1621'
+                            alt: '#f8fafc',
+                            primary: { DEFAULT: '#1D2B45', light: '#2d3f5f', dark: '#0d1621' },
+                            accent: { DEFAULT: '#3b82f6', hover: '#2563eb', light: '#60a5fa' }
                         },
-                        accent: {
-                            DEFAULT: '#3b82f6',
-                            hover: '#2563eb',
-                            soft: '#eff6ff'
-                        },
-                        surface: {
-                            DEFAULT: '#ffffff',
-                            alt: '#f8fafc'
-                        }
-                    },
                     fontFamily: {
                         sans: ['Cairo', 'sans-serif'],
                     },
@@ -57,10 +47,10 @@
 <body class="bg-gradient-to-br from-primary via-primary-light to-accent min-h-screen flex items-center justify-center font-sans antialiased p-4">
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center mb-4">
-                <img src="{{ asset('images/logo-white.jpg') }}" alt="صورك" class="h-20 w-auto object-contain">
+            <div class="inline-flex items-center justify-center mb-6">
+                <img src="{{ asset('images/logo-white.jpg') }}" alt="صورك" class="h-24 w-auto object-contain drop-shadow-xl">
             </div>
-            <p class="text-blue-100 text-sm">نظام إدارة الصور والفعاليات</p>
+            <p class="text-blue-100 text-sm font-medium">نظام إدارة الصور والفعاليات</p>
         </div>
         
         @yield('content')

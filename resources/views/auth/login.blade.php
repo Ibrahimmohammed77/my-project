@@ -66,10 +66,15 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-// Setup Axios
-axios.defaults.baseURL = '/api';
+// Setup Axios for web requests (not API)
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.common['Accept'] = 'application/json';
+
+// Get CSRF token
+const token = document.head.querySelector('meta[name="csrf-token"]');
+if (token) {
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+}
 
 const loginForm = document.getElementById('login-form');
 const submitBtn = document.getElementById('submit-btn');
@@ -85,18 +90,16 @@ loginForm.addEventListener('submit', async (e) => {
     
     const formData = {
         login: document.getElementById('login').value,
-        password: document.getElementById('password').value
+        password: document.getElementById('password').value,
+        remember: document.getElementById('remember').checked
     };
     
     try {
-        const response = await axios.post('/auth/login', formData);
+        const response = await axios.post('/login', formData);
         
         if (response.data.success) {
-            // Store token
-            localStorage.setItem('auth_token', response.data.data.token);
-            
-            // Redirect to dashboard
-            window.location.href = '/spa/accounts';
+            // Redirect to dashboard or specified redirect
+            window.location.href = response.data.redirect || '/dashboard';
         }
     } catch (error) {
         // Show error

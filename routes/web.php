@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\GuestController;
+use App\Http\Controllers\WebAuthController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,6 +22,10 @@ Route::get('/login', function () {
 Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
+
+Route::post('/login', [WebAuthController::class, 'login'])->name('login.post');
+Route::post('/register', [WebAuthController::class, 'register'])->name('register.post');
+Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 
 // Password Reset Routes
 Route::get('/forgot-password', [PasswordResetController::class, 'showRequestForm'])->name('password.request');

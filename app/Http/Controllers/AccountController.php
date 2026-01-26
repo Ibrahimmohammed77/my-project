@@ -20,9 +20,18 @@ class AccountController extends Controller
         $this->lookupRepository = $lookupRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // View is responsible for loading data via API (SPA-like)
+        if ($request->wantsJson()) {
+            $accounts = $this->accountService->getAll();
+            $accounts->load(['status', 'roles']);
+
+            return response()->json([
+                'success' => true,
+                'data' => ['accounts' => $accounts]
+            ]);
+        }
+        
         return view('spa.accounts.index');
     }
 

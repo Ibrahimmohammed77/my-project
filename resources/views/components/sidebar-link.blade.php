@@ -9,10 +9,7 @@
     <div class="icon-wrapper">
         <i class="fas {{ $icon }} {{ $iconClasses }}"></i>
     </div>
-    <div class="flex-1">
+    <div class="flex-1 flex items-center justify-between gap-2">
         <span class="font-medium text-white group-hover:text-blue-50 transition-colors">{{ $slot }}</span>
-        @if(isset($attributes['subtext']))
-            <p class="text-xs text-blue-200/60 mt-0.5">{{ $attributes['subtext'] }}</p>
-        @endif
     </div>
 </a>

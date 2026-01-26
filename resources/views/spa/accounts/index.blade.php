@@ -57,6 +57,20 @@
             <div id="password-field">
                 <x-form.input name="password" label="كلمة المرور" type="password" required icon="fa-lock" placeholder="••••••••" />
             </div>
+
+            <!-- Status Field -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">حالة الحساب <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <i class="fas fa-toggle-on absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                    <select id="account_status_id" class="w-full pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm appearance-none cursor-pointer">
+                        <option value="1">نشط</option>
+                        <option value="2">قيد المراجعة</option>
+                        <option value="3">موقوف</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                </div>
+            </div>
         </form>
 
         <x-slot name="footer">
@@ -228,6 +242,11 @@ async function editAccount(id) {
     document.getElementById('email').value = account.email || '';
     document.getElementById('phone').value = account.phone;
     
+    // Set status if available
+    if(account.account_status_id) {
+        document.getElementById('account_status_id').value = account.account_status_id;
+    }
+    
     const pwdField = document.getElementById('password-field');
     const pwdInput = document.getElementById('password');
     if(pwdField) pwdField.style.display = 'none';
@@ -243,13 +262,12 @@ if (accountForm) {
         e.preventDefault();
         const id = document.getElementById('account-id').value;
         
-        // Manual form data gathering because Components might structure inputs differently (though here they are standard inputs with names)
         const data = {
             username: document.getElementById('username').value,
             full_name: document.getElementById('full_name').value,
             email: document.getElementById('email').value || null,
             phone: document.getElementById('phone').value,
-            account_status_id: 1
+            account_status_id: document.getElementById('account_status_id').value
         };
         
         if (!id) data.password = document.getElementById('password').value;
@@ -261,7 +279,7 @@ if (accountForm) {
             closeModal();
             loadAccounts();
         } catch (error) {
-            alert('حدث خطأ: ' + (error.response?.data?.message || error.message));
+            alert('حدث خطأ: ' + (error.response?.data?.message || 'تأكد من صحة البيانات وعدم تكرار اسم المستخدم أو البريد أو الهاتف'));
         }
     });
 }

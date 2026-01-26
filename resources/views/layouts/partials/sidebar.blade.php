@@ -5,7 +5,7 @@
                 <i class="fa-solid fa-camera text-2xl text-primary"></i>
             </div>
             <div class="flex flex-col">
-                <span class="text-2xl font-bold tracking-wide leading-none text-white">صورك</span>
+                <span class="text-2xl font-bold tracking-wide leading-none text-white">صوركم</span>
                 <span class="text-[10px] text-gray-400 font-medium tracking-widest mt-1">DASHBOARD</span>
             </div>
         </div>
@@ -47,10 +47,10 @@
 
     <div class="p-4 border-t border-white/10 bg-primary-dark/30">
         <button class="flex items-center gap-3 w-full p-2 hover:bg-white/5 rounded-lg transition-colors text-right">
-            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin User') }}&background=3b82f6&color=fff" class="w-10 h-10 rounded-full border-2 border-primary shadow-sm" alt="Admin">
+            <img src="https://ui-avatars.com/api/?name={{ urlencode(optional(auth()->user())->full_name ?? 'Admin User') }}&background=3b82f6&color=fff" class="w-10 h-10 rounded-full border-2 border-primary shadow-sm" alt="Admin">
             <div class="flex-1 overflow-hidden">
-                <h4 class="text-sm font-bold text-white truncate">{{ auth()->user()->name ?? 'إبراهيم الشامي' }}</h4>
-                <p class="text-xs text-gray-400 truncate">{{ auth()->user()->email ?? 'Senior Developer' }}</p>
+                <h4 class="text-sm font-bold text-white truncate">{{ optional(auth()->user())->full_name ?? 'إبراهيم الشامي' }}</h4>
+                <p class="text-xs text-gray-400 truncate">{{ optional(auth()->user())->email ?? 'Senior Developer' }}</p>
             </div>
             <i class="fa-solid fa-chevron-left text-gray-500 text-xs"></i>
         </button>

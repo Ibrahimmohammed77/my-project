@@ -49,6 +49,17 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return false;
     }
 
+    public function findWhere(array $conditions): Collection
+    {
+        $query = $this->model->newQuery();
+        
+        foreach ($conditions as $field => $value) {
+            $query->where($field, $value);
+        }
+        
+        return $query->get();
+    }
+
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return $this->model->paginate($perPage);

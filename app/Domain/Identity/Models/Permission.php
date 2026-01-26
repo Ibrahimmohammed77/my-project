@@ -8,7 +8,11 @@ class Permission extends Model
 {
     protected $primaryKey = 'permission_id';
     protected $fillable = ['name', 'resource_type', 'action', 'description'];
-    public $timestamps = false;
+    
+    // The table has created_at but no updated_at
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = null;
+    public $timestamps = true;
 
     public function roles()
     {

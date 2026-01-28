@@ -4,7 +4,7 @@ namespace App\Domain\Core\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreSubscriberRequest extends FormRequest
+class UpdateSubscriberRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,7 +14,7 @@ class StoreSubscriberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'account_id' => 'required|exists:accounts,account_id',
+            'account_id' => 'sometimes|exists:accounts,account_id',
             'subscriber_status_id' => 'required|exists:lookup_values,lookup_value_id',
             'settings' => 'nullable|array'
         ];

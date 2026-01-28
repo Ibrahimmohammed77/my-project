@@ -14,7 +14,7 @@ class Account extends Authenticatable
     
     protected $fillable = [
         'username', 'email', 'full_name', 'phone', 'profile_image', 
-        'account_status_id', 'password_hash'
+        'account_status_id', 'account_type_id', 'password_hash'
     ];
 
     protected $hidden = [
@@ -24,6 +24,11 @@ class Account extends Authenticatable
     public function getAuthPassword()
     {
         return $this->password_hash;
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(\App\Domain\Shared\Models\LookupValue::class, 'account_type_id');
     }
 
     public function status()

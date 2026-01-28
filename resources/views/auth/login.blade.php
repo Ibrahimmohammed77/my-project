@@ -145,65 +145,6 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-axios.defaults.headers.common['Accept'] = 'application/json';
-const token = document.head.querySelector('meta[name="csrf-token"]');
-if (token) {
-    axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
-}
-
-const loginForm = document.getElementById('login-form');
-const submitBtn = document.getElementById('submit-btn');
-const errorMessage = document.getElementById('error-message');
-const errorText = errorMessage.querySelector('.error-text');
-
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    // Reset state
-    submitBtn.disabled = true;
-    const btnContent = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-    errorMessage.classList.add('hidden');
-    
-    const formData = {
-        login: document.getElementById('login').value,
-        password: document.getElementById('password').value,
-        remember: document.getElementById('remember').checked
-    };
-    
-    try {
-        const response = await axios.post('{{ route("login.post") }}', formData);
-        
-        if (response.data.success) {
-            submitBtn.innerHTML = '<i class="fa-solid fa-check ml-2"></i> تم بنجاح';
-            submitBtn.classList.remove('bg-primary');
-            submitBtn.classList.add('bg-green-600');
-            
-            setTimeout(() => {
-                window.location.href = response.data.redirect || '/dashboard';
-            }, 500);
-        }
-    } catch (error) {
-        // Show error
-        let errorMsg = 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.';
-        
-        if (error.response?.data?.message) {
-            errorMsg = error.response.data.message;
-        } else if (error.response?.data?.errors) {
-            errorMsg = Object.values(error.response.data.errors).flat().join('<br>');
-        }
-        
-        errorText.innerHTML = errorMsg;
-        errorMessage.classList.remove('hidden');
-        
-        // Reset button
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = btnContent;
-    }
-});
-</script>
+    @vite('resources/js/auth/pages/login.js')
 @endpush
 @endsection

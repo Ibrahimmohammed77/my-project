@@ -32,7 +32,11 @@ class AccountController extends Controller
             ]);
         }
         
-        return view('spa.accounts.index');
+        $types = \App\Domain\Shared\Models\LookupValue::whereHas('master', function($q) {
+            $q->where('code', 'ACCOUNT_TYPE');
+        })->get(['lookup_value_id', 'code', 'name']);
+
+        return view('spa.accounts.index', compact('types'));
     }
 
     public function create()
@@ -64,6 +68,7 @@ class AccountController extends Controller
             'full_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'account_status_id' => 'required|exists:lookup_values,lookup_value_id',
+            'account_type_id' => 'required|exists:lookup_values,lookup_value_id',
             'password' => 'required|min:6',
         ]);
 
@@ -73,11 +78,12 @@ class AccountController extends Controller
 
         $this->accountService->create($validated);
 
-        return redirect()->route('accounts.index')->with('success', 'Account created successfully.');
+        return response()->json(['success' => true]);
     }
 
     public function edit($id)
     {
+        // Replaced by SPA flow usually, but keeping for compatibility if used.
         $account = $this->accountService->find($id);
         if (!$account) abort(404);
 
@@ -96,6 +102,7 @@ class AccountController extends Controller
             'full_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'account_status_id' => 'required|exists:lookup_values,lookup_value_id',
+            'account_type_id' => 'nullable|exists:lookup_values,lookup_value_id',
             'password' => 'nullable|min:6',
         ]);
 

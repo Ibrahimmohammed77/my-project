@@ -1,30 +1,32 @@
 @props(['id' => 'dataTable', 'headers' => []])
 
-<div class="bg-white rounded-2xl shadow-soft border border-gray-100 overflow-hidden">
+<div class="bg-white rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100/50 overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
     <!-- Table Header -->
-    <div class="p-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="px-6 py-5 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
         <div class="flex items-center gap-3">
-            <h3 class="font-bold text-lg text-primary" id="{{ $id }}-title">{{ $title ?? 'الجدول' }}</h3>
-            <span class="bg-accent/10 text-accent text-xs font-bold px-2 py-1 rounded-full border border-accent/20" id="{{ $id }}-count">0 عنصر</span>
+            <h3 class="font-bold text-xl text-gray-800 tracking-tight" id="{{ $id }}-title">{{ $title ?? 'الجدول' }}</h3>
+            <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-100" id="{{ $id }}-count">0 عنصر</span>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            <div class="relative group w-full sm:w-64">
-                <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-gray-400 group-focus-within:text-accent transition-colors"></i>
+            <div class="relative group w-full sm:w-72">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                     <i class="fa-solid fa-magnifying-glass text-gray-300 group-focus-within:text-blue-500 transition-colors"></i>
+                </div>
                 <input 
                     type="text" 
                     id="{{ $id }}-search"
-                    placeholder="بحث..." 
-                    class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl py-2.5 pr-10 pl-4 focus:outline-none focus:border-accent focus:bg-white transition-all"
+                    placeholder="بحث في القائمة..." 
+                    class="block w-full p-2.5 pr-10 text-sm text-gray-900 border border-gray-200 rounded-xl bg-gray-50/50 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none placeholder-gray-400"
                 >
             </div>
             
-            <button class="flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">
+            <button class="flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm">
                 <i class="fa-solid fa-filter"></i>
                 <span>تصفية</span>
             </button>
             
-            <button class="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary-light shadow-lg shadow-primary/20 transition-all">
+            <button class="flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-xl text-xs font-bold hover:bg-gray-800 shadow-lg shadow-gray-900/20 transition-all transform hover:-translate-y-0.5">
                 <i class="fa-solid fa-download"></i>
                 <span>تصدير</span>
             </button>
@@ -34,56 +36,61 @@
     <!-- Table Content -->
     <div class="overflow-x-auto">
         <table class="w-full text-right border-collapse" id="{{ $id }}">
-            <thead>
-                <tr class="bg-gray-50/80 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500 font-bold">
+            <thead class="bg-gray-50/80 uppercase">
+                <tr class="text-xs text-gray-500 font-bold tracking-wider border-b border-gray-100">
                     @if(count($headers) > 0)
                         @foreach($headers as $header)
-                            <th class="{{ $header['class'] ?? '' }} px-6 py-4">
+                            <th class="{{ $header['class'] ?? '' }} px-6 py-4 first:rounded-tr-lg last:rounded-tl-lg">
                                 {{ $header['name'] }}
                             </th>
                         @endforeach
                     @else
                         <th class="px-6 py-4 w-10">
-                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-accent focus:ring-accent cursor-pointer" id="{{ $id }}-select-all">
+                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" id="{{ $id }}-select-all">
                         </th>
                     @endif
                 </tr>
             </thead>
-            <tbody id="{{ $id }}-tbody" class="divide-y divide-gray-100 bg-white">
+            <tbody id="{{ $id }}-tbody" class="divide-y divide-gray-50 bg-white">
                 {{ $slot }}
             </tbody>
         </table>
     </div>
 
     <!-- Loading State -->
-    <div id="loading-state" class="hidden p-12 text-center text-gray-400">
-        <i class="fas fa-circle-notch fa-spin text-2xl mb-3 text-accent"></i>
-        <p>جاري تحميل البيانات...</p>
+    <div id="loading-state" class="hidden p-20 text-center">
+        <div class="inline-flex relative">
+            <div class="absolute inset-0 bg-blue-500 opacity-20 rounded-full animate-ping"></div>
+            <div class="relative bg-white p-4 rounded-full shadow-xl border border-gray-100">
+                <i class="fas fa-circle-notch fa-spin text-2xl text-blue-500"></i>
+            </div>
+        </div>
+        <p class="mt-4 text-sm font-medium text-gray-500 animate-pulse">جاري تحميل البيانات...</p>
     </div>
 
     <!-- Empty State -->
-    <div id="empty-state" class="hidden p-12 text-center">
-        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
-            <i class="fas fa-search text-xl text-gray-400"></i>
+    <div id="empty-state" class="hidden py-16 px-6 text-center">
+        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-dashed border-gray-200">
+            <i class="fas fa-search text-3xl text-gray-300"></i>
         </div>
-        <h3 class="text-base font-bold text-gray-800 mb-1">لا توجد نتائج</h3>
-        <p class="text-sm text-gray-500">لم يتم العثور على بيانات تطابق بحثك.</p>
+        <h3 class="text-lg font-bold text-gray-900 mb-2">لا توجد نتائج</h3>
+        <p class="text-sm text-gray-500 max-w-sm mx-auto">لم نعثر على أي بيانات تطابق معايير البحث الخاصة بك. حاول تغيير مصطلحات البحث.</p>
     </div>
 
     <!-- Table Footer / Pagination -->
-    <div class="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50/50">
-        <div class="text-sm text-gray-500" id="{{ $id }}-info">
-            عرض <span class="font-bold text-gray-800">0</span> إلى <span class="font-bold text-gray-800">0</span> من أصل <span class="font-bold text-gray-800">0</span> سجل
+    <div class="px-6 py-4 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50/30">
+        <div class="text-xs font-medium text-gray-500" id="{{ $id }}-info">
+            عرض <span class="text-gray-900 font-bold">0</span> إلى <span class="text-gray-900 font-bold">0</span> من أصل <span class="text-gray-900 font-bold">0</span> سجل
         </div>
         
         <div class="flex items-center gap-2" id="{{ $id }}-pagination">
-            <button id="{{ $id }}-prev" class="px-3 py-1 text-sm border border-gray-200 rounded-lg text-gray-500 bg-white hover:bg-gray-50 hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled>
+            <button id="{{ $id }}-prev" class="px-3 py-1.5 text-xs font-bold border border-gray-200 rounded-lg text-gray-500 bg-white hover:bg-gray-50 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm" disabled>
                 السابق
             </button>
-            <div class="flex items-center gap-1" id="{{ $id }}-pages">
-                <button class="w-8 h-8 flex items-center justify-center rounded-lg bg-accent text-white text-sm font-bold shadow-sm">1</button>
+            <div class="flex items-center gap-1.5" id="{{ $id }}-pages">
+                <!-- Pages injected here -->
             </div>
-            <button id="{{ $id }}-next" class="px-3 py-1 text-sm border border-gray-200 rounded-lg text-gray-600 bg-white hover:bg-gray-50 hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <button id="{{ $id }}-next" class="px-3 py-1.5 text-xs font-bold border border-gray-200 rounded-lg text-gray-500 bg-white hover:bg-gray-50 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm">
                 التالي
             </button>
         </div>
@@ -92,11 +99,15 @@
 
 <style>
     #{{ $id }} tbody tr {
-        transition: background-color 0.2s ease;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     #{{ $id }} tbody tr:hover {
-        background-color: rgba(59, 130, 246, 0.03);
+        background-color: #F8FAFC;
+        transform: scale-[1.002] translateZ(0);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        z-index: 10;
+        position: relative;
     }
 </style>
 
@@ -127,7 +138,7 @@
         
         const infoElement = document.getElementById(tableId + '-info');
         if (infoElement) {
-            infoElement.innerHTML = `عرض <span class="font-bold text-gray-800">${start}</span> إلى <span class="font-bold text-gray-800">${end}</span> من أصل <span class="font-bold text-gray-800">${totalItems}</span> سجل`;
+            infoElement.innerHTML = `عرض <span class="text-gray-900 font-bold">${start}</span> إلى <span class="text-gray-900 font-bold">${end}</span> من أصل <span class="text-gray-900 font-bold">${totalItems}</span> سجل`;
         }
         
         const countElement = document.getElementById(tableId + '-count');
@@ -173,7 +184,7 @@
         pagesContainer.innerHTML = '';
         
         if (totalPages === 0) {
-            pagesContainer.innerHTML = '<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-accent text-white text-sm font-bold shadow-sm">1</button>';
+            pagesContainer.innerHTML = '<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-900 text-white text-xs font-bold shadow-md transform scale-105">1</button>';
             return;
         }
         
@@ -190,7 +201,7 @@
             pagesContainer.appendChild(createPageButton(1));
             if (startPage > 2) {
                 const dots = document.createElement('span');
-                dots.className = 'text-gray-400 px-1';
+                dots.className = 'text-gray-300 text-xs px-1 font-bold';
                 dots.textContent = '...';
                 pagesContainer.appendChild(dots);
             }
@@ -205,7 +216,7 @@
         if (endPage < totalPages) {
             if (endPage < totalPages - 1) {
                 const dots = document.createElement('span');
-                dots.className = 'text-gray-400 px-1';
+                dots.className = 'text-gray-300 text-xs px-1 font-bold';
                 dots.textContent = '...';
                 pagesContainer.appendChild(dots);
             }
@@ -215,9 +226,12 @@
     
     function createPageButton(pageNum) {
         const btn = document.createElement('button');
-        btn.className = pageNum === currentPage 
-            ? 'w-8 h-8 flex items-center justify-center rounded-lg bg-accent text-white text-sm font-bold shadow-sm'
-            : 'w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-600 text-sm transition-colors';
+        const isCurrent = pageNum === currentPage;
+        
+        btn.className = isCurrent 
+            ? 'w-8 h-8 flex items-center justify-center rounded-lg bg-gray-900 text-white text-xs font-bold shadow-md transform scale-105 transition-all'
+            : 'w-8 h-8 flex items-center justify-center rounded-lg border border-gray-100 hover:bg-gray-50 text-gray-500 text-xs font-medium hover:text-blue-600 transition-colors';
+            
         btn.textContent = pageNum;
         btn.onclick = () => {
             currentPage = pageNum;
@@ -249,8 +263,16 @@
         const tbody = document.getElementById(tableId + '-tbody');
         if (tbody && tbody.children.length > 0) {
             allRows = Array.from(tbody.querySelectorAll('tr'));
-            currentPage = 1; // Reset to first page
+            // Keep current page if possible, otherwise reset
+            const totalPages = Math.ceil(allRows.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = 1;
+            
             updatePagination();
+        } else {
+             const infoElement = document.getElementById(tableId + '-info');
+             const countElement = document.getElementById(tableId + '-count');
+             if(infoElement) infoElement.innerHTML = 'عرض 0 إلى 0';
+             if(countElement) countElement.textContent = '0 عنصر';
         }
     });
     

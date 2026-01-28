@@ -58,17 +58,33 @@
                 <x-form.input name="password" label="كلمة المرور" type="password" required icon="fa-lock" placeholder="••••••••" />
             </div>
 
-            <!-- Status Field -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">حالة الحساب <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <i class="fas fa-toggle-on absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
-                    <select id="account_status_id" class="w-full pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm appearance-none cursor-pointer">
-                        <option value="1">نشط</option>
-                        <option value="2">قيد المراجعة</option>
-                        <option value="3">موقوف</option>
-                    </select>
-                    <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+            <!-- Account Type and Status -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">نوع الحساب <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <i class="fas fa-briefcase absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                        <select id="account_type_id" class="w-full pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm appearance-none cursor-pointer">
+                            <option value="">اختر النوع...</option>
+                            @foreach($types as $type)
+                            <option value="{{ $type->lookup_value_id }}">{{ $type->name }}</option>
+                            @endforeach
+                        </select>
+                        <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">حالة الحساب <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <i class="fas fa-toggle-on absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                        <select id="account_status_id" class="w-full pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm appearance-none cursor-pointer">
+                            <option value="1">نشط</option>
+                            <option value="2">قيد المراجعة</option>
+                            <option value="3">موقوف</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                    </div>
                 </div>
             </div>
         </form>
@@ -80,219 +96,9 @@
     </x-modal>
 
 @push('scripts')
-<script>
-let accounts = [];
-
-// Load data with loading state
-async function loadAccounts() {
-    const tbody = document.getElementById('accounts-tbody');
-    const loadingState = document.getElementById('loading-state');
-    const emptyState = document.getElementById('empty-state');
-    
-    if(!tbody) return; // Safety check
-
-    tbody.innerHTML = '';
-    loadingState?.classList.remove('hidden');
-    emptyState?.classList.add('hidden');
-
-    try {
-        const res = await axios.get('/accounts');
-        accounts = res.data.data.accounts;
-        loadingState?.classList.add('hidden');
-        renderAccounts();
-    } catch (error) {
-        console.error('Error loading accounts:', error);
-        if(loadingState) loadingState.innerHTML = '<p class="text-red-500 text-center py-4">حدث خطأ أثناء تحميل البيانات</p>';
-    }
-}
-
-function renderAccounts() {
-    const tbody = document.getElementById('accounts-tbody');
-    const emptyState = document.getElementById('empty-state');
-    const searchInput = document.getElementById('search');
-    const statusSelect = document.getElementById('status-filter');
-    
-    if (!tbody) return;
-
-    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-    const statusFilter = statusSelect ? statusSelect.value : '';
-    
-    const filteredAccounts = accounts.filter(account => {
-        const matchesSearch = (account.full_name.toLowerCase().includes(searchTerm) || 
-                             account.username.toLowerCase().includes(searchTerm) || 
-                             (account.email && account.email.toLowerCase().includes(searchTerm)));
-        const matchesStatus = !statusFilter || account.status?.code === statusFilter;
-        return matchesSearch && matchesStatus;
-    });
-
-    if (filteredAccounts.length === 0) {
-        emptyState?.classList.remove('hidden');
-        tbody.innerHTML = '';
-        return;
-    }
-
-    emptyState?.classList.add('hidden');
-
-    tbody.innerHTML = filteredAccounts.map(account => `
-        <tr class="hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-0 group">
-            <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-700 font-bold text-sm uppercase shrink-0 group-hover:bg-white group-hover:shadow-sm transition-all">
-                        ${account.full_name.charAt(0)}
-                    </div>
-                    <div>
-                        <div class="font-bold text-gray-900 text-sm">${account.full_name}</div>
-                        <div class="text-xs text-gray-500 font-mono">@${account.username}</div>
-                    </div>
-                </div>
-            </td>
-            <td class="px-6 py-4">
-                <div class="flex flex-col gap-1 text-xs">
-                    ${account.email ? `
-                        <div class="flex items-center gap-2 text-gray-600">
-                            <i class="fas fa-envelope text-gray-400 w-3"></i>
-                            <span class="font-mono">${account.email}</span>
-                        </div>
-                    ` : ''}
-                    <div class="flex items-center gap-2 text-gray-600">
-                        <i class="fas fa-phone text-gray-400 w-3"></i>
-                        <span class="font-mono">${account.phone}</span>
-                    </div>
-                </div>
-            </td>
-            <td class="px-6 py-4">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${getStatusClass(account.status?.code)} border border-current/10">
-                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                    ${account.status?.name || 'غير محدد'}
-                </span>
-            </td>
-            <td class="px-6 py-4">
-                <div class="flex flex-wrap gap-1">
-                    ${account.roles?.length ? account.roles.map(r => `
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${r.is_system ? 'bg-purple-50 text-purple-700 border border-purple-100' : 'bg-blue-50 text-blue-700 border border-blue-100'}">
-                            ${r.name}
-                        </span>
-                    `).join('') : '<span class="text-xs text-gray-400 italic">لا توجد أدوار</span>'}
-                </div>
-            </td>
-            <td class="px-6 py-4 text-center">
-                <div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                    <button onclick="editAccount(${account.account_id})" class="h-8 w-8 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center" title="تعديل">
-                        <i class="fas fa-pen text-xs"></i>
-                    </button>
-                    <button onclick="deleteAccount(${account.account_id})" class="h-8 w-8 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all flex items-center justify-center" title="حذف">
-                        <i class="fas fa-trash text-xs"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function getStatusClass(code) {
-    const classes = {
-        'ACTIVE': 'bg-green-50 text-green-700',
-        'PENDING': 'bg-yellow-50 text-yellow-700',
-        'SUSPENDED': 'bg-red-50 text-red-700'
-    };
-    return classes[code] || 'bg-gray-50 text-gray-700';
-}
-
-// Add event listeners safely
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('search');
-    const statusFilter = document.getElementById('status-filter');
-
-    if (searchInput) searchInput.addEventListener('input', renderAccounts);
-    if (statusFilter) statusFilter.addEventListener('change', renderAccounts);
-
-    loadAccounts();
-});
-
-// Modal functions
-function showCreateModal() {
-    const modalTitle = document.getElementById('account-modal-title');
-    if(modalTitle) modalTitle.innerHTML = '<span class="w-2 h-6 bg-accent rounded-full"></span><span>إضافة حساب جديد</span>';
-    
-    document.getElementById('account-form').reset();
-    document.getElementById('account-id').value = '';
-    
-    const pwdField = document.getElementById('password-field');
-    const pwdInput = document.getElementById('password');
-    if(pwdField) pwdField.style.display = 'block';
-    if(pwdInput) pwdInput.required = true;
-    
-    document.getElementById('account-modal').classList.remove('hidden');
-}
-
-function closeModal() {
-    document.getElementById('account-modal').classList.add('hidden');
-}
-
-async function editAccount(id) {
-    const account = accounts.find(a => a.account_id === id);
-    if (!account) return;
-    
-    const modalTitle = document.getElementById('account-modal-title');
-    if(modalTitle) modalTitle.innerHTML = '<span class="w-2 h-6 bg-orange-500 rounded-full"></span><span>تعديل حساب</span>';
-    
-    document.getElementById('account-id').value = account.account_id;
-    document.getElementById('username').value = account.username;
-    document.getElementById('full_name').value = account.full_name;
-    document.getElementById('email').value = account.email || '';
-    document.getElementById('phone').value = account.phone;
-    
-    // Set status if available
-    if(account.account_status_id) {
-        document.getElementById('account_status_id').value = account.account_status_id;
-    }
-    
-    const pwdField = document.getElementById('password-field');
-    const pwdInput = document.getElementById('password');
-    if(pwdField) pwdField.style.display = 'none';
-    if(pwdInput) pwdInput.required = false;
-
-    document.getElementById('account-modal').classList.remove('hidden');
-}
-
-// Form submission
-const accountForm = document.getElementById('account-form');
-if (accountForm) {
-    accountForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('account-id').value;
-        
-        const data = {
-            username: document.getElementById('username').value,
-            full_name: document.getElementById('full_name').value,
-            email: document.getElementById('email').value || null,
-            phone: document.getElementById('phone').value,
-            account_status_id: document.getElementById('account_status_id').value
-        };
-        
-        if (!id) data.password = document.getElementById('password').value;
-        
-        try {
-            if (id) await axios.put(`/accounts/${id}`, data);
-            else await axios.post('/accounts', data);
-            
-            closeModal();
-            loadAccounts();
-        } catch (error) {
-            alert('حدث خطأ: ' + (error.response?.data?.message || 'تأكد من صحة البيانات وعدم تكرار اسم المستخدم أو البريد أو الهاتف'));
-        }
-    });
-}
-
-async function deleteAccount(id) {
-    if (!confirm('هل أنت متأكد من حذف هذا الحساب؟')) return;
-    try {
-        await axios.delete(`/accounts/${id}`);
-        loadAccounts();
-    } catch (error) {
-        alert('حدث خطأ: ' + (error.response?.data?.message || error.message));
-    }
-}
-</script>
+@push('scripts')
+    @vite('resources/js/spa/pages/accounts.js')
+@endpush
+@endsection
 @endpush
 @endsection

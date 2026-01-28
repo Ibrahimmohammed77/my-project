@@ -47,7 +47,24 @@ Route::middleware('auth')->group(function () {
     Route::get('/spa/accounts', [AccountController::class, 'index'])->name('spa.accounts');
     Route::get('/spa/roles', [\App\Http\Controllers\RoleController::class, 'index'])->name('spa.roles');
     Route::get('/spa/permissions', [\App\Http\Controllers\PermissionController::class, 'index'])->name('spa.permissions');
+    
+    // New SPA Alias for Studios and Schools
+    Route::get('/spa/studios', [\App\Http\Controllers\StudioController::class, 'index'])->name('spa.studios');
+    Route::get('/spa/schools', [\App\Http\Controllers\SchoolController::class, 'index'])->name('spa.schools');
 
     // Accounts Routes
     Route::resource('accounts', AccountController::class);
+    Route::resource('studios', \App\Http\Controllers\StudioController::class);
+    Route::resource('schools', \App\Http\Controllers\SchoolController::class);
+    // SPA Alias for Customers
+    Route::get('/spa/customers', [\App\Http\Controllers\CustomerController::class, 'index'])->name('spa.customers');
+
+    // Customer Resource
+    Route::resource('customers', \App\Http\Controllers\CustomerController::class);
+
+    // SPA Alias for Subscribers
+    Route::get('/spa/subscribers', [\App\Http\Controllers\SubscriberController::class, 'index'])->name('spa.subscribers');
+
+    // Subscriber Resource
+    Route::resource('subscribers', \App\Http\Controllers\SubscriberController::class);
 });

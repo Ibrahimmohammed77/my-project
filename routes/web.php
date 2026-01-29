@@ -98,9 +98,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:manage_users')->group(function () {
         Route::post('admin/users', [\App\Http\Controllers\Web\Admin\UserController::class, 'store'])->name('admin.users.store');
-        Route::get('admin/accounts', function () {
-            return view('spa.accounts.index');
-        })->name('spa.accounts');
+        Route::get('admin/accounts', [\App\Http\Controllers\Web\Admin\UserController::class, 'index'])->name('spa.accounts');
         Route::get('admin/users', function () {
             return redirect()->route('spa.accounts');
         })->name('admin.users.index');

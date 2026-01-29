@@ -122,4 +122,59 @@ class UserManagementTest extends TestCase
 
         $response->assertSessionHasErrors(['username', 'email', 'password', 'role_id']);
     }
+
+    public function test_admin_can_list_users_with_pagination()
+    {
+        $admin = User::factory()->create();
+        $adminRole = Role::where('name', 'admin')->first();
+        $admin->roles()->attach($adminRole->role_id);
+
+        User::factory()->count(20)->create();
+
+        $response = $this->actingAs($admin)->get(route('spa.accounts'));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('users');
+        $this->assertCount(15, $response->viewData('users')); // Default per_page is 15
+    }
+
+    public function test_admin_can_search_users()
+    {
+        $admin = User::factory()->create();
+        $adminRole = Role::where('name', 'admin')->first();
+        $admin->roles()->attach($adminRole->role_id);
+
+        User::factory()->create(['name' => 'Unique Search Name']);
+        User::factory()->create(['name' => 'Another User']);
+
+        $response = $this->actingAs($admin)->get(route('spa.accounts', ['search' => 'Unique']));
+
+        $response->assertStatus(200);
+        $users = $response->viewData('users');
+        $this->assertCount(1, $users);
+        $this->assertEquals('Unique Search Name', $users->first()->name);
+    }
+
+    public function test_admin_can_filter_users_by_role()
+    {
+        $admin = User::factory()->create();
+        $adminRole = Role::where('name', 'admin')->first();
+        $admin->roles()->attach($adminRole->role_id);
+
+        $customerRole = Role::create(['name' => 'customer', 'display_name' => 'Customer']);
+        $studioRole = Role::create(['name' => 'studio_owner', 'display_name' => 'Studio Owner']);
+
+        $customer = User::factory()->create();
+        $customer->roles()->attach($customerRole->role_id);
+
+        $studio = User::factory()->create();
+        $studio->roles()->attach($studioRole->role_id);
+
+        $response = $this->actingAs($admin)->get(route('spa.accounts', ['role_id' => $customerRole->role_id]));
+
+        $response->assertStatus(200);
+        $users = $response->viewData('users');
+        $this->assertTrue($users->contains($customer));
+        $this->assertFalse($users->contains($studio));
+    }
 }

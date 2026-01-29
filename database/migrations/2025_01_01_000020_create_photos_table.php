@@ -24,8 +24,7 @@ return new class extends Migration
             $table->boolean('is_archived')->default(false);
             $table->integer('view_count')->default(0);
             $table->integer('download_count')->default(0);
-            $table->timestamp('uploaded_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamps();
             $table->timestamp('deleted_at')->nullable();
 
             $table->foreign('album_id')->references('album_id')->on('albums')->onDelete('cascade');

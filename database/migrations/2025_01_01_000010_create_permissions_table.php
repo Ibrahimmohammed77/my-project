@@ -14,8 +14,8 @@ return new class extends Migration
             $table->string('resource_type', 50);
             $table->string('action', 50);
             $table->text('description')->nullable();
-            $table->timestamp('created_at')->useCurrent();
-
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
             $table->unique(['resource_type', 'action'], 'unique_permission_resource_action');
         });
     }

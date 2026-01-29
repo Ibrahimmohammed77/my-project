@@ -11,16 +11,16 @@ return new class extends Migration
         Schema::create('daily_stats', function (Blueprint $table) {
             $table->id('stat_id');
             $table->date('stat_date');
-            $table->unsignedBigInteger('account_id')->nullable();
-            $table->integer('new_accounts')->default(0);
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->integer('new_users')->default(0);
             $table->integer('new_photos')->default(0);
             $table->integer('photo_views')->default(0);
             $table->integer('card_activations')->default(0);
             $table->decimal('revenue', 10, 2)->default(0);
             $table->timestamp('created_at')->useCurrent();
 
-            $table->unique(['stat_date', 'account_id']);
-            $table->foreign('account_id')->references('account_id')->on('accounts')->onDelete('set null');
+            $table->unique(['stat_date', 'user_id']);
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
         });
     }
 

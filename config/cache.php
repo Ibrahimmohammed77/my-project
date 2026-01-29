@@ -98,6 +98,13 @@ return [
                 'array',
             ],
         ],
+        'user_cache' => [
+            'driver' => 'redis',
+            'connection' => 'cache',
+            'prefix' => 'user_cache:',
+            'ttl' => 3600,
+            'tags' => true,
+        ],
 
     ],
 
@@ -112,6 +119,6 @@ return [
     |
     */
 
-    'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-cache-'),
+    'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-cache-'),
 
 ];

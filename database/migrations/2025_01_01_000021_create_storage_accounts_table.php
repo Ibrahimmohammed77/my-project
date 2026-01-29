@@ -15,8 +15,7 @@ return new class extends Migration
             $table->integer('total_space');
             $table->integer('used_space')->default(0);
             $table->string('status', 20)->default('active');
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamps();
 
             $table->unique(['owner_type', 'owner_id']);
         });

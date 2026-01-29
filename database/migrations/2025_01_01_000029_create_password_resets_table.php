@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('password_resets', function (Blueprint $table) {
             $table->id('reset_id');
-            $table->unsignedBigInteger('account_id');
+            $table->unsignedBigInteger('user_id');
             $table->string('reset_code', 10);
             $table->string('contact_method', 20); // 'email' or 'phone'
             $table->string('contact_value', 100); // البريد أو رقم الهاتف
@@ -19,8 +19,8 @@ return new class extends Migration
             $table->timestamp('used_at')->nullable();
             $table->timestamp('created_at')->useCurrent();
 
-            $table->foreign('account_id')->references('account_id')->on('accounts')->onDelete('cascade');
-            $table->index('account_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->index('user_id');
             $table->index('reset_code');
         });
     }

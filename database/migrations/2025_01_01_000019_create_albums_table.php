@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id('album_id');
             $table->string('owner_type', 50); // Polymorphic
             $table->unsignedBigInteger('owner_id');
+            $table->unsignedBigInteger('storage_library_id');
             $table->string('name', 100);
             $table->text('description')->nullable();
             $table->boolean('is_default')->default(false);
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->timestamp('deleted_at')->nullable();
 
             $table->index(['owner_type', 'owner_id']);
+            $table->foreign('storage_library_id')->references('storage_library_id')->on('storage_libraries')->onDelete('cascade');
         });
     }
 

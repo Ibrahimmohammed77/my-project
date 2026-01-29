@@ -12,7 +12,9 @@ return new class extends Migration
             $table->id('group_id');
             $table->string('name', 100);
             $table->text('description')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->integer('sub_card_available')->default(0);
+            $table->integer('sub_card_used')->default(0);
+            $table->timestamps();
         });
     }
 

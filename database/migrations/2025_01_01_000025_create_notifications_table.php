@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id('notification_id');
-            $table->unsignedBigInteger('account_id');
+            $table->unsignedBigInteger('user_id');
             $table->string('title', 255);
             $table->text('message');
             $table->unsignedBigInteger('notification_type_id');
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamp('sent_at')->useCurrent();
             $table->timestamp('read_at')->nullable();
 
-            $table->foreign('account_id')->references('account_id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('notification_type_id')->references('lookup_value_id')->on('lookup_values');
         });
     }

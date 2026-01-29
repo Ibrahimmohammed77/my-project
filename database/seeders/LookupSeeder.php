@@ -4,14 +4,14 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use App\Domain\Shared\Models\LookupMaster;
-use App\Domain\Shared\Models\LookupValue;
+use App\Models\LookupMaster;
+use App\Models\LookupValue;
 
 class LookupSeeder extends Seeder
 {
     public function run()
     {
-        // Disable FK checks (SQLite compatible)
+        // Disable FK checks
         if (DB::getDriverName() === 'mysql') {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         } else {
@@ -29,13 +29,10 @@ class LookupSeeder extends Seeder
 
         // Define Masters
         $masters = [
-            ['code' => 'ACCOUNT_STATUS', 'name' => 'حالة الحساب', 'description' => 'Status of user accounts'],
-            ['code' => 'STUDIO_STATUS', 'name' => 'حالة الاستوديو', 'description' => 'Status of studio profiles'],
+            ['code' => 'USER_STATUS', 'name' => 'حالة المستخدم', 'description' => 'Status of user accounts'],
+            ['code' => 'USER_TYPE', 'name' => 'نوع المستخدم', 'description' => 'Type of user account'],
             ['code' => 'SCHOOL_TYPE', 'name' => 'نوع المدرسة', 'description' => 'Type of educational institution'],
             ['code' => 'SCHOOL_LEVEL', 'name' => 'المرحلة التعليمية', 'description' => 'Educational level of the school'],
-            ['code' => 'SCHOOL_STATUS', 'name' => 'حالة المدرسة', 'description' => 'Operational status of the school'],
-            ['code' => 'SUBSCRIBER_TYPE', 'name' => 'نوع المشترك', 'description' => 'Type of entity subscribing'],
-            ['code' => 'SUBSCRIBER_STATUS', 'name' => 'حالة المشترك', 'description' => 'Status of the subscription profile'],
             ['code' => 'GENDER', 'name' => 'الجنس', 'description' => 'Gender options'],
             ['code' => 'BILLING_CYCLE', 'name' => 'دورة الفوترة', 'description' => 'Billing frequency'],
             ['code' => 'SUBSCRIPTION_STATUS', 'name' => 'حالة الاشتراك', 'description' => 'Current state of subscription'],
@@ -56,7 +53,6 @@ class LookupSeeder extends Seeder
             
             $values = $this->getValuesForMaster($masterData['code']);
             foreach ($values as $valueData) {
-                // $valueData is ['code', 'name', 'description' => optional]
                 $master->values()->create($valueData);
             }
         }
@@ -65,19 +61,20 @@ class LookupSeeder extends Seeder
     private function getValuesForMaster($code)
     {
         switch ($code) {
-            case 'ACCOUNT_STATUS':
+            case 'USER_STATUS':
                 return [
                     ['code' => 'ACTIVE', 'name' => 'نشط', 'description' => 'Account is active'],
                     ['code' => 'PENDING', 'name' => 'قيد المراجعة', 'description' => 'Account pending verification'],
                     ['code' => 'SUSPENDED', 'name' => 'موقوف', 'description' => 'Account suspended'],
                     ['code' => 'INACTIVE', 'name' => 'غير نشط', 'description' => 'Account deactivated'],
-                    ['code' => 'GUEST', 'name' => 'زائر', 'description' => 'Guest account with limited access'],
                 ];
-            case 'STUDIO_STATUS':
+            case 'USER_TYPE':
                 return [
-                    ['code' => 'ACTIVE', 'name' => 'نشط'],
-                    ['code' => 'PENDING', 'name' => 'قيد المراجعة'],
-                    ['code' => 'SUSPENDED', 'name' => 'موقوف'],
+                    ['code' => 'SUPER_ADMIN', 'name' => 'مدير النظام'],
+                    ['code' => 'STUDIO_OWNER', 'name' => 'صاحب استوديو'],
+                    ['code' => 'SCHOOL_OWNER', 'name' => 'صاحب مدرسة'],
+                    ['code' => 'CUSTOMER', 'name' => 'عميل'],
+                    ['code' => 'EMPLOYEE', 'name' => 'موظف'],
                 ];
             case 'SCHOOL_TYPE':
                 return [
@@ -92,22 +89,6 @@ class LookupSeeder extends Seeder
                     ['code' => 'MIDDLE', 'name' => 'إعدادي'],
                     ['code' => 'HIGH', 'name' => 'ثانوي'],
                     ['code' => 'UNIVERSITY', 'name' => 'جامعي'],
-                ];
-            case 'SCHOOL_STATUS':
-                return [
-                    ['code' => 'ACTIVE', 'name' => 'نشط'],
-                    ['code' => 'PENDING', 'name' => 'قيد المراجعة'],
-                ];
-            case 'SUBSCRIBER_TYPE':
-                return [
-                    ['code' => 'SCHOOL', 'name' => 'مدرسة'],
-                    ['code' => 'STUDIO', 'name' => 'استوديو'],
-                    ['code' => 'INDIVIDUAL', 'name' => 'فرد'],
-                ];
-            case 'SUBSCRIBER_STATUS':
-                return [
-                    ['code' => 'ACTIVE', 'name' => 'نشط'],
-                    ['code' => 'INACTIVE', 'name' => 'غير نشط'],
                 ];
             case 'GENDER':
                 return [

@@ -20,15 +20,12 @@ return new class extends Migration
             $table->unsignedBigInteger('card_status_id')->nullable();
             $table->timestamp('activation_date')->nullable();
             $table->date('expiry_date')->nullable();
-            $table->integer('usage_count')->default(0);
             $table->timestamp('last_used')->nullable();
-            $table->json('metadata')->nullable();
             $table->text('notes')->nullable();
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamps();
 
             $table->foreign('card_group_id')->references('group_id')->on('card_groups')->onDelete('set null');
-            $table->foreign('holder_id')->references('account_id')->on('accounts')->onDelete('set null');
+            $table->foreign('holder_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('card_type_id')->references('lookup_value_id')->on('lookup_values');
             $table->foreign('card_status_id')->references('lookup_value_id')->on('lookup_values');
 

@@ -15,8 +15,7 @@ return new class extends Migration
             $table->unsignedBigInteger('setting_type_id');
             $table->text('description')->nullable();
             $table->boolean('is_public')->default(false);
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamps();
 
             $table->foreign('setting_type_id')->references('lookup_value_id')->on('lookup_values');
         });

@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id('invoice_id');
             $table->string('invoice_number', 50)->unique();
-            $table->unsignedBigInteger('subscriber_type_id');
-            $table->unsignedBigInteger('subscriber_id');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('plan_id');
             $table->date('issue_date');
             $table->date('due_date');
             $table->decimal('subtotal', 10, 2);
@@ -32,8 +32,9 @@ return new class extends Migration
 
             $table->foreign('invoice_status_id')->references('lookup_value_id')->on('lookup_values');
             $table->foreign('payment_method_id')->references('lookup_value_id')->on('lookup_values');
-            $table->foreign('subscriber_type_id')->references('lookup_value_id')->on('lookup_values');
-        });
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('plan_id')->references('plan_id')->on('plans')->onDelete('cascade');
+            });
     }
 
     public function down()

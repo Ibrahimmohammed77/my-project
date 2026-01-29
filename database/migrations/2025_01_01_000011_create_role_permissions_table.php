@@ -12,8 +12,8 @@ return new class extends Migration
             $table->id('role_permission_id');
             $table->unsignedBigInteger('role_id');
             $table->unsignedBigInteger('permission_id');
-            $table->timestamp('created_at')->useCurrent();
-
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
             $table->unique(['role_id', 'permission_id'], 'unique_role_permission');
             $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('cascade');
             $table->foreign('permission_id')->references('permission_id')->on('permissions')->onDelete('cascade');

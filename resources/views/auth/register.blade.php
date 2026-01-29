@@ -43,7 +43,7 @@
                             <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400 group-focus-within:text-accent transition-colors">
                                 <i class="fa-regular fa-user"></i>
                             </div>
-                            <input id="full_name" name="full_name" type="text" required 
+                            <input id="name" name="name" type="text" required 
                                 class="block w-full rounded-xl border border-gray-200 bg-white py-3.5 pr-11 pl-4 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all duration-200 outline-none hover:border-gray-300"
                                 placeholder="الاسم الكامل">
                         </div>
@@ -83,7 +83,7 @@
                         </div>
                         <input id="phone" name="phone" type="tel" required 
                             class="block w-full rounded-xl border border-gray-200 bg-white py-3.5 pr-11 pl-4 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all duration-200 outline-none hover:border-gray-300 text-left" dir="ltr"
-                            placeholder="05xxxxxxxx">
+                            placeholder="7xxxxxxxx">
                     </div>
                 </div>
 

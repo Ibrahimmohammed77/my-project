@@ -213,6 +213,36 @@ class UserRepository implements UserRepositoryInterface
     }
 
     /**
+     * Update an existing user by an admin.
+     */
+    public function updateByAdmin(User $user, array $data): User
+    {
+        return DB::transaction(function () use ($user, $data) {
+            $updateData = [
+                'name' => $data['full_name'],
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? $user->phone,
+                'user_type_id' => $data['user_type_id'] ?? $user->user_type_id,
+                'user_status_id' => $data['user_status_id'] ?? $user->user_status_id,
+                'is_active' => $data['is_active'] ?? $user->is_active,
+            ];
+
+            if (!empty($data['password'])) {
+                $updateData['password'] = Hash::make($data['password']);
+            }
+
+            $user->update($updateData);
+
+            if (isset($data['role_id'])) {
+                $user->roles()->sync([$data['role_id']]);
+            }
+
+            return $user->load('roles');
+        });
+    }
+
+    /**
      * Get customer type ID.
      */
     public function getCustomerTypeId(): int

@@ -55,6 +55,9 @@ class UserManagementTest extends TestCase
 
         $adminRole->permissions()->attach($permission->permission_id);
 
+        // Create customer role
+        Role::create(['name' => 'customer', 'display_name' => 'Customer']);
+
         // Define gate manually for test if auto-registration doesn't catch it in RefreshDatabase context
         Gate::define('manage_users', function (User $user) {
             return $user->hasPermission('manage_users');
@@ -67,7 +70,7 @@ class UserManagementTest extends TestCase
         $adminRole = Role::where('name', 'admin')->first();
         $admin->roles()->attach($adminRole->role_id);
 
-        $customerRole = Role::create(['name' => 'customer', 'display_name' => 'Customer']);
+        $customerRole = Role::where('name', 'customer')->first();
 
         $response = $this->actingAs($admin)->post(route('admin.users.store'), [
             'username' => 'newuser',
@@ -94,7 +97,7 @@ class UserManagementTest extends TestCase
     public function test_non_admin_cannot_create_user()
     {
         $user = User::factory()->create();
-        $customerRole = Role::create(['name' => 'customer', 'display_name' => 'Customer']);
+        $customerRole = Role::where('name', 'customer')->first();
 
         $response = $this->actingAs($user)->post(route('admin.users.store'), [
             'username' => 'newuser',
@@ -161,7 +164,7 @@ class UserManagementTest extends TestCase
         $adminRole = Role::where('name', 'admin')->first();
         $admin->roles()->attach($adminRole->role_id);
 
-        $customerRole = Role::create(['name' => 'customer', 'display_name' => 'Customer']);
+        $customerRole = Role::where('name', 'customer')->first();
         $studioRole = Role::create(['name' => 'studio_owner', 'display_name' => 'Studio Owner']);
 
         $customer = User::factory()->create();
@@ -176,5 +179,60 @@ class UserManagementTest extends TestCase
         $users = $response->viewData('users');
         $this->assertTrue($users->contains($customer));
         $this->assertFalse($users->contains($studio));
+    }
+
+    public function test_admin_can_update_user_details_and_role()
+    {
+        $admin = User::factory()->create();
+        $adminRole = Role::where('name', 'admin')->first();
+        $admin->roles()->attach($adminRole->role_id);
+
+        $customerRole = Role::where('name', 'customer')->first();
+        $studioRole = Role::create(['name' => 'studio_owner', 'display_name' => 'Studio Owner']);
+
+        $user = User::factory()->create();
+        $user->roles()->attach($customerRole->role_id);
+
+        $response = $this->actingAs($admin)->put(route('admin.users.update', $user), [
+            'full_name' => 'Updated Name',
+            'username' => $user->username, // Keeping same username
+            'email' => 'updated@example.com',
+            'role_id' => $studioRole->role_id,
+            'is_active' => false,
+        ]);
+        
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => 'Updated Name',
+            'email' => 'updated@example.com',
+            'is_active' => false,
+        ]);
+
+        $user->refresh();
+        $this->assertTrue($user->hasRole('studio_owner'));
+        $this->assertFalse($user->hasRole('customer'));
+    }
+
+    public function test_update_validation_fails_for_duplicate_email()
+    {
+        $admin = User::factory()->create();
+        $adminRole = Role::where('name', 'admin')->first();
+        $admin->roles()->attach($adminRole->role_id);
+
+        $user1 = User::factory()->create(['email' => 'user1@example.com']);
+        $user2 = User::factory()->create(['email' => 'user2@example.com']);
+        $role = Role::where('name', 'customer')->first();
+
+        $response = $this->actingAs($admin)->put(route('admin.users.update', $user1), [
+            'full_name' => 'Updated Name',
+            'username' => $user1->username,
+            'email' => 'user2@example.com', // Duplicate
+            'role_id' => $role->role_id,
+        ]);
+
+        $response->assertSessionHasErrors(['email']);
     }
 }

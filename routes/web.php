@@ -99,14 +99,21 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:manage_users')->group(function () {
         Route::post('admin/users', [\App\Http\Controllers\Web\Admin\UserController::class, 'store'])->name('admin.users.store');
         Route::get('admin/accounts', [\App\Http\Controllers\Web\Admin\UserController::class, 'index'])->name('spa.accounts');
+        Route::get('admin/users/{user}/edit', [\App\Http\Controllers\Web\Admin\UserController::class, 'edit'])->name('admin.users.edit');
+        Route::put('admin/users/{user}', [\App\Http\Controllers\Web\Admin\UserController::class, 'update'])->name('admin.users.update');
         Route::get('admin/users', function () {
             return redirect()->route('spa.accounts');
         })->name('admin.users.index');
     });
 
+    Route::get('admin/studios', function () { return 'Studios'; })->name('spa.studios');
+    Route::get('admin/schools', function () { return 'Schools'; })->name('spa.schools');
+    Route::get('admin/roles', function () { return 'Roles'; })->name('spa.roles');
+    Route::get('admin/permissions', function () { return 'Permissions'; })->name('spa.permissions');
+
     Route::middleware('can:is-admin')->group(function () {
-        Route::resource('admin/studios', \App\Http\Controllers\Admin\StudioController::class);
-        Route::resource('admin/schools', \App\Http\Controllers\Admin\SchoolController::class);
+        // Route::resource('admin/studios', \App\Http\Controllers\Admin\StudioController::class);
+        // Route::resource('admin/schools', \App\Http\Controllers\Admin\SchoolController::class);
     });
 });
 

@@ -55,16 +55,28 @@ class AuthController extends Controller implements HasMiddleware
     /**
      * تسجيل الدخول (للويب)
      */
-    public function login(LoginRequest $request): RedirectResponse
+    public function login(LoginRequest $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         try {
             $data = $request->validated();
+            $login = $request->input('login');
 
-            if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+            // Determine login type
+            $loginType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : (is_numeric($login) ? 'phone' : 'username');
+
+            $credentials = [
+                $loginType => $login,
+                'password' => $request->input('password')
+            ];
+
+            if (Auth::attempt($credentials, $request->boolean('remember'))) {
                 $user = Auth::user();
 
                 if (!$user->is_active) {
                     Auth::logout();
+                    if ($request->wantsJson()) {
+                        return response()->json(['message' => 'حسابك غير نشط. يرجى التواصل مع الدعم.'], 403);
+                    }
                     throw new \Exception('حسابك غير نشط. يرجى التواصل مع الدعم.');
                 }
 
@@ -74,16 +86,33 @@ class AuthController extends Controller implements HasMiddleware
                 $token = $user->createToken('web_auth_token')->plainTextToken;
                 session(['api_token' => $token]);
 
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'تم تسجيل الدخول بنجاح!',
+                        'redirect' => route('dashboard'),
+                        'user' => $user
+                    ]);
+                }
+
                 return redirect()->intended(route('dashboard'))
                     ->with('success', 'تم تسجيل الدخول بنجاح!');
+            }
+
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'بيانات الاعتماد غير صحيحة.'], 401);
             }
 
             throw new \Exception('بيانات الاعتماد غير صحيحة.');
         } catch (\Exception $e) {
             Log::error('Web login error: ' . $e->getMessage());
 
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+
             return back()
-                ->withInput($request->only('email', 'remember'))
+                ->withInput($request->only('login', 'remember'))
                 ->withErrors(['login' => $e->getMessage()]);
         }
     }
@@ -91,7 +120,7 @@ class AuthController extends Controller implements HasMiddleware
     /**
      * تسجيل مستخدم جديد (للويب)
      */
-    public function register(RegisterRequest $request): RedirectResponse
+    public function register(RegisterRequest $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         try {
             $user = $this->authService->register($request->validated());
@@ -101,10 +130,23 @@ class AuthController extends Controller implements HasMiddleware
             $token = $user->createToken('web_auth_token')->plainTextToken;
             session(['api_token' => $token]);
 
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم إنشاء حسابك بنجاح! نتمنى لك تجربة ممتعة.',
+                    'redirect' => route('dashboard'),
+                    'user' => $user
+                ]);
+            }
+
             return redirect()->route('dashboard')
                 ->with('success', 'تم إنشاء حسابك بنجاح! نتمنى لك تجربة ممتعة.');
         } catch (\Exception $e) {
             Log::error('Web registration error: ' . $e->getMessage());
+
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
 
             return back()
                 ->withInput()
@@ -121,8 +163,10 @@ class AuthController extends Controller implements HasMiddleware
             $user = Auth::user();
 
             if ($user) {
-                // حذف جميع التوكنات
-                $user->tokens()->delete();
+                // حذف جميع التوكنات (check if method exists and returns relation)
+                if (method_exists($user, 'tokens') && $user->tokens()) {
+                    $user->tokens()->delete();
+                }
 
                 // Log activity using AuthService
                 $this->authService->logout();
@@ -134,7 +178,7 @@ class AuthController extends Controller implements HasMiddleware
 
             return redirect()->route('login')
                 ->with('success', 'تم تسجيل الخروج بنجاح.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Web logout error: ' . $e->getMessage());
 
             return back()->with('error', 'حدث خطأ أثناء تسجيل الخروج.');

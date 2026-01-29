@@ -67,7 +67,7 @@ class AuthRefactoringTest extends TestCase
         ]);
 
         $response = $this->post(route('login'), [
-            'email' => 'test@example.com',
+            'login' => 'test@example.com',
             'password' => 'password123',
         ]);
 
@@ -83,7 +83,7 @@ class AuthRefactoringTest extends TestCase
         ]);
 
         $response = $this->post(route('login'), [
-            'email' => 'test@example.com',
+            'login' => 'test@example.com',
             'password' => 'wrong-password',
         ]);
 

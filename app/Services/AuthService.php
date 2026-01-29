@@ -108,7 +108,9 @@ class AuthService implements AuthServiceInterface
 
         if ($user) {
             // Revoke current token
-            $user->currentAccessToken()->delete();
+            if ($user->currentAccessToken()) {
+                $user->currentAccessToken()->delete();
+            }
 
             // Log activity - استبدل activity() بـ ActivityLog::create()
             ActivityLog::log(

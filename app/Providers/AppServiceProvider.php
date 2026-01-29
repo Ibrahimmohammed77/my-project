@@ -174,6 +174,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Contracts\CardRepositoryInterface::class,
             \App\Repositories\CardRepository::class
         );
+
+        // Role Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\RoleRepositoryInterface::class,
+            \App\Repositories\RoleRepository::class
+        );
     }
 
     /**

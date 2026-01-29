@@ -135,9 +135,15 @@ Route::middleware('auth')->group(function () {
         Route::delete('admin/cards/groups/{group}/cards/{card}', [\App\Http\Controllers\Web\Admin\CardController::class, 'destroyCard'])->name('admin.cards.groups.cards.destroy');
     });
 
+    Route::middleware('can:manage_roles')->group(function () {
+        Route::get('admin/roles', [\App\Http\Controllers\Web\Admin\RoleController::class, 'index'])->name('spa.roles');
+        Route::post('admin/roles', [\App\Http\Controllers\Web\Admin\RoleController::class, 'store'])->name('admin.roles.store');
+        Route::put('admin/roles/{role}', [\App\Http\Controllers\Web\Admin\RoleController::class, 'update'])->name('admin.roles.update');
+        Route::delete('admin/roles/{role}', [\App\Http\Controllers\Web\Admin\RoleController::class, 'destroy'])->name('admin.roles.destroy');
+    });
+
     Route::get('admin/studios', function () { return 'Studios'; })->name('spa.studios');
     Route::get('admin/schools', function () { return 'Schools'; })->name('spa.schools');
-    Route::get('admin/roles', function () { return 'Roles'; })->name('spa.roles');
     Route::get('admin/permissions', function () { return 'Permissions'; })->name('spa.permissions');
 
     Route::middleware('can:is-admin')->group(function () {

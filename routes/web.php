@@ -114,6 +114,13 @@ Route::middleware('auth')->group(function () {
         Route::delete('admin/plans/{plan}', [\App\Http\Controllers\Web\Admin\PlanController::class, 'destroy'])->name('admin.plans.destroy');
     });
 
+    Route::middleware('can:manage_lookups')->group(function () {
+        Route::get('admin/lookups', [\App\Http\Controllers\Web\Admin\LookupController::class, 'index'])->name('spa.lookups');
+        Route::post('admin/lookups/values', [\App\Http\Controllers\Web\Admin\LookupController::class, 'storeValue'])->name('admin.lookups.values.store');
+        Route::put('admin/lookups/values/{value}', [\App\Http\Controllers\Web\Admin\LookupController::class, 'updateValue'])->name('admin.lookups.values.update');
+        Route::delete('admin/lookups/values/{value}', [\App\Http\Controllers\Web\Admin\LookupController::class, 'destroyValue'])->name('admin.lookups.values.destroy');
+    });
+
     Route::get('admin/studios', function () { return 'Studios'; })->name('spa.studios');
     Route::get('admin/schools', function () { return 'Schools'; })->name('spa.schools');
     Route::get('admin/roles', function () { return 'Roles'; })->name('spa.roles');

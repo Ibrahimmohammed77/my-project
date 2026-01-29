@@ -162,6 +162,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Contracts\PlanRepositoryInterface::class,
             \App\Repositories\PlanRepository::class
         );
+
+        // Lookup Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\LookupRepositoryInterface::class,
+            \App\Repositories\LookupRepository::class
+        );
     }
 
     /**

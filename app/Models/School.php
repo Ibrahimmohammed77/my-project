@@ -11,6 +11,7 @@ class School extends Model
 
     protected $table = 'schools';
     protected $primaryKey = 'school_id';
+    public $timestamps = false;
 
     protected $fillable = [
         'user_id',

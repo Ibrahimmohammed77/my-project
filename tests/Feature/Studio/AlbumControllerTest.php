@@ -58,6 +58,26 @@ class AlbumControllerTest extends TestCase
     }
 
     /** @test */
+    public function it_lists_studio_albums_as_json()
+    {
+        Album::factory()->count(3)->create([
+            'owner_type' => Studio::class,
+            'owner_id' => $this->studio->studio_id,
+        ]);
+
+        $response = $this->actingAs($this->studioOwner)
+            ->getJson(route('studio.albums.index'));
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'success',
+            'data' => [
+                'albums'
+            ]
+        ]);
+    }
+
+    /** @test */
     public function it_can_create_an_album_if_under_plan_limit()
     {
         $this->withoutExceptionHandling();
@@ -76,6 +96,29 @@ class AlbumControllerTest extends TestCase
 
         $response->assertRedirect(route('studio.albums.index'));
         $this->assertDatabaseHas('albums', ['name' => 'New Wedding Album']);
+    }
+
+    /** @test */
+    public function it_can_create_an_album_as_json()
+    {
+        $library = \App\Models\StorageLibrary::factory()->create(['studio_id' => $this->studio->studio_id]);
+
+        $albumData = [
+            'name' => 'JSON Wedding Album',
+            'description' => 'A beautiful wedding album',
+            'storage_library_id' => $library->storage_library_id,
+            'is_visible' => 1,
+        ];
+
+        $response = $this->actingAs($this->studioOwner)
+            ->postJson(route('studio.albums.store'), $albumData);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'message' => 'تم إنشاء الألبوم بنجاح'
+        ]);
+        $this->assertDatabaseHas('albums', ['name' => 'JSON Wedding Album']);
     }
 
     /** @test */
@@ -145,5 +188,27 @@ class AlbumControllerTest extends TestCase
             ]);
 
         $response->assertStatus(404);
+    }
+
+    /** @test */
+    public function it_can_delete_its_own_album_as_json()
+    {
+        $library = \App\Models\StorageLibrary::factory()->create(['studio_id' => $this->studio->studio_id]);
+
+        $album = Album::factory()->create([
+            'owner_type' => Studio::class,
+            'owner_id' => $this->studio->studio_id,
+            'storage_library_id' => $library->storage_library_id,
+        ]);
+
+        $response = $this->actingAs($this->studioOwner)
+            ->deleteJson(route('studio.albums.destroy', $album->album_id));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'message' => 'تم حذف الألبوم بنجاح'
+        ]);
+        $this->assertSoftDeleted('albums', ['album_id' => $album->album_id]);
     }
 }

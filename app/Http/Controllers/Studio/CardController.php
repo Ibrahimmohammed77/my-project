@@ -24,7 +24,16 @@ class CardController extends Controller
         $studio = Auth::user()->studio;
         $cards = $studio->cards()->with('type', 'status')->latest()->get();
 
-        return view('studio.cards.index', compact('cards'));
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'cards' => $cards
+                ]
+            ]);
+        }
+
+        return view('spa.studio-cards.index', compact('cards'));
     }
 
     public function show(Card $card)
@@ -36,7 +45,17 @@ class CardController extends Controller
         
         $availableAlbums = $studio->albums()->orderBy('name')->get();
 
-        return view('studio.cards.show', compact('card', 'availableAlbums'));
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'card' => $card,
+                    'availableAlbums' => $availableAlbums
+                ]
+            ]);
+        }
+
+        return view('spa.studio-cards.show', compact('card', 'availableAlbums'));
     }
 
     public function linkAlbums(LinkAlbumsRequest $request, Card $card)
@@ -47,8 +66,21 @@ class CardController extends Controller
         try {
             $this->linkCardToAlbumUseCase->execute($studio, $card->card_id, $validated['album_ids']);
 
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم ربط الكرت بالألبومات بنجاح'
+                ]);
+            }
+
             return redirect()->route('studio.cards.show', $card->card_id)->with('success', 'تم ربط الكرت بالألبومات بنجاح');
         } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 422);
+            }
             return redirect()->back()->with('error', $e->getMessage());
         }
     }

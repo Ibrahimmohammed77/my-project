@@ -15,7 +15,7 @@ class ProfileController extends Controller
     public function edit()
     {
         $studio = Auth::user()->studio;
-        return view('studio.profile.edit', compact('studio'));
+        return view('spa.studio-profile.index', compact('studio'));
     }
 
     /**
@@ -26,12 +26,6 @@ class ProfileController extends Controller
         $user = Auth::user();
         $studio = $user->studio;
 
-        if (!$studio) {
-            return $request->wantsJson() 
-                ? response()->json(['success' => false, 'message' => 'Studio not found'], 404)
-                : redirect()->back()->with('error', 'الاستوديو غير موجود');
-        }
-
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
@@ -39,6 +33,23 @@ class ProfileController extends Controller
             'city' => 'nullable|string|max:100',
             'website' => 'nullable|url',
         ]);
+
+        if (!$studio && $user->hasRole('studio_owner')) {
+            $studio = Studio::create([
+                'user_id' => $user->id,
+                'description' => $validated['description'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'city' => $validated['city'] ?? null,
+            ]);
+        }
+
+        if (!$studio) {
+            return $request->wantsJson() 
+                ? response()->json(['success' => false, 'message' => 'Studio not found'], 404)
+                : redirect()->back()->with('error', 'الاستوديو غير موجود');
+        }
+
+        // Update user name if provided
 
         // Update user name if provided
         if ($request->has('name')) {

@@ -85,7 +85,12 @@ class CardController extends Controller
         );
 
         if (request()->wantsJson()) {
-            return response()->json($cards);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'cards' => $cards
+                ]
+            ]);
         }
 
         return view('spa.cards.index', compact('group', 'cards'));

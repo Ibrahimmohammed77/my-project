@@ -19,7 +19,15 @@ export default defineConfig({
                 'resources/js/spa/pages/subscribers.js',
                 'resources/js/spa/pages/lookups.js',
                 'resources/js/spa/pages/plans.js',
-                'resources/js/spa/pages/cards.js'
+                'resources/js/spa/pages/cards.js',
+                'resources/js/spa/pages/group-cards.js',
+                'resources/js/spa/pages/studio-albums.js',
+                'resources/js/spa/pages/studio-customers.js',
+                'resources/js/spa/pages/studio-profile.js',
+                'resources/js/spa/pages/studio-storage.js',
+                'resources/js/spa/pages/studio-photo-review.js',
+                'resources/js/spa/pages/studio-cards.js',
+                'resources/js/spa/pages/studio-card-detail.js'
             ],
             refresh: true,
         }),

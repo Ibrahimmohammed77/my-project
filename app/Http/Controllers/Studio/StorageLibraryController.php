@@ -11,10 +11,14 @@ use Illuminate\Support\Facades\Auth;
 class StorageLibraryController extends Controller
 {
     protected $allocateStorageUseCase;
+    protected $updateStorageAllocationUseCase;
 
-    public function __construct(AllocateStorageUseCase $allocateStorageUseCase)
-    {
+    public function __construct(
+        AllocateStorageUseCase $allocateStorageUseCase,
+        UpdateStorageAllocationUseCase $updateStorageAllocationUseCase
+    ) {
         $this->allocateStorageUseCase = $allocateStorageUseCase;
+        $this->updateStorageAllocationUseCase = $updateStorageAllocationUseCase;
     }
 
     /**
@@ -32,7 +36,7 @@ class StorageLibraryController extends Controller
             ]);
         }
 
-        return view('studio.storage.index', compact('libraries'));
+        return view('spa.studio-storage.index', compact('libraries'));
     }
 
     /**
@@ -46,7 +50,7 @@ class StorageLibraryController extends Controller
             'subscriber_id' => 'required|exists:users,id',
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'storage_limit' => 'required|integer|min:0', // in bytes, e.g. 1048576 for 1MB
+            'storage_limit' => 'required|integer|min:0', // in bytes
         ]);
 
         try {
@@ -62,5 +66,56 @@ class StorageLibraryController extends Controller
                 'message' => $e->getMessage()
             ], 422);
         }
+    }
+
+    /**
+     * Update an existing storage library.
+     */
+    public function update(Request $request, $id)
+    {
+        $studio = Auth::user()->studio;
+
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:100',
+            'description' => 'nullable|string',
+            'storage_limit' => 'sometimes|required|integer|min:0',
+        ]);
+
+        try {
+            $library = $this->updateStorageAllocationUseCase->execute($studio, (int)$id, $validated);
+            return response()->json([
+                'success' => true,
+                'message' => 'تم تحديث بيانات مكتبة التخزين بنجاح',
+                'data' => $library
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 422);
+        }
+    }
+
+    /**
+     * Remove a storage library.
+     */
+    public function destroy($id)
+    {
+        $studio = Auth::user()->studio;
+        $library = $studio->storageLibraries()->findOrFail($id);
+
+        if ($library->storage_used > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لا يمكن حذف المكتبة لأنها تحتوي على ملفات'
+            ], 422);
+        }
+
+        $library->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم حذف مكتبة التخزين بنجاح'
+        ]);
     }
 }

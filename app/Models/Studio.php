@@ -11,6 +11,7 @@ class Studio extends Model
 
     protected $table = 'studios';
     protected $primaryKey = 'studio_id';
+    public $timestamps = false;
 
     protected $fillable = [
         'user_id',
@@ -70,7 +71,9 @@ class Studio extends Model
      */
     public function customers()
     {
-        // استخدام علاقة لا ترجع شيئاً حالياً لتجنب الخطأ
-        return $this->hasMany(User::class, 'id', 'user_id')->whereRaw('1=0');
+        return User::whereHas('cards', function($q) {
+            $q->where('owner_id', $this->studio_id)
+              ->where('owner_type', self::class);
+        });
     }
 }

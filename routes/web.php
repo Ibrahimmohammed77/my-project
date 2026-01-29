@@ -91,17 +91,19 @@ Route::middleware('auth')->group(function () {
         Route::resource('cards', \App\Http\Controllers\Studio\CardController::class)->parameters(['cards' => 'card:card_id']);
         Route::post('cards/{card:card_id}/link-albums', [\App\Http\Controllers\Studio\CardController::class, 'linkAlbums'])->name('cards.link-albums');
         
-        // Studio Profile Update (restricted)
-        Route::get('studio/profile', [\App\Http\Controllers\Studio\ProfileController::class, 'edit'])->name('studio.profile.edit');
-        Route::put('studio/profile', [\App\Http\Controllers\Studio\ProfileController::class, 'update'])->name('studio.profile.update');
+        // Studio Profile Update
+        Route::get('profile', [\App\Http\Controllers\Studio\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile', [\App\Http\Controllers\Studio\ProfileController::class, 'update'])->name('profile.update');
         
         // Storage Allocation
-        Route::get('studio/storage/libraries', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'index'])->name('studio.storage.index');
-        Route::post('studio/storage/libraries', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'store'])->name('studio.storage.store');
+        Route::get('studio/storage/libraries', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'index'])->name('storage.index');
+        Route::post('studio/storage/libraries', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'store'])->name('storage.store');
+        Route::put('studio/storage/libraries/{library}', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'update'])->name('storage.update');
+        Route::delete('studio/storage/libraries/{library}', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'destroy'])->name('storage.destroy');
         
         // Photo Review
-        Route::get('studio/photo-review/pending', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'pending'])->name('studio.photo-review.pending');
-        Route::post('studio/photo-review/{photo}/review', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'review'])->name('studio.photo-review.review');
+        Route::get('studio/photo-review/pending', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'pending'])->name('photo-review.pending');
+        Route::post('studio/photo-review/{photo}/review', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'review'])->name('photo-review.review');
     });
 
     Route::middleware('can:is-customer')->group(function () {

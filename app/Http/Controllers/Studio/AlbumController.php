@@ -39,7 +39,16 @@ class AlbumController extends Controller
         $studio = Auth::user()->studio;
         $albums = $studio->albums()->withCount('photos')->latest()->get();
 
-        return view('studio.albums.index', compact('albums'));
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'albums' => $albums
+                ]
+            ]);
+        }
+
+        return view('spa.studio-albums.index', compact('albums'));
     }
 
     /**
@@ -59,8 +68,6 @@ class AlbumController extends Controller
      */
     public function store(StoreAlbumRequest $request)
     {
-        // StoreAlbumRequest already handles authorize()
-        
         $studio = Auth::user()->studio;
         $validated = $request->validated();
 
@@ -71,8 +78,22 @@ class AlbumController extends Controller
                 $this->linkAlbumToCardUseCase->execute($studio, $album->album_id, $validated['card_ids']);
             }
 
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم إنشاء الألبوم بنجاح',
+                    'data' => $album
+                ]);
+            }
+
             return redirect()->route('studio.albums.index')->with('success', 'تم إنشاء الألبوم بنجاح');
         } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 422);
+            }
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -112,8 +133,22 @@ class AlbumController extends Controller
                 $this->linkAlbumToCardUseCase->execute($studio, $album->album_id, $validated['card_ids']);
             }
 
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم تحديث الألبوم بنجاح',
+                    'data' => $album
+                ]);
+            }
+
             return redirect()->route('studio.albums.index')->with('success', 'تم تحديث الألبوم بنجاح');
         } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 422);
+            }
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -129,6 +164,13 @@ class AlbumController extends Controller
         $this->authorize('delete', $album);
 
         $album->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حذف الألبوم بنجاح'
+            ]);
+        }
 
         return redirect()->route('studio.albums.index')->with('success', 'تم حذف الألبوم بنجاح');
     }

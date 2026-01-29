@@ -81,6 +81,28 @@ class CardControllerTest extends TestCase
     }
 
     /** @test */
+    public function it_lists_studio_cards_as_json()
+    {
+        Card::factory()->count(3)->create([
+            'owner_type' => Studio::class,
+            'owner_id' => $this->studio->studio_id,
+            'card_status_id' => $this->activeStatus->lookup_value_id,
+            'card_type_id' => $this->cardType->lookup_value_id,
+        ]);
+
+        $response = $this->actingAs($this->studioOwner)
+            ->getJson(route('studio.cards.index'));
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'success',
+            'data' => [
+                'cards'
+            ]
+        ]);
+    }
+
+    /** @test */
     public function it_can_view_a_card()
     {
         $card = Card::factory()->create([
@@ -95,6 +117,29 @@ class CardControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewHas('card');
+    }
+
+    /** @test */
+    public function it_can_view_a_card_as_json()
+    {
+        $card = Card::factory()->create([
+            'owner_type' => Studio::class,
+            'owner_id' => $this->studio->studio_id,
+            'card_status_id' => $this->activeStatus->lookup_value_id,
+            'card_type_id' => $this->cardType->lookup_value_id,
+        ]);
+
+        $response = $this->actingAs($this->studioOwner)
+            ->getJson(route('studio.cards.show', $card->card_id));
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'success',
+            'data' => [
+                'card',
+                'availableAlbums'
+            ]
+        ]);
     }
 
     /** @test */
@@ -123,6 +168,38 @@ class CardControllerTest extends TestCase
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
+        $this->assertEquals(2, $card->fresh()->albums()->count());
+    }
+
+    /** @test */
+    public function it_can_link_albums_to_a_card_as_json()
+    {
+        $card = Card::factory()->create([
+            'owner_type' => Studio::class,
+            'owner_id' => $this->studio->studio_id,
+            'card_status_id' => $this->activeStatus->lookup_value_id,
+            'card_type_id' => $this->cardType->lookup_value_id,
+        ]);
+
+        $library = StorageLibrary::factory()->create(['studio_id' => $this->studio->studio_id]);
+        $albums = Album::factory()->count(2)->create([
+            'owner_type' => Studio::class,
+            'owner_id' => $this->studio->studio_id,
+            'storage_library_id' => $library->storage_library_id,
+        ]);
+
+        $albumIds = $albums->pluck('album_id')->toArray();
+
+        $response = $this->actingAs($this->studioOwner)
+            ->postJson(route('studio.cards.link-albums', $card->card_id), [
+                'album_ids' => $albumIds,
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'message' => 'تم ربط الكرت بالألبومات بنجاح'
+        ]);
         $this->assertEquals(2, $card->fresh()->albums()->count());
     }
 

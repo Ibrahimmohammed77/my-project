@@ -37,7 +37,7 @@ class PhotoReviewController extends Controller
             ]);
         }
 
-        return view('studio.photo-review.pending', compact('photos'));
+        return view('spa.studio-photo-review.index', compact('photos'));
     }
 
     /**

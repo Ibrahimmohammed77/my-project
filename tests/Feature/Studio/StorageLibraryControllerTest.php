@@ -80,7 +80,7 @@ class StorageLibraryControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->studioOwner)
-            ->putJson(route('storage.update', $library->id), [
+            ->putJson(route('storage.update', $library->storage_library_id), [
                 'name' => 'New Name',
                 'storage_limit' => 2097152, // 2MB
             ]);
@@ -99,10 +99,10 @@ class StorageLibraryControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->studioOwner)
-            ->deleteJson(route('storage.destroy', $library->id));
+            ->deleteJson(route('storage.destroy', $library->storage_library_id));
 
         $response->assertStatus(200);
-        $this->assertDatabaseMissing('storage_libraries', ['id' => $library->id]);
+        $this->assertDatabaseMissing('storage_libraries', ['storage_library_id' => $library->storage_library_id]);
     }
 
     /** @test */
@@ -115,10 +115,10 @@ class StorageLibraryControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->studioOwner)
-            ->deleteJson(route('storage.destroy', $library->id));
+            ->deleteJson(route('storage.destroy', $library->storage_library_id));
 
         $response->assertStatus(422);
         $response->assertJson(['success' => false]);
-        $this->assertDatabaseHas('storage_libraries', ['id' => $library->id]);
+        $this->assertDatabaseHas('storage_libraries', ['storage_library_id' => $library->storage_library_id]);
     }
 }

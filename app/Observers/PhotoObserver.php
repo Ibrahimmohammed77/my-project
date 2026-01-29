@@ -13,8 +13,8 @@ class PhotoObserver
             $photo->album->user_id ?? null,
             'upload',
             'photo',
-            $photo->id,
-            ['filename' => $photo->original_filename]
+            $photo->photo_id,
+            ['filename' => $photo->original_name]
         );
     }
 
@@ -24,8 +24,8 @@ class PhotoObserver
             $photo->album->user_id ?? null,
             'delete',
             'photo',
-            $photo->id,
-            ['filename' => $photo->original_filename]
+            $photo->photo_id,
+            ['filename' => $photo->original_name]
         );
     }
 }

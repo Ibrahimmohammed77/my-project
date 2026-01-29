@@ -10,10 +10,10 @@ class AlbumObserver
     public function created(Album $album): void
     {
         ActivityLog::logActivity(
-            $album->user_id,
+            $album->owner_id,
             'create',
             'album',
-            $album->id,
+            $album->album_id,
             ['name' => $album->name]
         );
     }
@@ -24,10 +24,10 @@ class AlbumObserver
         
         if (!empty($changes)) {
             ActivityLog::logActivity(
-                $album->user_id,
+                $album->owner_id,
                 'update',
                 'album',
-                $album->id,
+                $album->album_id,
                 ['changes' => $changes]
             );
         }
@@ -36,10 +36,10 @@ class AlbumObserver
     public function deleted(Album $album): void
     {
         ActivityLog::logActivity(
-            $album->user_id,
+            $album->owner_id,
             'delete',
             'album',
-            $album->id,
+            $album->album_id,
             ['name' => $album->name]
         );
     }

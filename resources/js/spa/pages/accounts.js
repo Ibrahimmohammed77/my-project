@@ -1,5 +1,8 @@
+import '../../bootstrap';
 import { Account } from '../models/Account';
 import { AccountService } from '../services/AccountService';
+import { saveAccount } from '../actions/accountActions';
+import { showToast, showErrors, clearErrors } from '../utils/toast';
 
 let accounts = [];
 
@@ -15,6 +18,7 @@ const modalTitle = document.getElementById('account-modal-title');
 const accountIdInput = document.getElementById('account-id');
 const pwdField = document.getElementById('password-field');
 const pwdInput = document.getElementById('password');
+// derived inside functions for safety, but helpful to know it exists in DOM now
 
 // Global Functions
 window.editAccount = async (id) => {
@@ -58,6 +62,13 @@ window.showCreateModal = () => {
     
     accountForm.reset();
     accountIdInput.value = '';
+    
+    // Reset conditional fields visibility
+    const typeSelect = document.getElementById('account_type_id');
+    if(typeSelect) {
+        typeSelect.value = "";
+        handleAccountTypeChange(typeSelect);
+    }
     
     if(pwdField) pwdField.style.display = 'block';
     if(pwdInput) pwdInput.required = true;
@@ -185,35 +196,89 @@ function getStatusClass(code) {
 }
 
 // Event Listeners
+// Event Listeners
+// Global function to handle type change directly from HTML
+window.handleAccountTypeChange = (selectElement) => {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    // Use optional chaining and default to empty string
+    const code = (selectedOption.getAttribute('data-code') || '').toUpperCase();
+    
+    console.log('Account Type Changed:', { 
+        value: selectElement.value, 
+        code: code,
+        rawCode: selectedOption.getAttribute('data-code')
+    });
+    
+    // Hide all first
+    const studioFields = document.getElementById('studio-fields');
+    const schoolFields = document.getElementById('school-fields');
+    const subscriberFields = document.getElementById('subscriber-fields');
+    
+    if(studioFields) studioFields.classList.add('hidden');
+    if(schoolFields) schoolFields.classList.add('hidden');
+    if(subscriberFields) subscriberFields.classList.add('hidden');
+    
+    // Show based on code
+    if (code === 'STUDIO' && studioFields) studioFields.classList.remove('hidden');
+    else if (code === 'SCHOOL' && schoolFields) schoolFields.classList.remove('hidden');
+    else if (code === 'SUBSCRIBER' && subscriberFields) subscriberFields.classList.remove('hidden');
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     if (searchInput) searchInput.addEventListener('input', renderAccounts);
     if (statusFilter) statusFilter.addEventListener('change', renderAccounts);
+    
+    // Previous event listener removed in favor of inline onchange for robustness
+
     if (accountForm) {
         accountForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const id = accountIdInput.value;
+            clearErrors(); // Clear previous errors
             
+            const id = accountIdInput.value;
+            const typeSelect = document.getElementById('account_type_id');
+            const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+            const code = selectedOption.dataset.code;
+            
+            // Basic Data
             const accountData = new Account({
                 username: document.getElementById('username').value,
                 full_name: document.getElementById('full_name').value,
                 email: document.getElementById('email').value || null,
                 phone: document.getElementById('phone').value,
                 account_status_id: document.getElementById('account_status_id').value,
-                account_type_id: document.getElementById('account_type_id').value
+                account_type_id: typeSelect.value
             });
-            
-            if (!id && pwdInput) {
-                accountData.password = pwdInput.value;
+
+            // Add Extra Data
+            if (code === 'STUDIO') {
+                accountData.account_type_code = 'STUDIO'; 
+            } else if (code === 'SCHOOL') {
+                accountData.school_type_id = document.getElementById('school_type_id').value;
+                accountData.school_level_id = document.getElementById('school_level_id').value;
+                accountData.account_type_code = 'SCHOOL';
+            } else if (code === 'SUBSCRIBER') {
+                accountData.account_type_code = 'SUBSCRIBER';
             }
             
+            const password = pwdInput ? pwdInput.value : null;
+            // Auto-confirm password since we removed the field
+            const passwordConfirmation = password;
+
             try {
-                if (id) await AccountService.update(id, accountData);
-                else await AccountService.create(accountData);
+                await saveAccount(id, accountData, password, passwordConfirmation);
                 
                 closeModal();
                 loadAccounts();
+                showToast(id ? 'تم تحديث الحساب بنجاح' : 'تم إنشاء الحساب بنجاح', 'success');
             } catch (error) {
-                alert('حدث خطأ: ' + (error.response?.data?.message || 'تأكد من صحة البيانات'));
+                console.error(error);
+                if (error.response && error.response.status === 422) {
+                    showErrors(error.response.data.errors);
+                    showToast('يرجى التحقق من البيانات المدخلة', 'error');
+                } else {
+                    showToast('حدث خطأ: ' + (error.response?.data?.message || error.message || 'خطأ غير معروف'), 'error');
+                }
             }
         });
     }

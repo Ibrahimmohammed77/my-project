@@ -27,16 +27,21 @@ class WebAuthController extends Controller
             ->orWhere('phone', $request->login)
             ->first();
 
+        file_put_contents(storage_path('logs/debug.log'), '['.date('Y-m-d H:i:s').'] Login: '.$request->login.' - Found: '.((bool)$account ? 'Yes' : 'No')."\n", FILE_APPEND);
+
         if (!$account) {
             throw ValidationException::withMessages([
-                'login' => ['بيانات الدخول غير صحيحة.'],
+                'login' => ['خطأ تجريبي 123 - الحساب غير موجود'],
             ]);
         }
 
+        file_put_contents(storage_path('logs/debug.log'), '['.date('Y-m-d H:i:s').'] PW Check - Input Len: '.strlen($request->password).' - Stored Hash: '.$account->password_hash."\n", FILE_APPEND);
+
         // Verify password
         if (!Hash::check($request->password, $account->password_hash)) {
+            file_put_contents(storage_path('logs/debug.log'), '['.date('Y-m-d H:i:s').'] Password Mismatch for: '.$account->username."\n", FILE_APPEND);
             throw ValidationException::withMessages([
-                'login' => ['بيانات الدخول غير صحيحة.'],
+                'login' => ['خطأ تجريبي 123 - كلمة المرور خطأ'],
             ]);
         }
 

@@ -15,9 +15,25 @@ class SubscriberService
         $this->repository = $repository;
     }
 
+
     public function getAll(): Collection
     {
         return $this->repository->all();
+    }
+
+    public function getAllActive(): Collection
+    {
+        return $this->repository->findActive();
+    }
+
+    public function getAllByStatus(string $statusCode): Collection
+    {
+        return $this->repository->findByStatus($statusCode);
+    }
+
+    public function getByAccount(int $accountId): ?Model
+    {
+        return $this->repository->findByAccount($accountId);
     }
 
     public function create(array $data): Model
@@ -38,5 +54,25 @@ class SubscriberService
     public function find($id): ?Model
     {
         return $this->repository->find($id);
+    }
+
+    public function findWithRelations($id, array $relations = []): ?Model
+    {
+        return $this->repository->findWithRelations($id, $relations);
+    }
+
+    public function activate($id): bool
+    {
+        return $this->repository->updateStatus($id, 'ACTIVE');
+    }
+
+    public function deactivate($id): bool
+    {
+        return $this->repository->updateStatus($id, 'INACTIVE');
+    }
+
+    public function paginate(int $perPage = 15)
+    {
+        return $this->repository->paginate($perPage);
     }
 }

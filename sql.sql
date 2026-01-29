@@ -73,7 +73,6 @@ CREATE TABLE studios (
     website VARCHAR(255),
     address TEXT,
     city VARCHAR(100),
-    country VARCHAR(100),
     
     settings JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

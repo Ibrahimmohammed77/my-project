@@ -4,7 +4,7 @@ namespace App\Domain\Identity\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAccountRequest extends FormRequest
+class UpdateAccountRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -13,28 +13,17 @@ class StoreAccountRequest extends FormRequest
 
     public function rules(): array
     {
+        $accountId = $this->route('account');
+        
         return [
-            'username' => 'required|string|max:100|unique:accounts,username',
-            'email' => 'required|email|max:255|unique:accounts,email',
+            'username' => 'required|string|max:100|unique:accounts,username,' . $accountId . ',account_id',
+            'email' => 'required|email|max:255|unique:accounts,email,' . $accountId . ',account_id',
             'full_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'profile_image' => 'nullable|string|max:500',
-            'account_type_id' => 'required|exists:lookup_values,lookup_value_id',
-            'account_status_id' => 'required|exists:lookup_values,lookup_value_id',
-            'password' => 'required|string|min:8',
-            
-            // Studio fields
-            // Studio fields
-            'studio_status_id' => 'nullable|exists:lookup_values,lookup_value_id',
-
-            // School fields
-            'school_type_id' => 'nullable|exists:lookup_values,lookup_value_id',
-            'school_level_id' => 'nullable|exists:lookup_values,lookup_value_id',
-            'school_status_id' => 'nullable|exists:lookup_values,lookup_value_id',
-
-            // Subscriber fields
-            // Subscriber fields
-            'subscriber_status_id' => 'nullable|exists:lookup_values,lookup_value_id',
+            'account_type_id' => 'sometimes|exists:lookup_values,lookup_value_id',
+            'account_status_id' => 'sometimes|exists:lookup_values,lookup_value_id',
+            'password' => 'nullable|string|min:8|confirmed',
         ];
     }
 
@@ -50,11 +39,8 @@ class StoreAccountRequest extends FormRequest
             'full_name.required' => 'الاسم الكامل مطلوب',
             'full_name.max' => 'الاسم الكامل يجب ألا يزيد عن 255 حرف',
             'phone.max' => 'رقم الهاتف يجب ألا يزيد عن 20 حرف',
-            'account_type_id.required' => 'نوع الحساب مطلوب',
             'account_type_id.exists' => 'نوع الحساب المحدد غير موجود',
-            'account_status_id.required' => 'حالة الحساب مطلوبة',
             'account_status_id.exists' => 'حالة الحساب المحددة غير موجودة',
-            'password.required' => 'كلمة المرور مطلوبة',
             'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
             'password.confirmed' => 'تأكيد كلمة المرور غير متطابق',
         ];
@@ -62,8 +48,8 @@ class StoreAccountRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        // Hash the password before validation
-        if ($this->has('password')) {
+        // Hash the password if provided
+        if ($this->has('password') && $this->password) {
             $this->merge([
                 'password_hash' => bcrypt($this->password)
             ]);

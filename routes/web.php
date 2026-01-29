@@ -39,10 +39,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 
-    // Roles & Permissions standard resources
-    Route::resource('roles', \App\Http\Controllers\RoleController::class);
-    Route::resource('permissions', \App\Http\Controllers\PermissionController::class);
-
     // SPA route aliases (to support existing sidebar links)
     Route::get('/spa/accounts', [AccountController::class, 'index'])->name('spa.accounts');
     Route::get('/spa/roles', [\App\Http\Controllers\RoleController::class, 'index'])->name('spa.roles');
@@ -52,10 +48,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/spa/studios', [\App\Http\Controllers\StudioController::class, 'index'])->name('spa.studios');
     Route::get('/spa/schools', [\App\Http\Controllers\SchoolController::class, 'index'])->name('spa.schools');
 
-    // Accounts Routes
-    Route::resource('accounts', AccountController::class);
-    Route::resource('studios', \App\Http\Controllers\StudioController::class);
-    Route::resource('schools', \App\Http\Controllers\SchoolController::class);
     // SPA Alias for Customers
     Route::get('/spa/customers', [\App\Http\Controllers\CustomerController::class, 'index'])->name('spa.customers');
 
@@ -65,6 +57,15 @@ Route::middleware('auth')->group(function () {
     // SPA Alias for Subscribers
     Route::get('/spa/subscribers', [\App\Http\Controllers\SubscriberController::class, 'index'])->name('spa.subscribers');
 
-    // Subscriber Resource
-    Route::resource('subscribers', \App\Http\Controllers\SubscriberController::class);
-});
+    // Roles & Permissions standard resources
+    Route::resource('roles', \App\Http\Controllers\RoleController::class);
+    Route::resource('permissions', \App\Http\Controllers\PermissionController::class);
+
+    // Accounts Resource
+    Route::resource('accounts', AccountController::class);
+
+    // Studios & Schools Resources
+    Route::resource('studios', \App\Http\Controllers\StudioController::class);
+    Route::resource('schools', \App\Http\Controllers\SchoolController::class);
+
+    });

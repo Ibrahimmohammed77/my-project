@@ -58,4 +58,44 @@ class PermissionService
     {
         return $this->repository->all()->groupBy('resource_type');
     }
+
+    /**
+     * الحصول على صلاحيات بنوع مورد معين
+     */
+    public function getByResourceType(string $resourceType): Collection
+    {
+        return $this->repository->findByResourceType($resourceType);
+    }
+
+    /**
+     * البحث في الصلاحيات
+     */
+    public function search(string $searchTerm): Collection
+    {
+        return $this->repository->search($searchTerm);
+    }
+
+    /**
+     * الحصول على صلاحية بالاسم
+     */
+    public function findByName(string $name): ?Model
+    {
+        return $this->repository->findByName($name);
+    }
+
+    /**
+     * الحصول على صلاحيات مع ترقيم الصفحات
+     */
+    public function paginate(int $perPage = 15)
+    {
+        return $this->repository->paginate($perPage);
+    }
+
+    /**
+     * الحصول على صلاحية مع العلاقات
+     */
+    public function findWithRelations($id, array $relations = []): ?Model
+    {
+        return $this->repository->findWithRelations($id, $relations);
+    }
 }

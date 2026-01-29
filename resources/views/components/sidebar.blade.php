@@ -86,12 +86,12 @@
                     
                     <div x-show="identityOpen" x-collapse class="pl-4 pr-3 space-y-1">
                         <div class="relative border-r border-white/10 pr-4 py-1 space-y-1">
-                            <x-sidebar-link href="{{ route('spa.studios') }}" :active="request()->routeIs('spa.studios')" icon="fa-camera" class="text-sm">
+                            <!-- <x-sidebar-link href="{{ route('spa.studios') }}" :active="request()->routeIs('spa.studios')" icon="fa-camera" class="text-sm">
                                 الاستوديوهات
                             </x-sidebar-link>
                             <x-sidebar-link href="{{ route('spa.schools') }}" :active="request()->routeIs('spa.schools')" icon="fa-school" class="text-sm">
                                 المدارس
-                            </x-sidebar-link>
+                            </x-sidebar-link> -->
                             <x-sidebar-link href="{{ route('spa.accounts') }}" :active="request()->routeIs('spa.accounts')" icon="fa-user-gear" class="text-sm">
                                 الحسابات
                             </x-sidebar-link>

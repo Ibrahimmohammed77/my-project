@@ -64,6 +64,13 @@ class Account extends Authenticatable
         });
     }
 
+    public function scopeType($query, $typeCode)
+    {
+        return $query->whereHas('type', function ($q) use ($typeCode) {
+            $q->where('code', $typeCode);
+        });
+    }
+
     public function scopeActive($query)
     {
         return $this->scopeStatus($query, 'ACTIVE');

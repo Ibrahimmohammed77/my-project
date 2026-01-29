@@ -15,4 +15,5 @@
             @if($required) required @endif
         >
     </div>
+    <p id="{{ $name }}-error" class="text-red-500 text-xs mt-1 hidden field-error"></p>
 </div>

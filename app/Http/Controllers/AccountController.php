@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Domain\Identity\Services\AccountService;
 use App\Domain\Shared\Repositories\Contracts\LookupValueRepositoryInterface;
 use App\Domain\Identity\Models\Account;
+use App\Domain\Identity\Requests\StoreAccountRequest;
+use App\Domain\Identity\Requests\UpdateAccountRequest;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -32,27 +34,36 @@ class AccountController extends Controller
             ]);
         }
         
-        $types = \App\Domain\Shared\Models\LookupValue::whereHas('master', function($q) {
-            $q->where('code', 'ACCOUNT_TYPE');
-        })->get(['lookup_value_id', 'code', 'name']);
+        // Fetch Account Types
+        $types = \App\Domain\Shared\Models\LookupValue::category('ACCOUNT_TYPE')->get(['lookup_value_id', 'code', 'name']);
+        
+        // Map types to IDs for JS (e.g., { 'STUDIO': 1, 'SCHOOL': 2 ... })
+        $accountTypeIds = $types->pluck('lookup_value_id', 'code');
 
-        return view('spa.accounts.index', compact('types'));
+        // Fetch Studio Lookups
+        $studioStatuses = \App\Domain\Shared\Models\LookupValue::category('STUDIO_STATUS')->get(['lookup_value_id', 'name']);
+
+        // Fetch School Lookups
+        $schoolTypes = \App\Domain\Shared\Models\LookupValue::category('SCHOOL_TYPE')->get(['lookup_value_id', 'name']);
+        $schoolLevels = \App\Domain\Shared\Models\LookupValue::category('SCHOOL_LEVEL')->get(['lookup_value_id', 'name']);
+        $schoolStatuses = \App\Domain\Shared\Models\LookupValue::category('SCHOOL_STATUS')->get(['lookup_value_id', 'name']);
+
+        // Fetch Subscriber Lookups
+        $subscriberStatuses = \App\Domain\Shared\Models\LookupValue::category('SUBSCRIBER_STATUS')->get(['lookup_value_id', 'name']);
+
+        return view('spa.accounts.index', compact(
+            'types', 
+            'accountTypeIds', 
+            'studioStatuses', 
+            'schoolTypes', 
+            'schoolLevels', 
+            'schoolStatuses', 
+            'subscriberStatuses'
+        ));
     }
 
     public function create()
     {
-        // Need statuses for dropdown
-        // lookup value code for account status? Assuming 'ACCOUNT_STATUS' lookup_master code.
-        // But repository lookup usually fetches by master code.
-        // Assuming we can get all lookup values or filter later.
-        // For now, let's hardcode or fetch if possible.
-        // Let's assume we find values by master code 'ACCOUNT_STATUS'
-        // But LookupValueRepositoryInterface might not have this specific method ready.
-        // I will use `all()` and filter or just pass empty for now if not sure.
-        // Actually, let's try to get all and filter in memory if needed, or query LookupValue model directly if repo is limited.
-        // Better: Use LookupValue model directly here or add method to repo. 
-        // I'll assume generic usage.
-        
         $statuses = \App\Domain\Shared\Models\LookupValue::whereHas('master', function($q) {
             $q->where('code', 'ACCOUNT_STATUS');
         })->pluck('name', 'lookup_value_id');
@@ -60,30 +71,48 @@ class AccountController extends Controller
         return view('accounts.create', compact('statuses'));
     }
 
-    public function store(Request $request)
+    public function store(StoreAccountRequest $request)
     {
-        $validated = $request->validate([
-            'username' => 'required|unique:accounts,username',
-            'email' => 'required|email|unique:accounts,email',
-            'full_name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'account_status_id' => 'required|exists:lookup_values,lookup_value_id',
-            'account_type_id' => 'required|exists:lookup_values,lookup_value_id',
-            'password' => 'required|min:6',
-        ]);
+        $data = $request->validated();
+        
+        if (isset($data['password'])) {
+            $data['password_hash'] = bcrypt($data['password']);
+            unset($data['password']);
+        }
 
-        // Map password to password_hash
-        $validated['password_hash'] = bcrypt($validated['password']);
-        unset($validated['password']);
+        // Create Account
+        $account = $this->accountService->create($data);
 
-        $this->accountService->create($validated);
+        // check account type and create related entity
+        $accountType = \App\Domain\Shared\Models\LookupValue::find($data['account_type_id']);
+        
+        if ($accountType) {
+            switch ($accountType->code) {
+                case 'STUDIO':
+                    app(\App\Domain\Core\Services\StudioService::class)->create([
+                        'account_id' => $account->account_id,
+                    ]);
+                    break;
+                case 'SCHOOL':
+                    app(\App\Domain\Core\Services\SchoolService::class)->create([
+                        'account_id' => $account->account_id,
+                        'school_type_id' => $data['school_type_id'] ?? null,
+                        'school_level_id' => $data['school_level_id'] ?? null,
+                    ]);
+                    break;
+                case 'SUBSCRIBER':
+                    app(\App\Domain\Core\Services\SubscriberService::class)->create([
+                        'account_id' => $account->account_id,
+                    ]);
+                    break;
+            }
+        }
 
         return response()->json(['success' => true]);
     }
 
     public function edit($id)
     {
-        // Replaced by SPA flow usually, but keeping for compatibility if used.
         $account = $this->accountService->find($id);
         if (!$account) abort(404);
 
@@ -94,24 +123,22 @@ class AccountController extends Controller
         return view('accounts.edit', compact('account', 'statuses'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateAccountRequest $request, $id)
     {
-        $validated = $request->validate([
-            'username' => 'required|unique:accounts,username,' . $id . ',account_id',
-            'email' => 'required|email|unique:accounts,email,' . $id . ',account_id',
-            'full_name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'account_status_id' => 'required|exists:lookup_values,lookup_value_id',
-            'account_type_id' => 'nullable|exists:lookup_values,lookup_value_id',
-            'password' => 'nullable|min:6',
-        ]);
+        $data = $request->validated();
 
-        if (!empty($validated['password'])) {
-            $validated['password_hash'] = bcrypt($validated['password']);
+        if (!empty($data['password'])) {
+            $data['password_hash'] = bcrypt($data['password']);
         }
-        unset($validated['password']);
+        unset($data['password']);
 
-        $this->accountService->update($id, $validated);
+        // Remove cached requests parameters if any (like _method, etc) which validated() filters anyway.
+        
+        $this->accountService->update($id, $data);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
 
         return redirect()->route('accounts.index')->with('success', 'Account updated successfully.');
     }
@@ -119,6 +146,11 @@ class AccountController extends Controller
     public function destroy($id)
     {
         $this->accountService->delete($id);
+        
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+        
         return redirect()->route('accounts.index')->with('success', 'Account deleted successfully.');
     }
 }

@@ -37,6 +37,11 @@ class AppServiceProvider extends ServiceProvider
         \App\Domain\Finance\Models\Invoice::observe(\App\Domain\Finance\Observers\InvoiceObserver::class);
         \App\Domain\Media\Models\Photo::observe(\App\Domain\Media\Observers\PhotoObserver::class);
         \App\Domain\Identity\Models\Account::observe(\App\Domain\Identity\Observers\AccountObserver::class);
+        \App\Domain\Core\Models\Studio::observe(\App\Domain\Core\Observers\StudioObserver::class);
+        \App\Domain\Core\Models\School::observe(\App\Domain\Core\Observers\SchoolObserver::class);
+        \App\Domain\Core\Models\Subscriber::observe(\App\Domain\Core\Observers\SubscriberObserver::class);
+        \App\Domain\Identity\Models\Permission::observe(\App\Domain\Identity\Observers\PermissionObserver::class);
+        \App\Domain\Identity\Models\Role::observe(\App\Domain\Identity\Observers\RoleObserver::class);
     }
 }
 

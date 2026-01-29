@@ -4,7 +4,7 @@ namespace App\Domain\Identity\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRoleRequest extends FormRequest
+class UpdateRoleRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -13,8 +13,10 @@ class StoreRoleRequest extends FormRequest
 
     public function rules(): array
     {
+        $roleId = $this->route('role');
+        
         return [
-            'name' => 'required|string|max:100|unique:roles,name',
+            'name' => 'required|string|max:100|unique:roles,name,' . $roleId . ',role_id',
             'description' => 'nullable|string|max:500',
             'is_system' => 'nullable|boolean',
         ];

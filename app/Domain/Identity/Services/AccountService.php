@@ -130,15 +130,21 @@ class AccountService
         return $permissions->unique('permission_id');
     }
 
+
     /**
      * البحث عن حسابات بحالة معينة
      */
     public function getByStatus(string $statusCode): Collection
     {
-        return $this->repository->findWhere([])
-            ->filter(function ($account) use ($statusCode) {
-                return $account->status && $account->status->code === $statusCode;
-            });
+        return $this->repository->findByStatus($statusCode);
+    }
+
+    /**
+     * البحث عن حسابات بنوع معين
+     */
+    public function getByType(string $typeCode): Collection
+    {
+        return $this->repository->findByType($typeCode);
     }
 
     /**
@@ -146,6 +152,62 @@ class AccountService
      */
     public function getActive(): Collection
     {
-        return $this->getByStatus('ACTIVE');
+        return $this->repository->findActive();
+    }
+
+    /**
+     * البحث في الحسابات
+     */
+    public function search(string $searchTerm): Collection
+    {
+        return $this->repository->search($searchTerm);
+    }
+
+    /**
+     * الحصول على حساب مع العلاقات
+     */
+    public function findWithRelations($id, array $relations = []): ?Model
+    {
+        return $this->repository->findWithRelations($id, $relations);
+    }
+
+    /**
+     * الحصول على حسابات مع ترقيم الصفحات
+     */
+    public function paginate(int $perPage = 15)
+    {
+        return $this->repository->paginate($perPage);
+    }
+
+    /**
+     * تفعيل الحساب
+     */
+    public function activate($id): bool
+    {
+        return $this->repository->updateStatus($id, 'ACTIVE');
+    }
+
+    /**
+     * تعطيل الحساب
+     */
+    public function deactivate($id): bool
+    {
+        return $this->repository->updateStatus($id, 'INACTIVE');
+    }
+
+    /**
+     * البحث عن حساب بالبريد الإلكتروني
+     */
+    public function findByEmail(string $email): ?Model
+    {
+        return $this->repository->findByEmail($email);
+    }
+
+    /**
+     * البحث عن حساب باسم المستخدم
+     */
+    public function findByUsername(string $username): ?Model
+    {
+        return $this->repository->findByUsername($username);
     }
 }

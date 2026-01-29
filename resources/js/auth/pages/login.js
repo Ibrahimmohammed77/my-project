@@ -1,3 +1,4 @@
+import '../../bootstrap';
 import { AuthService } from '../services/AuthService';
 
 document.addEventListener('DOMContentLoaded', () => {

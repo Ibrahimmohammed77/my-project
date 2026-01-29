@@ -19,4 +19,15 @@ class StoreSubscriberRequest extends FormRequest
             'settings' => 'nullable|array'
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'account_id.required' => 'الحساب مطلوب',
+            'account_id.exists' => 'الحساب المحدد غير موجود',
+            'subscriber_status_id.required' => 'حالة المشترك مطلوبة',
+            'subscriber_status_id.exists' => 'حالة المشترك المحددة غير موجودة',
+            'settings.array' => 'الإعدادات يجب أن تكون مصفوفة',
+        ];
+    }
 }

@@ -26,6 +26,23 @@ class Subscriber extends Model
     {
         return $this->belongsTo(\App\Domain\Shared\Models\LookupValue::class, 'subscriber_status_id');
     }
+
+    public function scopeStatus($query, $statusCode)
+    {
+        return $query->whereHas('status', function ($q) use ($statusCode) {
+            $q->where('code', $statusCode);
+        });
+    }
+
+    public function scopeActive($query)
+    {
+        return $this->scopeStatus($query, 'ACTIVE');
+    }
+
+    public function getIsActiveAttribute()
+    {
+        return $this->status && $this->status->code === 'ACTIVE';
+    }
 }
 
 

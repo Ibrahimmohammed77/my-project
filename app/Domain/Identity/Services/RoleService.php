@@ -121,4 +121,44 @@ class RoleService
 
         return $role->permissions()->where('name', $permissionName)->exists();
     }
+
+    /**
+     * البحث في الأدوار
+     */
+    public function search(string $searchTerm): Collection
+    {
+        return $this->repository->search($searchTerm);
+    }
+
+    /**
+     * الحصول على دور بالاسم
+     */
+    public function findByName(string $name): ?Model
+    {
+        return $this->repository->findByName($name);
+    }
+
+    /**
+     * الحصول على الأدوار النظامية فقط
+     */
+    public function getSystemRoles(): Collection
+    {
+        return $this->repository->findSystemRoles();
+    }
+
+    /**
+     * الحصول على أدوار مع ترقيم الصفحات
+     */
+    public function paginate(int $perPage = 15)
+    {
+        return $this->repository->paginate($perPage);
+    }
+
+    /**
+     * الحصول على دور مع العلاقات
+     */
+    public function findWithRelations($id, array $relations = []): ?Model
+    {
+        return $this->repository->findWithRelations($id, $relations);
+    }
 }

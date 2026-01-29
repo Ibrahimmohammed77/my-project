@@ -1,11 +1,27 @@
-@props(['id', 'title'])
+@props(['id', 'title', 'maxWidth' => 'lg'])
+
+@php
+    $maxWidthClass = [
+        'sm' => 'sm:max-w-sm',
+        'md' => 'sm:max-w-md',
+        'lg' => 'sm:max-w-lg',
+        'xl' => 'sm:max-w-xl',
+        '2xl' => 'sm:max-w-2xl',
+        '3xl' => 'sm:max-w-3xl',
+        '4xl' => 'sm:max-w-4xl',
+        '5xl' => 'sm:max-w-5xl',
+        '6xl' => 'sm:max-w-6xl',
+        '7xl' => 'sm:max-w-7xl',
+        'full' => 'sm:max-w-full',
+    ][$maxWidth] ?? 'sm:max-w-lg';
+@endphp
 
 <div id="{{ $id }}" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
     <!-- Backdrop -->
     <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" onclick="document.getElementById('{{ $id }}').classList.add('hidden')"></div>
 
     <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-        <div class="relative transform overflow-hidden rounded-2xl bg-white text-right shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
+        <div class="relative transform overflow-hidden rounded-2xl bg-white text-right shadow-xl transition-all sm:my-8 w-full {{ $maxWidthClass }} border border-gray-100">
             <!-- Header -->
             <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2" id="{{ $id }}-title">

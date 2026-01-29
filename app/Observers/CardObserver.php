@@ -9,12 +9,12 @@ class CardObserver
 {
     public function created(Card $card): void
     {
-        ActivityLog::logActivity(
-            null,
+        ActivityLog::log(
+            auth()->id(),
             'create',
             'card',
-            $card->id,
-            ['name' => $card->name]
+            $card->card_id,
+            ['card_number' => $card->card_number]
         );
     }
 
@@ -23,11 +23,11 @@ class CardObserver
         $changes = $card->getChanges();
         
         if (!empty($changes)) {
-            ActivityLog::logActivity(
-                null,
+            ActivityLog::log(
+                auth()->id(),
                 'update',
                 'card',
-                $card->id,
+                $card->card_id,
                 ['changes' => $changes]
             );
         }

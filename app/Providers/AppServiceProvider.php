@@ -168,6 +168,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Contracts\LookupRepositoryInterface::class,
             \App\Repositories\LookupRepository::class
         );
+
+        // Card Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\CardRepositoryInterface::class,
+            \App\Repositories\CardRepository::class
+        );
     }
 
     /**

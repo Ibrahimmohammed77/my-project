@@ -121,6 +121,20 @@ Route::middleware('auth')->group(function () {
         Route::delete('admin/lookups/values/{value}', [\App\Http\Controllers\Web\Admin\LookupController::class, 'destroyValue'])->name('admin.lookups.values.destroy');
     });
 
+    Route::middleware('can:manage_cards')->group(function () {
+        // Card Groups
+        Route::get('admin/cards', [\App\Http\Controllers\Web\Admin\CardController::class, 'indexGroup'])->name('spa.cards');
+        Route::post('admin/cards/groups', [\App\Http\Controllers\Web\Admin\CardController::class, 'storeGroup'])->name('admin.cards.groups.store');
+        Route::put('admin/cards/groups/{group}', [\App\Http\Controllers\Web\Admin\CardController::class, 'updateGroup'])->name('admin.cards.groups.update');
+        Route::delete('admin/cards/groups/{group}', [\App\Http\Controllers\Web\Admin\CardController::class, 'destroyGroup'])->name('admin.cards.groups.destroy');
+
+        // Cards (Nested)
+        Route::get('admin/cards/groups/{group}/cards', [\App\Http\Controllers\Web\Admin\CardController::class, 'indexCards'])->name('admin.cards.groups.cards');
+        Route::post('admin/cards/groups/{group}/cards', [\App\Http\Controllers\Web\Admin\CardController::class, 'storeCard'])->name('admin.cards.groups.cards.store');
+        Route::put('admin/cards/groups/{group}/cards/{card}', [\App\Http\Controllers\Web\Admin\CardController::class, 'updateCard'])->name('admin.cards.groups.cards.update');
+        Route::delete('admin/cards/groups/{group}/cards/{card}', [\App\Http\Controllers\Web\Admin\CardController::class, 'destroyCard'])->name('admin.cards.groups.cards.destroy');
+    });
+
     Route::get('admin/studios', function () { return 'Studios'; })->name('spa.studios');
     Route::get('admin/schools', function () { return 'Schools'; })->name('spa.schools');
     Route::get('admin/roles', function () { return 'Roles'; })->name('spa.roles');

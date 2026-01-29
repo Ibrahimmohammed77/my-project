@@ -44,6 +44,10 @@ class Card extends Model
             if (empty($card->card_uuid)) {
                 $card->card_uuid = \Illuminate\Support\Str::uuid()->toString();
             }
+
+            if (empty($card->card_number)) {
+                $card->card_number = (string) random_int(100000000000, 999999999999);
+            }
         });
     }
 

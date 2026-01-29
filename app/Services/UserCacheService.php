@@ -17,7 +17,7 @@ class UserCacheService
     {
         $key = self::USER_TAG_PREFIX . $userId;
 
-        return Cache::tags([$key])->remember($key, self::TTL, function () use ($userId) {
+        return Cache::remember($key, self::TTL, function () use ($userId) {
             return User::withCommonRelations()->find($userId);
         });
     }
@@ -28,7 +28,7 @@ class UserCacheService
     public static function put(User $user): void
     {
         $key = self::USER_TAG_PREFIX . $user->id;
-        Cache::tags([$key])->put($key, $user, self::TTL);
+        Cache::put($key, $user, self::TTL);
     }
 
     /**
@@ -37,7 +37,8 @@ class UserCacheService
     public static function forget($userId): void
     {
         $key = self::USER_TAG_PREFIX . $userId;
-        Cache::tags([$key])->flush();
+        Cache::forget($key);
+        Cache::forget($key . '_permissions');
     }
 
     /**
@@ -47,7 +48,7 @@ class UserCacheService
     {
         $key = self::USER_TAG_PREFIX . $userId . '_permissions';
 
-        return Cache::tags([self::USER_TAG_PREFIX . $userId])->remember($key, 300, function () use ($userId) {
+        return Cache::remember($key, 300, function () use ($userId) {
             $user = User::find($userId);
             return $user ? $user->permissions() : collect();
         });
@@ -58,6 +59,6 @@ class UserCacheService
      */
     public static function flushUserCache($userId): void
     {
-        Cache::tags([self::USER_TAG_PREFIX . $userId])->flush();
+        self::forget($userId);
     }
 }

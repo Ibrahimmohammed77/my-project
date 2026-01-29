@@ -82,6 +82,6 @@ trait HasPermissions
      */
     public function getIsAdminAttribute(): bool
     {
-        return $this->hasRole('admin');
+        return $this->hasRole('admin') || $this->hasRole('super_admin');
     }
 }

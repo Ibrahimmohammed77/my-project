@@ -13,37 +13,10 @@ class AuthRefactoringTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function seedData()
+    protected function setUp(): void
     {
-        // Create lookup masters
-        $statusMaster = LookupMaster::create(['code' => 'user_status', 'name' => 'User Status']);
-        $typeMaster = LookupMaster::create(['code' => 'user_type', 'name' => 'User Type']);
-        $notifyMaster = LookupMaster::create(['code' => 'notification_type', 'name' => 'Notification Type']);
-
-        // Create lookup values for user type and status
-        LookupValue::create([
-            'lookup_master_id' => $statusMaster->lookup_master_id,
-            'code' => 'active',
-            'name' => 'Active',
-            'is_active' => true
-        ]);
-        
-        LookupValue::create([
-            'lookup_master_id' => $typeMaster->lookup_master_id,
-            'code' => 'customer',
-            'name' => 'Customer',
-            'is_active' => true
-        ]);
-        
-        LookupValue::create([
-            'lookup_master_id' => $notifyMaster->lookup_master_id,
-            'code' => 'welcome',
-            'name' => 'Welcome',
-            'is_active' => true
-        ]);
-        
-        // Create role
-        Role::create(['name' => 'customer', 'guard_name' => 'web']);
+        parent::setUp();
+        $this->seed([\Database\Seeders\LookupSeeder::class, \Database\Seeders\SystemSeeder::class]);
     }
 
     public function test_login_page_is_accessible()

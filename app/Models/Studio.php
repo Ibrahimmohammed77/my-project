@@ -64,4 +64,13 @@ class Studio extends Model
     {
         return $this->morphMany(Card::class, 'owner');
     }
+
+    /**
+     * علاقة العملاء (Placeholder)
+     */
+    public function customers()
+    {
+        // استخدام علاقة لا ترجع شيئاً حالياً لتجنب الخطأ
+        return $this->hasMany(User::class, 'id', 'user_id')->whereRaw('1=0');
+    }
 }

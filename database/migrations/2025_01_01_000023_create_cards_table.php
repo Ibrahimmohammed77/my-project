@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('card_group_id')->references('group_id')->on('card_groups')->onDelete('set null');
-            $table->foreign('holder_id')->references('user_id')->on('users')->onDelete('set null');
+            $table->foreign('holder_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('card_type_id')->references('lookup_value_id')->on('lookup_values');
             $table->foreign('card_status_id')->references('lookup_value_id')->on('lookup_values');
 

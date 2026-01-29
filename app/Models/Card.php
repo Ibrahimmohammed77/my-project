@@ -105,8 +105,8 @@ class Card extends Model
      */
     public function getIsActiveAttribute()
     {
-        $activeStatus = LookupValue::where('code', 'active')->first();
-        return $this->card_status_id == $activeStatus->lookup_value_id;
+        $activeStatus = LookupValue::where('code', 'ACTIVE')->first();
+        return $this->card_status_id == ($activeStatus->lookup_value_id ?? null);
     }
 
     /**
@@ -126,7 +126,7 @@ class Card extends Model
      */
     public function activate()
     {
-        $activeStatus = LookupValue::where('code', 'active')->first();
+        $activeStatus = LookupValue::where('code', 'ACTIVE')->first();
 
         $this->update([
             'card_status_id' => $activeStatus->lookup_value_id,
@@ -139,7 +139,7 @@ class Card extends Model
      */
     public function deactivate()
     {
-        $inactiveStatus = LookupValue::where('code', 'inactive')->first();
+        $inactiveStatus = LookupValue::where('code', 'INACTIVE')->first();
 
         $this->update([
             'card_status_id' => $inactiveStatus->lookup_value_id,

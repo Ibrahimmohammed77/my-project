@@ -53,6 +53,7 @@ class LookupSeeder extends Seeder
             
             $values = $this->getValuesForMaster($masterData['code']);
             foreach ($values as $valueData) {
+                $valueData['is_active'] = true;
                 $master->values()->create($valueData);
             }
         }
@@ -162,6 +163,7 @@ class LookupSeeder extends Seeder
                     ['code' => 'WARNING', 'name' => 'تحذير'],
                     ['code' => 'ERROR', 'name' => 'خطأ'],
                     ['code' => 'SUCCESS', 'name' => 'نجاح'],
+                    ['code' => 'WELCOME', 'name' => 'ترحيب'],
                 ];
             case 'SETTING_TYPE':
                 return [

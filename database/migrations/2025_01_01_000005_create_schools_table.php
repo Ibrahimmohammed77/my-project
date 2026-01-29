@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->string('city', 100)->nullable();
             $table->json('settings')->nullable();
+            $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('school_type_id')->references('lookup_value_id')->on('lookup_values');
             $table->foreign('school_level_id')->references('lookup_value_id')->on('lookup_values');

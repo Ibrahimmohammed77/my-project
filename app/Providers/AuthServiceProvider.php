@@ -36,6 +36,11 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        // Grant all permissions to super_admin
+        Gate::before(function (User $user, $ability) {
+            return $user->hasRole('super_admin') ? true : null;
+        });
+
         // Register all database permissions as Gates
         $this->registerDynamicPermissions();
 
@@ -74,7 +79,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         // التحقق مما إذا كان المستخدم مدير
         Gate::define('is-admin', function (User $user) {
-            return $user->hasRole('admin');
+            return $user->hasRole('admin') || $user->hasRole('super_admin');
         });
 
         // التحقق مما إذا كان المستخدم صاحب استوديو

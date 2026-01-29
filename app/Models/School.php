@@ -74,4 +74,21 @@ class School extends Model
     {
         return $this->morphMany(Card::class, 'owner');
     }
+
+    /**
+     * علاقة الطلاب (Placeholder)
+     */
+    public function students()
+    {
+        return $this->hasMany(User::class, 'id', 'user_id')->whereRaw('1=0');
+    }
+
+    /**
+     * علاقة الصفوف (Placeholder)
+     */
+    public function classes()
+    {
+        // افترض وجود موديل ClassRoom مستقبلاً
+        return $this->hasMany(User::class, 'id', 'user_id')->whereRaw('1=0');
+    }
 }

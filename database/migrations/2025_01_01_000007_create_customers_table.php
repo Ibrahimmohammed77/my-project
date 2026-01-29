@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('last_name', 100);
             $table->date('date_of_birth')->nullable();
             $table->unsignedBigInteger('gender_id')->nullable();
+            $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('gender_id')->references('lookup_value_id')->on('lookup_values');
         });

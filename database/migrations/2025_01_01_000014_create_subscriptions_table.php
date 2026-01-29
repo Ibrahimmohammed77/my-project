@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('subscription_status_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('plan_id')->references('plan_id')->on('plans');
             $table->foreign('subscription_status_id')->references('lookup_value_id')->on('lookup_values');
         });

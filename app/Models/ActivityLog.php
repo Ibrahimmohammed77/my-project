@@ -140,7 +140,26 @@ class ActivityLog extends Model
             'resource_id' => $resourceId,
             'metadata' => $metadata,
             'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
         ]);
+    }
+
+    /**
+     * الحصول على وصف نصي للنشاط
+     */
+    public function getDescriptionAttribute(): string
+    {
+        $descriptions = [
+            'login' => 'تسجيل دخول إلى النظام',
+            'logout' => 'تسجيل خروج من النظام',
+            'user_created' => 'إنشاء مستخدم جديد',
+            'user_updated' => 'تحديث بيانات مستخدم',
+            'user_deleted' => 'حذف مستخدم',
+            'album_created' => 'إنشاء ألبوم جديد',
+            'photo_uploaded' => 'رفع صورة جديدة',
+            'card_activated' => 'تفعيل بطاقة',
+            'payment_received' => 'استلام دفعة مالية',
+        ];
+
+        return $descriptions[$this->action] ?? "قام بـ {$this->action} في {$this->resource_type}";
     }
 }

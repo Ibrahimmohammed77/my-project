@@ -54,8 +54,9 @@ class DashboardController extends Controller
         $this->authorize('access-admin-dashboard');
 
         $stats = $this->getAdminStats();
+        $controller = $this;
 
-        return view('dashboard.admin', compact('stats'));
+        return view('dashboard.admin', compact('stats', 'controller'));
     }
 
     /**
@@ -209,32 +210,32 @@ class DashboardController extends Controller
     private function redirectBasedOnPermissions($user): RedirectResponse
     {
         // الأولوية 1: المسؤول
-        if ($user->hasPermission('access_admin_dashboard')) {
+        if ($user->hasPermission('access-admin-dashboard')) {
             return redirect()->route('dashboard.admin');
         }
-
+ 
         // الأولوية 2: صاحب الاستوديو
-        if ($user->hasPermission('access_studio_dashboard')) {
+        if ($user->hasPermission('access-studio-dashboard')) {
             return redirect()->route('dashboard.studio-owner');
         }
-
+ 
         // الأولوية 3: صاحب المدرسة
-        if ($user->hasPermission('access_school_dashboard')) {
+        if ($user->hasPermission('access-school-dashboard')) {
             return redirect()->route('dashboard.school-owner');
         }
-
+ 
         // الأولوية 4: الموظف
-        if ($user->hasPermission('access_employee_dashboard')) {
+        if ($user->hasPermission('access-employee-dashboard')) {
             return redirect()->route('dashboard.employee');
         }
-
+ 
         // الأولوية 5: المحرر
-        if ($user->hasPermission('access_editor_dashboard')) {
+        if ($user->hasPermission('access-editor-dashboard')) {
             return redirect()->route('dashboard.editor');
         }
-
+ 
         // الأولوية 6: العميل
-        if ($user->hasPermission('access_customer_dashboard')) {
+        if ($user->hasPermission('access-customer-dashboard')) {
             return redirect()->route('dashboard.customer');
         }
 
@@ -273,5 +274,43 @@ class DashboardController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * الحصول على لون الإحصائية
+     */
+    public function getStatColor($key): string
+    {
+        $colors = [
+            'total_users' => 'bg-blue-500',
+            'active_users' => 'bg-green-500',
+            'new_users_today' => 'bg-purple-500',
+            'total_studios' => 'bg-indigo-500',
+            'total_schools' => 'bg-red-500',
+            'total_subscriptions' => 'bg-yellow-500',
+            'total_revenue' => 'bg-emerald-500',
+            'pending_invoices' => 'bg-orange-500',
+        ];
+
+        return $colors[$key] ?? 'bg-gray-500';
+    }
+
+    /**
+     * الحصول على أيقونة الإحصائية
+     */
+    public function getStatIcon($key): string
+    {
+        $icons = [
+            'total_users' => 'fas fa-users',
+            'active_users' => 'fas fa-user-check',
+            'new_users_today' => 'fas fa-user-plus',
+            'total_studios' => 'fas fa-building',
+            'total_schools' => 'fas fa-school',
+            'total_subscriptions' => 'fas fa-membership',
+            'total_revenue' => 'fas fa-dollar-sign',
+            'pending_invoices' => 'fas fa-file-invoice-dollar',
+        ];
+
+        return $icons[$key] ?? 'fas fa-chart-bar';
     }
 }

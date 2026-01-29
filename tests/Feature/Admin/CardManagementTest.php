@@ -20,30 +20,8 @@ class CardManagementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seedData();
-    }
-
-    private function seedData()
-    {
-        // Seed Lookups
-        $cardTypeMaster = LookupMaster::create(['code' => 'card_type', 'name' => 'Card Type']);
-        LookupValue::create(['lookup_master_id' => $cardTypeMaster->lookup_master_id, 'code' => 'physical', 'name' => 'Physical', 'is_active' => true]);
+        $this->seed([\Database\Seeders\LookupSeeder::class, \Database\Seeders\SystemSeeder::class]);
         
-        $cardStatusMaster = LookupMaster::create(['code' => 'card_status', 'name' => 'Card Status']);
-        LookupValue::create(['lookup_master_id' => $cardStatusMaster->lookup_master_id, 'code' => 'active', 'name' => 'Active', 'is_active' => true]);
-
-
-        // Seed Roles & Permissions
-        $adminRole = Role::create(['name' => 'admin', 'display_name' => 'Admin']);
-        $permission = Permission::create([
-            'name' => 'manage_cards',
-            'display_name' => 'Manage Cards',
-            'resource_type' => 'cards',
-            'action' => 'manage',
-            'is_active' => true
-        ]);
-        $adminRole->permissions()->attach($permission->permission_id);
-
         Gate::define('manage_cards', function (User $user) {
             return $user->hasPermission('manage_cards');
         });
@@ -54,7 +32,7 @@ class CardManagementTest extends TestCase
     public function test_admin_can_access_card_groups_index()
     {
         $admin = User::factory()->create();
-        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
+        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id, ['is_active' => true]);
         
         CardGroup::create(['name' => 'Test Group', 'sub_card_available' => 100]);
 
@@ -67,7 +45,7 @@ class CardManagementTest extends TestCase
     public function test_admin_can_create_card_group()
     {
         $admin = User::factory()->create();
-        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
+        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id, ['is_active' => true]);
         
         $response = $this->actingAs($admin)->post(route('admin.cards.groups.store'), [
             'name' => 'New Group',
@@ -83,7 +61,7 @@ class CardManagementTest extends TestCase
     public function test_admin_can_update_card_group()
     {
         $admin = User::factory()->create();
-        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
+        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id, ['is_active' => true]);
         
         $group = CardGroup::create(['name' => 'Old Group', 'sub_card_available' => 100]);
 
@@ -101,7 +79,7 @@ class CardManagementTest extends TestCase
     public function test_admin_can_delete_card_group()
     {
         $admin = User::factory()->create();
-        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
+        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id, ['is_active' => true]);
         
         $group = CardGroup::create(['name' => 'To Delete', 'sub_card_available' => 100]);
 
@@ -117,7 +95,7 @@ class CardManagementTest extends TestCase
     public function test_admin_can_access_cards_of_group()
     {
         $admin = User::factory()->create();
-        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
+        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id, ['is_active' => true]);
         
         $group = CardGroup::create(['name' => 'Group A', 'sub_card_available' => 100]);
 
@@ -130,11 +108,15 @@ class CardManagementTest extends TestCase
     public function test_admin_can_create_card_in_group()
     {
         $admin = User::factory()->create();
-        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
+        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id, ['is_active' => true]);
         
         $group = CardGroup::create(['name' => 'Group B', 'sub_card_available' => 100]);
-        $type = LookupValue::where('code', 'physical')->first();
-        $status = LookupValue::where('code', 'active')->first();
+        $type = LookupValue::whereHas('master', fn($q) => $q->where('code', 'CARD_TYPE'))
+            ->where('code', 'STANDARD')
+            ->first();
+        $status = LookupValue::whereHas('master', fn($q) => $q->where('code', 'CARD_STATUS'))
+            ->where('code', 'ACTIVE')
+            ->first();
 
         $response = $this->actingAs($admin)->post(route('admin.cards.groups.cards.store', $group), [
             'card_group_id' => $group->group_id,
@@ -150,18 +132,22 @@ class CardManagementTest extends TestCase
     public function test_card_creation_auto_generates_uuid()
     {
          $admin = User::factory()->create();
-         $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
+         $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id, ['is_active' => true]);
          
          $group = CardGroup::create(['name' => 'Group C', 'sub_card_available' => 100]);
-         $type = LookupValue::where('code', 'physical')->first();
-         $status = LookupValue::where('code', 'active')->first();
+         $type = LookupValue::whereHas('master', fn($q) => $q->where('code', 'CARD_TYPE'))
+            ->where('code', 'STANDARD')
+            ->first();
+         $status = LookupValue::whereHas('master', fn($q) => $q->where('code', 'CARD_STATUS'))
+            ->where('code', 'ACTIVE')
+            ->first();
  
-         $this->actingAs($admin)->post(route('admin.cards.groups.cards.store', $group), [
-             'card_group_id' => $group->group_id,
-             'card_type_id' => $type->lookup_value_id,
-             'card_status_id' => $status->lookup_value_id,
-         ]);
-
+         $response = $this->actingAs($admin)->post(route('admin.cards.groups.cards.store', $group), [
+            'card_group_id' => $group->group_id,
+            'card_type_id' => $type->lookup_value_id,
+            'card_status_id' => $status->lookup_value_id,
+        ]);
+         
          $card = Card::where('card_group_id', $group->group_id)->first();
          $this->assertNotNull($card->card_uuid);
     }

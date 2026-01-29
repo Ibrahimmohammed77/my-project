@@ -25,8 +25,8 @@
                             <p class="text-sm text-gray-500">{{ trans("dashboard.stats.$key") }}</p>
                             <p class="text-2xl font-bold mt-2">{{ $value }}</p>
                         </div>
-                        <div class="p-3 {{ $this->getStatColor($key) }} rounded-lg">
-                            <i class="{{ $this->getStatIcon($key) }} text-white text-xl"></i>
+                        <div class="p-3 {{ $controller->getStatColor($key) }} rounded-lg">
+                            <i class="{{ $controller->getStatIcon($key) }} text-white text-xl"></i>
                         </div>
                     </div>
                 </div>
@@ -38,42 +38,54 @@
                 <div class="bg-white rounded-xl shadow p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">إدارة المستخدمين</h2>
                     <div class="space-y-3">
+                        @if(Route::has('admin.users.index'))
                         <a href="{{ route('admin.users.index') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
                             <i class="fas fa-users text-blue-600 ml-3"></i>
                             <span>عرض جميع المستخدمين</span>
                         </a>
+                        @endif
+                        @if(Route::has('admin.users.create'))
                         <a href="{{ route('admin.users.create') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
                             <i class="fas fa-user-plus text-green-600 ml-3"></i>
                             <span>إضافة مستخدم جديد</span>
                         </a>
+                        @endif
                     </div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">إدارة الاستوديوهات</h2>
                     <div class="space-y-3">
+                        @if(Route::has('admin.studios.index'))
                         <a href="{{ route('admin.studios.index') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
                             <i class="fas fa-building text-purple-600 ml-3"></i>
                             <span>عرض الاستوديوهات</span>
                         </a>
+                        @endif
+                        @if(Route::has('admin.studios.create'))
                         <a href="{{ route('admin.studios.create') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
                             <i class="fas fa-plus-circle text-purple-600 ml-3"></i>
                             <span>إضافة استوديو جديد</span>
                         </a>
+                        @endif
                     </div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">التقارير والإحصائيات</h2>
                     <div class="space-y-3">
+                        @if(Route::has('admin.reports.users'))
                         <a href="{{ route('admin.reports.users') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
                             <i class="fas fa-chart-bar text-yellow-600 ml-3"></i>
                             <span>تقارير المستخدمين</span>
                         </a>
+                        @endif
+                        @if(Route::has('admin.reports.financial'))
                         <a href="{{ route('admin.reports.financial') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
                             <i class="fas fa-money-bill-wave text-green-600 ml-3"></i>
                             <span>تقارير مالية</span>
                         </a>
+                        @endif
                     </div>
                 </div>
             </div>

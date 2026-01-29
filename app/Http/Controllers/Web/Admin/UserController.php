@@ -62,6 +62,15 @@ class UserController extends Controller
             'SCHOOL' => $types->where('code', 'school_admin')->first()?->lookup_value_id,
         ];
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'accounts' => $users
+                ]
+            ]);
+        }
+
         return view('spa.accounts.index', compact('users', 'roles', 'statuses', 'types', 'filters', 'schoolTypes', 'schoolLevels', 'accountTypeIds'));
     }
 

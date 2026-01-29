@@ -107,8 +107,10 @@ class User extends Authenticatable
     public function activeSubscription(): HasOne
     {
         return $this->hasOne(Subscription::class, 'user_id')
-                    ->where('end_date', '>=', now())
-                    ->orWhere('auto_renew', true)
+                    ->where(function($query) {
+                        $query->where('end_date', '>=', now())
+                              ->orWhere('auto_renew', true);
+                    })
                     ->orderBy('end_date', 'desc')
                     ->limit(1);
     }

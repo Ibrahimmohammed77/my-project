@@ -34,7 +34,12 @@ class CardController extends Controller
         $groups = $this->manageCardGroupUseCase->listGroups();
 
         if (request()->wantsJson()) {
-            return response()->json($groups);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'groups' => $groups
+                ]
+            ]);
         }
 
         return view('spa.cards.groups.index', compact('groups'));

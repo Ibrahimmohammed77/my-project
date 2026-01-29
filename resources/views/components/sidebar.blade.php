@@ -69,7 +69,8 @@
                 </div>
             </div>
 
-            <!-- Identity Management -->
+            <!-- Identity Management (Admin Only) -->
+            @if(Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('admin'))
             <div class="mb-6">
                 <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">النظام</p>
                 
@@ -85,26 +86,104 @@
                     </button>
                     
                     <div x-show="identityOpen" x-collapse class="pl-4 pr-3 space-y-1">
-                        <div class="relative border-r border-white/10 pr-4 py-1 space-y-1">
-                            <!-- <x-sidebar-link href="{{ route('spa.studios') }}" :active="request()->routeIs('spa.studios')" icon="fa-camera" class="text-sm">
-                                الاستوديوهات
+                        <div class="relative border-r border-white/10 pr-4 py-1 space-y-6">
+                            <!-- Identity Management -->
+                            <div>
+                                <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 pr-1">إدارة الهوية</p>
+                                <div class="space-y-1">
+                                    <x-sidebar-link href="{{ route('spa.accounts') }}" :active="request()->routeIs('spa.accounts')" icon="fa-user-gear" class="text-sm">
+                                        الحسابات
+                                    </x-sidebar-link>
+                                    <x-sidebar-link href="{{ route('spa.roles') }}" :active="request()->routeIs('spa.roles')" icon="fa-shield-halved" class="text-sm">
+                                        الأدوار
+                                    </x-sidebar-link>
+                                    <x-sidebar-link href="{{ route('spa.permissions') }}" :active="request()->routeIs('spa.permissions')" icon="fa-key" class="text-sm">
+                                        الصلاحيات
+                                    </x-sidebar-link>
+                                </div>
+                            </div>
+
+                            <!-- Entities Management -->
+                            <div>
+                                <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 pr-1">إدارة الجهات</p>
+                                <div class="space-y-1">
+                                    <x-sidebar-link href="{{ route('spa.studios') }}" :active="request()->routeIs('spa.studios')" icon="fa-building" class="text-sm">
+                                        الاستوديوهات
+                                    </x-sidebar-link>
+                                    <x-sidebar-link href="{{ route('spa.schools') }}" :active="request()->routeIs('spa.schools')" icon="fa-school" class="text-sm">
+                                        المدارس
+                                    </x-sidebar-link>
+                                </div>
+                            </div>
+
+                            <!-- System Settings -->
+                            <div>
+                                <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 pr-1">إعدادات النظام</p>
+                                <div class="space-y-1">
+                                    <x-sidebar-link href="{{ route('spa.lookups') }}" :active="request()->routeIs('spa.lookups')" icon="fa-list-ul" class="text-sm">
+                                        القوائم
+                                    </x-sidebar-link>
+                                    <x-sidebar-link href="{{ route('spa.plans') }}" :active="request()->routeIs('spa.plans')" icon="fa-box-archive" class="text-sm">
+                                        الخطط
+                                    </x-sidebar-link>
+                                    <x-sidebar-link href="{{ route('spa.cards') }}" :active="request()->routeIs('spa.cards')" icon="fa-id-card-clip" class="text-sm">
+                                        إدارة الكروت
+                                    </x-sidebar-link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Studio Management (Studio Owner Only) -->
+            @if(Auth::user()->hasRole('studio_owner'))
+            <div class="mb-6">
+                <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">إدارة الاستوديو</p>
+                
+                <div class="space-y-5">
+                    <!-- Operations -->
+                    <div>
+                        <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 px-3">العمليات</p>
+                        <div class="space-y-1">
+                            <x-sidebar-link href="{{ route('studio.albums.index') }}" :active="request()->routeIs('studio.albums.*')" icon="fa-images">
+                                الألبومات
                             </x-sidebar-link>
-                            <x-sidebar-link href="{{ route('spa.schools') }}" :active="request()->routeIs('spa.schools')" icon="fa-school" class="text-sm">
-                                المدارس
-                            </x-sidebar-link> -->
-                            <x-sidebar-link href="{{ route('spa.accounts') }}" :active="request()->routeIs('spa.accounts')" icon="fa-user-gear" class="text-sm">
-                                الحسابات
+                            <x-sidebar-link href="{{ route('studio.customers.index') }}" :active="request()->routeIs('studio.customers.*')" icon="fa-users">
+                                العملاء
                             </x-sidebar-link>
-                            <x-sidebar-link href="{{ route('spa.roles') }}" :active="request()->routeIs('spa.roles')" icon="fa-shield-halved" class="text-sm">
-                                الأدوار
+                            <x-sidebar-link href="{{ route('studio.photo-review.pending') }}" :active="request()->routeIs('studio.photo-review.*')" icon="fa-clipboard-check">
+                                مراجعة الصور
                             </x-sidebar-link>
-                            <x-sidebar-link href="{{ route('spa.permissions') }}" :active="request()->routeIs('spa.permissions')" icon="fa-key" class="text-sm">
-                                الصلاحيات
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    <div>
+                        <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 px-3">الموارد</p>
+                        <div class="space-y-1">
+                            <x-sidebar-link href="{{ route('studio.cards.index') }}" :active="request()->routeIs('studio.cards.*')" icon="fa-id-card">
+                                الكروت
+                            </x-sidebar-link>
+                            <x-sidebar-link href="{{ route('studio.storage.index') }}" :active="request()->routeIs('studio.storage.*')" icon="fa-database">
+                                تخصيص المساحة
+                            </x-sidebar-link>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div>
+                        <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 px-3">الإعدادات</p>
+                        <div class="space-y-1">
+                            <x-sidebar-link href="{{ route('studio.profile.edit') }}" :active="request()->routeIs('studio.profile.*')" icon="fa-user-pen">
+                                بيانات الاستوديو
                             </x-sidebar-link>
                         </div>
                     </div>
                 </div>
             </div>
+            @endif
 
             <!-- Reports -->
             <div>

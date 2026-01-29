@@ -162,6 +162,10 @@ class DashboardController extends Controller
             'pending_commissions' => $studio->commissions()->whereHas('status', function ($q) {
                 $q->where('code', 'pending');
             })->count(),
+            'pending_photos_count' => Photo::pending()
+                ->whereHas('album.storageLibrary', function($q) use ($studio) {
+                    $q->where('studio_id', $studio->studio_id);
+                })->count(),
         ];
     }
 

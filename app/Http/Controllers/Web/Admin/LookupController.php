@@ -30,7 +30,12 @@ class LookupController extends Controller
         $masters = $this->listLookupsUseCase->execute();
 
         if (request()->wantsJson()) {
-            return response()->json($masters);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'masters' => $masters
+                ]
+            ]);
         }
 
         return view('spa.lookups.index', compact('masters'));

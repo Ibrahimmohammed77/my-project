@@ -12,22 +12,38 @@ class CardPolicy
 
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasRole('admin') || $user->studio()->exists();
     }
 
     public function view(User $user, Card $card): bool
     {
-        return $user->id === $card->holder_id || $user->hasRole('admin');
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        if ($card->owner_type === \App\Models\Studio::class && $user->studio) {
+            return (int)$card->owner_id === (int)$user->studio->studio_id;
+        }
+
+        return (int)$user->id === (int)$card->holder_id;
     }
 
     public function create(User $user): bool
     {
-        return true;
+        return $user->hasRole('admin') || $user->studio()->exists();
     }
 
     public function update(User $user, Card $card): bool
     {
-        return $user->hasRole('admin');
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        if ($card->owner_type === \App\Models\Studio::class && $user->studio) {
+            return (int)$card->owner_id === (int)$user->studio->studio_id;
+        }
+
+        return false;
     }
 
     public function delete(User $user, Card $card): bool

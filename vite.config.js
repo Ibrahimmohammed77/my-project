@@ -16,7 +16,10 @@ export default defineConfig({
                 'resources/js/auth/pages/register.js',
                 'resources/js/auth/pages/login.js',
                 'resources/js/spa/pages/customers.js',
-                'resources/js/spa/pages/subscribers.js'
+                'resources/js/spa/pages/subscribers.js',
+                'resources/js/spa/pages/lookups.js',
+                'resources/js/spa/pages/plans.js',
+                'resources/js/spa/pages/cards.js'
             ],
             refresh: true,
         }),

@@ -85,15 +85,31 @@ Route::middleware('auth')->group(function () {
     })->name('profile.completion');
 
     // Role-specific Resources
-    Route::middleware('can:is-studio-owner')->group(function () {
-        Route::resource('studio/albums', \App\Http\Controllers\Studio\AlbumController::class);
-        Route::resource('studio/customers', \App\Http\Controllers\Studio\CustomerController::class);
-        Route::resource('studio/cards', \App\Http\Controllers\Studio\CardController::class);
+    Route::middleware('can:is-studio-owner')->as('studio.')->prefix('studio')->group(function () {
+        Route::resource('albums', \App\Http\Controllers\Studio\AlbumController::class);
+        Route::resource('customers', \App\Http\Controllers\Studio\CustomerController::class);
+        Route::resource('cards', \App\Http\Controllers\Studio\CardController::class)->parameters(['cards' => 'card:card_id']);
+        Route::post('cards/{card:card_id}/link-albums', [\App\Http\Controllers\Studio\CardController::class, 'linkAlbums'])->name('cards.link-albums');
+        
+        // Studio Profile Update (restricted)
+        Route::get('studio/profile', [\App\Http\Controllers\Studio\ProfileController::class, 'edit'])->name('studio.profile.edit');
+        Route::put('studio/profile', [\App\Http\Controllers\Studio\ProfileController::class, 'update'])->name('studio.profile.update');
+        
+        // Storage Allocation
+        Route::get('studio/storage/libraries', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'index'])->name('studio.storage.index');
+        Route::post('studio/storage/libraries', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'store'])->name('studio.storage.store');
+        
+        // Photo Review
+        Route::get('studio/photo-review/pending', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'pending'])->name('studio.photo-review.pending');
+        Route::post('studio/photo-review/{photo}/review', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'review'])->name('studio.photo-review.review');
     });
 
     Route::middleware('can:is-customer')->group(function () {
-        Route::resource('my-albums', \App\Http\Controllers\Customer\AlbumController::class);
-        Route::resource('my-cards', \App\Http\Controllers\Customer\CardController::class);
+        // Route::resource('my-albums', \App\Http\Controllers\Customer\AlbumController::class);
+        // Route::resource('my-cards', \App\Http\Controllers\Customer\CardController::class);
+        
+        // Subscriber uploads
+        Route::post('customer/photos/upload', [\App\Http\Controllers\Customer\PhotoController::class, 'store'])->name('customer.photos.store');
     });
 
     Route::middleware('can:manage_users')->group(function () {
@@ -140,11 +156,31 @@ Route::middleware('auth')->group(function () {
         Route::post('admin/roles', [\App\Http\Controllers\Web\Admin\RoleController::class, 'store'])->name('admin.roles.store');
         Route::put('admin/roles/{role}', [\App\Http\Controllers\Web\Admin\RoleController::class, 'update'])->name('admin.roles.update');
         Route::delete('admin/roles/{role}', [\App\Http\Controllers\Web\Admin\RoleController::class, 'destroy'])->name('admin.roles.destroy');
+        Route::get('/roles', [\App\Http\Controllers\Web\Admin\RoleController::class, 'index']);
     });
 
-    Route::get('admin/studios', function () { return 'Studios'; })->name('spa.studios');
-    Route::get('admin/schools', function () { return 'Schools'; })->name('spa.schools');
-    Route::get('admin/permissions', function () { return 'Permissions'; })->name('spa.permissions');
+    Route::post('admin/subscriptions', [\App\Http\Controllers\Web\Admin\SubscriptionController::class, 'store'])->name('admin.subscriptions.store');
+
+    Route::middleware('can:manage_studios')->group(function () {
+        Route::get('admin/studios', [\App\Http\Controllers\Web\Admin\StudioController::class, 'index'])->name('spa.studios');
+        Route::get('/studios', [\App\Http\Controllers\Web\Admin\StudioController::class, 'index']);
+    });
+
+    Route::middleware('can:manage_schools')->group(function () {
+        Route::get('admin/schools', [\App\Http\Controllers\Web\Admin\SchoolController::class, 'index'])->name('spa.schools');
+        Route::get('/schools', [\App\Http\Controllers\Web\Admin\SchoolController::class, 'index']);
+    });
+
+    Route::middleware('can:manage_permissions')->group(function () {
+        Route::get('admin/permissions', [\App\Http\Controllers\Web\Admin\PermissionController::class, 'index'])->name('spa.permissions');
+        Route::get('/permissions', [\App\Http\Controllers\Web\Admin\PermissionController::class, 'index']);
+    });
+
+    // Root-level routes for other SPA services
+    Route::get('/accounts', [\App\Http\Controllers\Web\Admin\UserController::class, 'index'])->middleware('can:manage_users');
+    Route::get('/lookups', [\App\Http\Controllers\Web\Admin\LookupController::class, 'index'])->middleware('can:manage_lookups');
+    Route::get('/plans', [\App\Http\Controllers\Web\Admin\PlanController::class, 'index'])->middleware('can:manage_plans');
+    Route::get('/cards', [\App\Http\Controllers\Web\Admin\CardController::class, 'indexGroup'])->middleware('can:manage_cards');
 
     Route::middleware('can:is-admin')->group(function () {
         // Route::resource('admin/studios', \App\Http\Controllers\Admin\StudioController::class);

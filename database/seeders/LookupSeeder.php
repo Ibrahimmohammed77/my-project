@@ -150,6 +150,7 @@ class LookupSeeder extends Seeder
                 return [
                     ['code' => 'STANDARD', 'name' => 'عادية'],
                     ['code' => 'PREMIUM', 'name' => 'مميزة'],
+                    ['code' => 'SUBSCRIBER', 'name' => 'مشترك'],
                 ];
             case 'CARD_STATUS':
                 return [

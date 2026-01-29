@@ -17,6 +17,11 @@ class StorageLibrary extends Model
         'user_id',
         'name',
         'description',
+        'storage_limit',
+    ];
+
+    protected $casts = [
+        'storage_limit' => 'integer',
     ];
 
     /**
@@ -72,6 +77,10 @@ class StorageLibrary extends Model
      */
     public function getAvailableStorageAttribute()
     {
+        if ($this->storage_limit > 0) {
+            return $this->storage_limit - $this->used_storage;
+        }
+
         $plan = $this->user->activeSubscription()?->plan;
         return $plan ? $plan->storage_limit - $this->used_storage : 0;
     }

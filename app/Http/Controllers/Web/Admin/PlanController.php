@@ -42,7 +42,12 @@ class PlanController extends Controller
         );
 
         if ($request->wantsJson()) {
-            return response()->json($plans);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'plans' => $plans
+                ]
+            ]);
         }
 
         return view('spa.plans.index', compact('plans'));

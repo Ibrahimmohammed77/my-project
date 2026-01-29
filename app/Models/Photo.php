@@ -13,6 +13,10 @@ class Photo extends Model
     protected $table = 'photos';
     protected $primaryKey = 'photo_id';
 
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+
     protected $fillable = [
         'album_id',
         'original_name',
@@ -28,6 +32,8 @@ class Photo extends Model
         'is_archived',
         'view_count',
         'download_count',
+        'review_status',
+        'rejection_reason',
     ];
 
     protected $casts = [
@@ -106,6 +112,30 @@ class Photo extends Model
     public function scopeNotArchived($query)
     {
         return $query->where('is_archived', false);
+    }
+
+    /**
+     * نطاق الصور المعتمدة
+     */
+    public function scopeApproved($query)
+    {
+        return $query->where('review_status', self::STATUS_APPROVED);
+    }
+
+    /**
+     * نطاق الصور قيد المراجعة
+     */
+    public function scopePending($query)
+    {
+        return $query->where('review_status', self::STATUS_PENDING);
+    }
+
+    /**
+     * نطاق الصور المرفوضة
+     */
+    public function scopeRejected($query)
+    {
+        return $query->where('review_status', self::STATUS_REJECTED);
     }
 
     /**

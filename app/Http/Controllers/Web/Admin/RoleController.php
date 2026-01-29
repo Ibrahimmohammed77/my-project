@@ -24,7 +24,12 @@ class RoleController extends Controller
         $roles = $this->manageRoleUseCase->listRoles();
 
         if (request()->wantsJson()) {
-            return response()->json($roles);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'roles' => $roles
+                ]
+            ]);
         }
 
         return view('spa.roles.index', compact('roles'));

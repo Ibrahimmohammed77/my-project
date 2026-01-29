@@ -106,6 +106,14 @@ Route::middleware('auth')->group(function () {
         })->name('admin.users.index');
     });
 
+    Route::middleware('can:manage_plans')->group(function () {
+        Route::get('admin/plans', [\App\Http\Controllers\Web\Admin\PlanController::class, 'index'])->name('spa.plans');
+        Route::post('admin/plans', [\App\Http\Controllers\Web\Admin\PlanController::class, 'store'])->name('admin.plans.store');
+        Route::get('admin/plans/{plan}/edit', [\App\Http\Controllers\Web\Admin\PlanController::class, 'edit'])->name('admin.plans.edit');
+        Route::put('admin/plans/{plan}', [\App\Http\Controllers\Web\Admin\PlanController::class, 'update'])->name('admin.plans.update');
+        Route::delete('admin/plans/{plan}', [\App\Http\Controllers\Web\Admin\PlanController::class, 'destroy'])->name('admin.plans.destroy');
+    });
+
     Route::get('admin/studios', function () { return 'Studios'; })->name('spa.studios');
     Route::get('admin/schools', function () { return 'Schools'; })->name('spa.schools');
     Route::get('admin/roles', function () { return 'Roles'; })->name('spa.roles');

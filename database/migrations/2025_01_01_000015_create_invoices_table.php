@@ -32,7 +32,7 @@ return new class extends Migration
 
             $table->foreign('invoice_status_id')->references('lookup_value_id')->on('lookup_values');
             $table->foreign('payment_method_id')->references('lookup_value_id')->on('lookup_values');
-            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('plan_id')->references('plan_id')->on('plans')->onDelete('cascade');
             });
     }

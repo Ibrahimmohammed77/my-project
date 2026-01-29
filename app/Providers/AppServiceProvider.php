@@ -156,6 +156,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Contracts\PaymentRepositoryInterface::class,
             \App\Repositories\PaymentRepository::class
         );
+
+        // Plan Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\PlanRepositoryInterface::class,
+            \App\Repositories\PlanRepository::class
+        );
     }
 
     /**

@@ -96,8 +96,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('my-cards', \App\Http\Controllers\Customer\CardController::class);
     });
 
+    Route::middleware('can:manage_users')->group(function () {
+        Route::post('admin/users', [\App\Http\Controllers\Web\Admin\UserController::class, 'store'])->name('admin.users.store');
+        Route::get('admin/accounts', function () {
+            return view('spa.accounts.index');
+        })->name('spa.accounts');
+        Route::get('admin/users', function () {
+            return redirect()->route('spa.accounts');
+        })->name('admin.users.index');
+    });
+
     Route::middleware('can:is-admin')->group(function () {
-        Route::resource('admin/users', \App\Http\Controllers\Admin\UserController::class);
         Route::resource('admin/studios', \App\Http\Controllers\Admin\StudioController::class);
         Route::resource('admin/schools', \App\Http\Controllers\Admin\SchoolController::class);
     });

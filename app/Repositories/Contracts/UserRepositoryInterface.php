@@ -16,6 +16,8 @@ interface UserRepositoryInterface
     public function delete(User $user): bool;
     public function assignRole(User $user, string $role): void;
     public function hasRole(User $user, string $role): bool;
+    public function listByAdmin(array $filters = [], int $perPage = 15);
+    public function storeByAdmin(array $data): User;
     public function getCustomerTypeId(): int;
     public function getDefaultStatusId(): int;
 }

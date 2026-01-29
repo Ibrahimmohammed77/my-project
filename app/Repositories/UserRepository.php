@@ -145,6 +145,74 @@ class UserRepository implements UserRepositoryInterface
     }
 
     /**
+     * List users with filters for admin.
+     */
+    public function listByAdmin(array $filters = [], int $perPage = 15)
+    {
+        $query = $this->model->with(['status', 'type', 'roles']);
+
+        // Search by keyword
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('username', 'LIKE', "%{$search}%")
+                  ->orWhere('phone', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filter by role
+        if (!empty($filters['role_id'])) {
+            $query->whereHas('roles', function ($q) use ($filters) {
+                $q->where('roles.role_id', $filters['role_id']);
+            });
+        }
+
+        // Filter by status
+        if (!empty($filters['status_id'])) {
+            $query->where('user_status_id', $filters['status_id']);
+        }
+
+        // Filter by type
+        if (!empty($filters['type_id'])) {
+            $query->where('user_type_id', $filters['type_id']);
+        }
+
+        // Default sorting
+        $query->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage);
+    }
+
+    /**
+     * Store a new user by an admin.
+     */
+    public function storeByAdmin(array $data): User
+    {
+        return DB::transaction(function () use ($data) {
+            $user = $this->model->create([
+                'name' => $data['full_name'],
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'password' => Hash::make($data['password']),
+                'user_type_id' => $data['user_type_id'] ?? $this->getCustomerTypeId(),
+                'user_status_id' => $data['user_status_id'] ?? $this->getDefaultStatusId(),
+                'email_verified' => true,
+                'phone_verified' => true,
+                'is_active' => $data['is_active'] ?? true,
+            ]);
+
+            if (isset($data['role_id'])) {
+                $user->roles()->sync([$data['role_id']]);
+            }
+
+            return $user->load('roles');
+        });
+    }
+
+    /**
      * Get customer type ID.
      */
     public function getCustomerTypeId(): int

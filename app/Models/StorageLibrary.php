@@ -14,6 +14,7 @@ class StorageLibrary extends Model
 
     protected $fillable = [
         'studio_id',
+        'school_id',
         'user_id',
         'name',
         'description',
@@ -30,6 +31,14 @@ class StorageLibrary extends Model
     public function studio()
     {
         return $this->belongsTo(Studio::class, 'studio_id', 'studio_id');
+    }
+
+    /**
+     * علاقة المدرسة
+     */
+    public function school()
+    {
+        return $this->belongsTo(School::class, 'school_id', 'school_id');
     }
 
     /**

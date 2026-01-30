@@ -106,6 +106,18 @@ Route::middleware('auth')->group(function () {
         Route::post('photo-review/{photo}/review', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'review'])->name('photo-review.review');
     });
 
+    Route::middleware('can:is-school-owner')->as('school.')->prefix('school')->group(function () {
+        Route::resource('albums', \App\Http\Controllers\School\AlbumController::class);
+        Route::resource('cards', \App\Http\Controllers\School\CardController::class)->parameters(['cards' => 'card:card_id']);
+        Route::post('cards/{card:card_id}/link-albums', [\App\Http\Controllers\School\CardController::class, 'linkAlbums'])->name('cards.link-albums');
+        Route::get('students', [\App\Http\Controllers\School\StudentController::class, 'index'])->name('students.index');
+        Route::get('students/{student}', [\App\Http\Controllers\School\StudentController::class, 'show'])->name('students.show');
+        
+        // School Profile Update
+        Route::get('profile', [\App\Http\Controllers\School\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile', [\App\Http\Controllers\School\ProfileController::class, 'update'])->name('profile.update');
+    });
+
     Route::middleware('can:is-customer')->group(function () {
         // Route::resource('my-albums', \App\Http\Controllers\Customer\AlbumController::class);
         // Route::resource('my-cards', \App\Http\Controllers\Customer\CardController::class);

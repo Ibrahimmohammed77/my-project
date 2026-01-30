@@ -11,14 +11,14 @@ class SubscriptionFactory extends Factory
 {
     protected $model = Subscription::class;
 
-    public function definition(): array
+    public function definition()
     {
         return [
             'user_id' => User::factory(),
             'plan_id' => Plan::factory(),
             'start_date' => now(),
             'end_date' => now()->addMonth(),
-            'renewal_date' => now()->addMonth()->subDays(7),
+            'renewal_date' => now()->addMonth(),
             'auto_renew' => true,
         ];
     }

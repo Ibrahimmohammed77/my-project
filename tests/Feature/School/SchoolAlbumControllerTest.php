@@ -1,0 +1,124 @@
+<?php
+
+namespace Tests\Feature\School;
+
+use App\Models\Album;
+use App\Models\Plan;
+use App\Models\School;
+use App\Models\StorageLibrary;
+use App\Models\Subscription;
+use App\Models\User;
+use App\Models\Role;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
+
+class SchoolAlbumControllerTest extends TestCase
+{
+    use RefreshDatabase, WithFaker;
+
+    protected $schoolOwner;
+    protected $school;
+    protected $plan;
+    protected $storageLibrary;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create roles if they don't exist
+        Role::firstOrCreate(['name' => 'school-owner']);
+        Role::firstOrCreate(['name' => 'studio-owner']);
+
+        // Create a plan for schools
+        $this->plan = Plan::factory()->create([
+            'max_albums' => 5,
+        ]);
+
+        // Create school owner and school
+        $this->schoolOwner = User::factory()->create();
+        $this->schoolOwner->roles()->attach(Role::where('name', 'school-owner')->first()->role_id);
+        
+        $this->school = School::factory()->create(['user_id' => $this->schoolOwner->id]);
+        
+        // Active subscription
+        Subscription::factory()->create([
+            'user_id' => $this->schoolOwner->id,
+            'plan_id' => $this->plan->plan_id,
+        ]);
+
+        // Create a storage library for this school
+        $this->storageLibrary = StorageLibrary::factory()->create([
+            'school_id' => $this->school->school_id,
+            'user_id' => $this->schoolOwner->id,
+            'name' => 'School Storage'
+        ]);
+    }
+
+    /** @test */
+    public function it_lists_school_albums()
+    {
+        Album::factory()->count(3)->create([
+            'owner_type' => School::class,
+            'owner_id' => $this->school->school_id,
+        ]);
+
+        $response = $this->actingAs($this->schoolOwner)
+            ->get(route('school.albums.index'));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('albums');
+    }
+
+    /** @test */
+    public function it_can_create_an_album_with_automatic_storage_resolution()
+    {
+        $albumData = [
+            'name' => 'Graduation 2026',
+            'description' => 'The big day',
+            'is_visible' => 1,
+        ];
+
+        // Ensure we don't pass storage_library_id, let the UseCase handle it
+        $response = $this->actingAs($this->schoolOwner)
+            ->post(route('school.albums.store'), $albumData);
+
+        $response->assertRedirect(route('school.albums.index'));
+        $this->assertDatabaseHas('albums', [
+            'name' => 'Graduation 2026',
+            'storage_library_id' => $this->storageLibrary->storage_library_id,
+            'owner_type' => 'App\Models\School',
+            'owner_id' => $this->school->school_id
+        ]);
+    }
+
+    /** @test */
+    public function it_denies_access_to_studio_owners()
+    {
+        $studioOwner = User::factory()->create();
+        $studioOwner->roles()->attach(Role::where('name', 'studio-owner')->first()->role_id);
+
+        $response = $this->actingAs($studioOwner)
+            ->get(route('school.albums.index'));
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function it_cannot_create_album_if_no_storage_library_assigned()
+    {
+        // Delete the storage library
+        $this->storageLibrary->delete();
+
+        $albumData = [
+            'name' => 'Faulty Album',
+        ];
+
+        $response = $this->actingAs($this->schoolOwner)
+            ->from(route('school.albums.index'))
+            ->post(route('school.albums.store'), $albumData);
+
+        $response->assertRedirect(route('school.albums.index'));
+        $response->assertSessionHas('error', 'لم يتم العثور على مكتبة تخزين مخصصة للمدرسة. يرجى التواصل مع الإدارة.');
+    }
+}

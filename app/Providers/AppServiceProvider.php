@@ -50,6 +50,9 @@ class AppServiceProvider extends ServiceProvider
         // Register custom validation rules
         $this->registerCustomValidationRules();
 
+        // Register Gates
+        $this->registerGates();
+
         // Set default string length
         Schema::defaultStringLength(191);
 
@@ -120,6 +123,33 @@ class AppServiceProvider extends ServiceProvider
 
             return true;
         }, 'أبعاد الصورة غير صالحة.');
+    }
+
+    protected function registerGates(): void
+    {
+        \Illuminate\Support\Facades\Gate::define('is-studio-owner', function ($user) {
+            return $user->hasRole('studio-owner');
+        });
+
+        \Illuminate\Support\Facades\Gate::define('is-school-owner', function ($user) {
+            return $user->hasRole('school-owner');
+        });
+
+        \Illuminate\Support\Facades\Gate::define('access-studio-dashboard', function ($user) {
+            return $user->hasRole('studio-owner');
+        });
+
+        \Illuminate\Support\Facades\Gate::define('access-school-dashboard', function ($user) {
+            return $user->hasRole('school-owner');
+        });
+
+        \Illuminate\Support\Facades\Gate::define('access-admin-dashboard', function ($user) {
+            return $user->hasRole('admin');
+        });
+
+        \Illuminate\Support\Facades\Gate::define('is-customer', function ($user) {
+            return $user->hasRole('customer');
+        });
     }
 
     /**

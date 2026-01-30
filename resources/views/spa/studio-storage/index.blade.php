@@ -46,8 +46,8 @@
 
             <x-form.input name="name" id="name" label="اسم المكتبة" icon="fa-folder" placeholder="مثلاً: صور التخرج 2024" required />
             
-            <x-form.input type="number" name="storage_limit" id="storage_limit" label="المساحة المخصصة (بايت)" icon="fa-database" placeholder="1048576 = 1MB" required />
-            <p class="text-[10px] text-gray-400 -mt-2">نصيحة: 1GB = 1,073,741,824 بايت</p>
+            <x-form.input type="number" name="storage_limit" id="storage_limit" label="المساحة المخصصة (ميجا بايت)" icon="fa-database" placeholder="مثلاً: 100" required step="0.1" />
+            <p class="text-[10px] text-gray-400 -mt-2">نصيحة: 1024MB = 1GB</p>
 
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1">ملاحظات</label>

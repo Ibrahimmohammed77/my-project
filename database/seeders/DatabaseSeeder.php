@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
             LookupSeeder::class,
             SystemSeeder::class,
             UserSeeder::class,
+            PlanSeeder::class,
+            TestDataSeeder::class,
         ]);
     }
 }

@@ -17,7 +17,7 @@ class UpdateStorageAllocationUseCase
         $library = $studio->storageLibraries()->findOrFail($libraryId);
 
         // Check if new limit is less than currently used storage
-        if (isset($data['storage_limit']) && $data['storage_limit'] < $library->storage_used) {
+        if (isset($data['storage_limit']) && $data['storage_limit'] < $library->used_storage) {
             throw new Exception('لا يمكن تقليل المساحة المخصصة لأقل من المساحة المستخدمة حالياً');
         }
 

@@ -11,22 +11,6 @@ class LookupSeeder extends Seeder
 {
     public function run()
     {
-        // Disable FK checks
-        if (DB::getDriverName() === 'mysql') {
-            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        } else {
-            DB::statement('PRAGMA foreign_keys = OFF;');
-        }
-        
-        LookupValue::truncate();
-        LookupMaster::truncate();
-        
-        if (DB::getDriverName() === 'mysql') {
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        } else {
-            DB::statement('PRAGMA foreign_keys = ON;');
-        }
-
         // Define Masters
         $masters = [
             ['code' => 'USER_STATUS', 'name' => 'حالة المستخدم', 'description' => 'Status of user accounts'],
@@ -49,12 +33,18 @@ class LookupSeeder extends Seeder
         ];
 
         foreach ($masters as $masterData) {
-            $master = LookupMaster::create($masterData);
+            $master = LookupMaster::updateOrCreate(
+                ['code' => $masterData['code']],
+                ['name' => $masterData['name'], 'description' => $masterData['description']]
+            );
             
             $values = $this->getValuesForMaster($masterData['code']);
             foreach ($values as $valueData) {
                 $valueData['is_active'] = true;
-                $master->values()->create($valueData);
+                $master->values()->updateOrCreate(
+                    ['code' => $valueData['code']],
+                    $valueData
+                );
             }
         }
     }

@@ -50,7 +50,6 @@ class CustomerControllerTest extends TestCase
         Card::factory()->create([
             'owner_type' => Studio::class,
             'owner_id' => $this->studio->studio_id,
-            'holder_type' => User::class,
             'holder_id' => $this->customer->id,
             'card_status_id' => $activeStatus->lookup_value_id,
             'card_type_id' => $cardType->lookup_value_id,

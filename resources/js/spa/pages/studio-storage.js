@@ -159,7 +159,7 @@ class StudioStoragePage {
 
         document.getElementById('name').value = lib.name;
         document.getElementById('description').value = lib.description || '';
-        document.getElementById('storage_limit').value = lib.storage_limit;
+        document.getElementById('storage_limit').value = lib.storage_limit / (1024 * 1024);
 
         this.modal.classList.remove('hidden');
     }

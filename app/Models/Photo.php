@@ -13,23 +13,9 @@ class Photo extends Model
     protected $table = 'photos';
     protected $primaryKey = 'photo_id';
 
-    /**
-     * Diagnostic method to catch rogue photo_id() calls.
-     */
-    public function photo_id()
-    {
-        dd(['INSTANCE CALL', debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10)]);
-    }
-
-    public static function __callStatic($name, $args)
-    {
-        if ($name === 'photo_id') {
-            dd(['STATIC CALL', debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10)]);
-        }
-        return parent::__callStatic($name, $args);
-    }
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_APPROVED = 'approved';
     public const STATUS_REJECTED = 'rejected';
 

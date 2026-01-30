@@ -81,7 +81,7 @@ class StorageLibrary extends Model
             return $this->storage_limit - $this->used_storage;
         }
 
-        $plan = $this->user->activeSubscription()?->plan;
+        $plan = $this->user->activeSubscription?->plan;
         return $plan ? $plan->storage_limit - $this->used_storage : 0;
     }
 }

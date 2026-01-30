@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Studio;
 use App\Http\Controllers\Controller;
 use App\Models\StorageLibrary;
 use App\UseCases\Studio\Storage\AllocateStorageUseCase;
+use App\UseCases\Studio\Storage\UpdateStorageAllocationUseCase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -50,8 +51,11 @@ class StorageLibraryController extends Controller
             'subscriber_id' => 'required|exists:users,id',
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'storage_limit' => 'required|integer|min:0', // in bytes
+            'storage_limit' => 'required|numeric|min:0', // in Megabytes
         ]);
+
+        // Convert MB to Bytes
+        $validated['storage_limit'] = (int)($validated['storage_limit'] * 1024 * 1024);
 
         try {
             $library = $this->allocateStorageUseCase->execute($studio, $validated);
@@ -78,8 +82,13 @@ class StorageLibraryController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:100',
             'description' => 'nullable|string',
-            'storage_limit' => 'sometimes|required|integer|min:0',
+            'storage_limit' => 'sometimes|required|numeric|min:0', // in Megabytes
         ]);
+
+        if (isset($validated['storage_limit'])) {
+            // Convert MB to Bytes
+            $validated['storage_limit'] = (int)($validated['storage_limit'] * 1024 * 1024);
+        }
 
         try {
             $library = $this->updateStorageAllocationUseCase->execute($studio, (int)$id, $validated);
@@ -104,7 +113,7 @@ class StorageLibraryController extends Controller
         $studio = Auth::user()->studio;
         $library = $studio->storageLibraries()->findOrFail($id);
 
-        if ($library->storage_used > 0) {
+        if ($library->used_storage > 0) {
             return response()->json([
                 'success' => false,
                 'message' => 'لا يمكن حذف المكتبة لأنها تحتوي على ملفات'

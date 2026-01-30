@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use App\Models\User;
+use App\Models\Studio;
+use App\Models\School;
+use App\Models\Subscription;
+use App\Models\Invoice;
+use App\Models\Album;
+use App\Models\Card;
+use App\Models\Photo;
 
 class DashboardController extends Controller
 {
@@ -119,18 +127,18 @@ class DashboardController extends Controller
     private function getAdminStats(): array
     {
         return [
-            'total_users' => \App\Models\User::count(),
-            'active_users' => \App\Models\User::active()->count(),
-            'new_users_today' => \App\Models\User::whereDate('created_at', today())->count(),
-            'total_studios' => \App\Models\Studio::count(),
-            'total_schools' => \App\Models\School::count(),
-            'total_subscriptions' => \App\Models\Subscription::active()->count(),
-            'total_revenue' => \App\Models\Invoice::where('invoice_status_id', function ($query) {
+            'total_users' => User::count(),
+            'active_users' => User::active()->count(),
+            'new_users_today' => User::whereDate('created_at', today())->count(),
+            'total_studios' => Studio::count(),
+            'total_schools' => School::count(),
+            'total_subscriptions' => Subscription::active()->count(),
+            'total_revenue' => Invoice::where('invoice_status_id', function ($query) {
                 $query->select('lookup_value_id')
                     ->from('lookup_values')
                     ->where('code', 'paid');
             })->sum('total_amount'),
-            'pending_invoices' => \App\Models\Invoice::where('invoice_status_id', function ($query) {
+            'pending_invoices' => Invoice::where('invoice_status_id', function ($query) {
                 $query->select('lookup_value_id')
                     ->from('lookup_values')
                     ->where('code', 'pending');
@@ -149,11 +157,11 @@ class DashboardController extends Controller
 
         return [
             'total_albums' => $studio->albums()->count(),
-            'total_photos' => \App\Models\Album::whereHas('storageLibrary', function ($q) use ($studio) {
+            'total_photos' => Album::whereHas('storageLibrary', function ($q) use ($studio) {
                 $q->where('studio_id', $studio->studio_id);
             })->withCount('photos')->get()->sum('photos_count'),
             'total_customers' => $studio->customers()->count(),
-            'active_cards' => \App\Models\Card::whereHas('albums.storageLibrary', function ($q) use ($studio) {
+            'active_cards' => Card::whereHas('albums.storageLibrary', function ($q) use ($studio) {
                 $q->where('studio_id', $studio->studio_id);
             })->whereHas('status', function ($q) {
                 $q->where('code', 'active');

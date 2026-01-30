@@ -17,7 +17,7 @@ class AllocateStorageUseCase
     {
         // Check studio storage capacity
         $studioUser = $studio->user;
-        $studioPlan = $studioUser->activeSubscription()?->plan;
+        $studioPlan = $studioUser->activeSubscription?->plan;
         
         if (!$studioPlan) {
             throw new Exception('الاستوديو ليس لديه اشتراك نشط');

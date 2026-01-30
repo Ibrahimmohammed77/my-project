@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\StorageLibrary;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\Album;
+use App\Models\Photo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -45,7 +47,7 @@ class StorageLibraryControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->studioOwner)
-            ->get(route('storage.index'));
+            ->get(route('studio.storage.index'));
 
         $response->assertStatus(200);
         $response->assertViewHas('libraries');
@@ -59,15 +61,18 @@ class StorageLibraryControllerTest extends TestCase
             'subscriber_id' => $subscriber->id,
             'name' => 'Test Storage',
             'description' => 'Test Description',
-            'storage_limit' => 1048576, // 1MB
+            'storage_limit' => 1, // 1MB
         ];
 
         $response = $this->actingAs($this->studioOwner)
-            ->postJson(route('storage.store'), $data);
+            ->postJson(route('studio.storage.store'), $data);
 
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
-        $this->assertDatabaseHas('storage_libraries', ['name' => 'Test Storage']);
+        $this->assertDatabaseHas('storage_libraries', [
+            'name' => 'Test Storage',
+            'storage_limit' => 1048576, // Should be stored as 1MB in bytes
+        ]);
     }
 
     /** @test */
@@ -80,13 +85,14 @@ class StorageLibraryControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->studioOwner)
-            ->putJson(route('storage.update', $library->storage_library_id), [
+            ->putJson(route('studio.storage.update', $library->storage_library_id), [
                 'name' => 'New Name',
-                'storage_limit' => 2097152, // 2MB
+                'storage_limit' => 2, // 2MB
             ]);
 
         $response->assertStatus(200);
         $this->assertEquals('New Name', $library->fresh()->name);
+        $this->assertEquals(2097152, $library->fresh()->storage_limit); // Should be stored as 2MB in bytes
     }
 
     /** @test */
@@ -95,11 +101,10 @@ class StorageLibraryControllerTest extends TestCase
         $library = StorageLibrary::factory()->create([
             'studio_id' => $this->studio->studio_id,
             'user_id' => User::factory()->create()->id,
-            'storage_used' => 0,
         ]);
 
         $response = $this->actingAs($this->studioOwner)
-            ->deleteJson(route('storage.destroy', $library->storage_library_id));
+            ->deleteJson(route('studio.storage.destroy', $library->storage_library_id));
 
         $response->assertStatus(200);
         $this->assertDatabaseMissing('storage_libraries', ['storage_library_id' => $library->storage_library_id]);
@@ -111,11 +116,16 @@ class StorageLibraryControllerTest extends TestCase
         $library = StorageLibrary::factory()->create([
             'studio_id' => $this->studio->studio_id,
             'user_id' => User::factory()->create()->id,
-            'storage_used' => 1000,
+        ]);
+
+        $album = Album::factory()->create(['storage_library_id' => $library->storage_library_id]);
+        Photo::factory()->create([
+            'album_id' => $album->album_id,
+            'file_size' => 1000,
         ]);
 
         $response = $this->actingAs($this->studioOwner)
-            ->deleteJson(route('storage.destroy', $library->storage_library_id));
+            ->deleteJson(route('studio.storage.destroy', $library->storage_library_id));
 
         $response->assertStatus(422);
         $response->assertJson(['success' => false]);

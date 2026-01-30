@@ -96,14 +96,14 @@ Route::middleware('auth')->group(function () {
         Route::put('profile', [\App\Http\Controllers\Studio\ProfileController::class, 'update'])->name('profile.update');
         
         // Storage Allocation
-        Route::get('studio/storage/libraries', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'index'])->name('storage.index');
-        Route::post('studio/storage/libraries', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'store'])->name('storage.store');
-        Route::put('studio/storage/libraries/{library}', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'update'])->name('storage.update');
-        Route::delete('studio/storage/libraries/{library}', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'destroy'])->name('storage.destroy');
+        Route::get('storage/libraries', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'index'])->name('storage.index');
+        Route::post('storage/libraries', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'store'])->name('storage.store');
+        Route::put('storage/libraries/{library}', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'update'])->name('storage.update');
+        Route::delete('storage/libraries/{library}', [\App\Http\Controllers\Studio\StorageLibraryController::class, 'destroy'])->name('storage.destroy');
         
         // Photo Review
-        Route::get('studio/photo-review/pending', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'pending'])->name('photo-review.pending');
-        Route::post('studio/photo-review/{photo}/review', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'review'])->name('photo-review.review');
+        Route::get('photo-review/pending', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'pending'])->name('photo-review.pending');
+        Route::post('photo-review/{photo}/review', [\App\Http\Controllers\Studio\PhotoReviewController::class, 'review'])->name('photo-review.review');
     });
 
     Route::middleware('can:is-customer')->group(function () {

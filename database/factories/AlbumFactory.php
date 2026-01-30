@@ -22,4 +22,11 @@ class AlbumFactory extends Factory
             'settings' => [],
         ];
     }
+
+    public function visible(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_visible' => true,
+        ]);
+    }
 }

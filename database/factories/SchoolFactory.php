@@ -13,7 +13,7 @@ class SchoolFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => User::factory(),
+            'user_id' => User::factory()->schoolOwner(),
             'description' => $this->faker->sentence(),
             'address' => $this->faker->address(),
             'city' => $this->faker->city(),

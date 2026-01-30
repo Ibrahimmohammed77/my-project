@@ -15,7 +15,9 @@ class SchoolController extends Controller
      */
     public function index(Request $request): View|JsonResponse
     {
-        $schools = School::with('user', 'status', 'type', 'level')->get();
+        $schools = School::with('user', 'type', 'level')
+            ->filter($request->only('search', 'status_id'))
+            ->paginate($request->get('per_page', 15));
 
         $statuses = \App\Models\LookupValue::whereHas('master', function ($q) {
             $q->where('code', 'user_status');
@@ -30,12 +32,7 @@ class SchoolController extends Controller
         })->get();
 
         if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'schools' => $schools
-                ]
-            ]);
+            return $this->paginatedResponse($schools, 'schools', 'تم استرجاع المدارس بنجاح');
         }
 
         return view('spa.schools.index', compact('schools', 'statuses', 'types', 'levels'));

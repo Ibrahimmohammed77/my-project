@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\School;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\School\UpdateSchoolProfileRequest;
 use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,18 +33,12 @@ class ProfileController extends Controller
     /**
      * Update school profile data.
      */
-    public function update(Request $request)
+    public function update(UpdateSchoolProfileRequest $request)
     {
         $user = Auth::user();
         $school = $user->school;
 
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string|max:100',
-            'logo' => 'nullable|image|max:2048', // 2MB max
-        ]);
+        $validated = $request->validated();
 
         if (!$school) {
             return $request->wantsJson() 

@@ -12,25 +12,42 @@ class StudentController extends Controller
     /**
      * Display a listing of students who have activated school cards.
      */
-    public function index()
+    public function index(Request $request)
     {
         $school = Auth::user()->school;
         
-        // Get users who hold cards owned by this school
-        $students = User::whereHas('cards', function ($query) use ($school) {
+        $query = User::whereHas('cards', function ($query) use ($school) {
             $query->where('owner_type', 'App\Models\School')
                   ->where('owner_id', $school->school_id);
         })->with(['cards' => function ($query) use ($school) {
             $query->where('owner_type', 'App\Models\School')
                   ->where('owner_id', $school->school_id)
                   ->with('albums');
-        }])->get();
+        }]);
 
-        if (request()->wantsJson()) {
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+
+        $students = $query->paginate($request->get('per_page', 10));
+
+        if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'students' => $students
+                    'students' => $students->items(),
+                    'pagination' => [
+                        'total' => $students->total(),
+                        'per_page' => $students->perPage(),
+                        'current_page' => $students->currentPage(),
+                        'last_page' => $students->lastPage(),
+                        'from' => $students->firstItem(),
+                        'to' => $students->lastItem()
+                    ]
                 ]
             ]);
         }

@@ -53,14 +53,16 @@
                 <x-form.input name="email" type="email" label="البريد الإلكتروني" icon="fa-envelope" placeholder="example@domain.com" required />
                 <x-form.input name="phone" label="رقم الهاتف" icon="fa-phone" placeholder="05XXXXXXXX" />
 
+
+
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">نوع الحساب <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">الدور <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <i class="fas fa-briefcase absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
-                        <select id="account_type_id" onchange="handleAccountTypeChange(this)" class="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm appearance-none transition-all hover:border-accent/50" required>
-                            <option value="" data-code="">اختر النوع...</option>
-                            @foreach($types as $type)
-                            <option value="{{ $type->lookup_value_id }}" data-code="{{ $type->code }}">{{ $type->name }}</option>
+                        <i class="fas fa-user-shield absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                        <select id="role_id" class="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm appearance-none transition-all hover:border-accent/50" required>
+                            <option value="">اختر الدور...</option>
+                            @foreach($roles as $role)
+                            <option value="{{ $role->role_id }}" data-role-name="{{ $role->name }}">{{ $role->name }}</option>
                             @endforeach
                         </select>
                         <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
@@ -72,8 +74,10 @@
                     <div class="relative">
                         <i class="fas fa-toggle-on absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
                         <select id="account_status_id" class="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm appearance-none transition-all hover:border-accent/50" required>
-                            <option value="1">نشط</option>
-                            <!-- Additional statuses can be loaded dynamically if needed -->
+                            <option value="">اختر الحالة...</option>
+                            @foreach($statuses as $status)
+                            <option value="{{ $status->lookup_value_id }}">{{ $status->name }}</option>
+                            @endforeach
                         </select>
                         <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
                     </div>
@@ -151,11 +155,7 @@
         </x-slot>
     </x-modal>
 
-    <script>
-        window.accountConfig = {
-            types: @json($accountTypeIds)
-        };
-    </script>
+
     
 @push('scripts')
     @vite('resources/js/spa/pages/accounts.js')

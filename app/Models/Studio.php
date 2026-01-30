@@ -76,4 +76,31 @@ class Studio extends Model
               ->where('owner_type', self::class);
         });
     }
+
+    /**
+     * Filter studios by search term and status.
+     */
+    public function scopeFilter($query, array $filters)
+    {
+        $query->when($filters['search'] ?? null, function ($q, $search) {
+            $q->where(function ($q) use ($search) {
+                // Search in Studio fields
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%")
+                  // Search in related User fields (Name, Email, Phone)
+                  ->orWhereHas('user', function ($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhere('username', 'like', "%{$search}%");
+                  });
+            });
+        });
+
+        $query->when($filters['status_id'] ?? null, function ($q, $statusId) {
+            $q->whereHas('user', function ($q) use ($statusId) {
+                $q->where('user_status_id', $statusId);
+            });
+        });
+    }
 }

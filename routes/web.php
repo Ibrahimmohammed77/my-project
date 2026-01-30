@@ -51,9 +51,9 @@ Route::middleware('auth')->group(function () {
         ->name('dashboard.customer')
         ->middleware('can:access-customer-dashboard');
 
-    Route::get('/dashboard/employee', [DashboardController::class, 'employee'])
-        ->name('dashboard.employee')
-        ->middleware('can:access-employee-dashboard');
+    Route::get('/dashboard/final-user', [DashboardController::class, 'finalUser'])
+        ->name('dashboard.final_user')
+        ->middleware('can:access-final-user-dashboard');
 
     Route::get('/dashboard/editor', [DashboardController::class, 'editor'])
         ->name('dashboard.editor')
@@ -173,7 +173,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/roles', [\App\Http\Controllers\Web\Admin\RoleController::class, 'index']);
     });
 
-    Route::post('admin/subscriptions', [\App\Http\Controllers\Web\Admin\SubscriptionController::class, 'store'])->name('admin.subscriptions.store');
+    Route::middleware('can:manage_subscriptions')->group(function () {
+        Route::get('admin/subscriptions', [\App\Http\Controllers\Web\Admin\SubscriptionController::class, 'index'])->name('spa.subscriptions');
+        Route::post('admin/subscriptions', [\App\Http\Controllers\Web\Admin\SubscriptionController::class, 'store'])->name('admin.subscriptions.store');
+        Route::delete('admin/subscriptions/{subscription}', [\App\Http\Controllers\Web\Admin\SubscriptionController::class, 'destroy'])->name('admin.subscriptions.destroy');
+    });
 
     Route::middleware('can:manage_studios')->group(function () {
         Route::get('admin/studios', [\App\Http\Controllers\Web\Admin\StudioController::class, 'index'])->name('spa.studios');
@@ -191,7 +195,10 @@ Route::middleware('auth')->group(function () {
     });
 
     // Root-level routes for other SPA services
-    Route::get('/accounts', [\App\Http\Controllers\Web\Admin\UserController::class, 'index'])->middleware('can:manage_users');
+    Route::get('/accounts', [\App\Http\Controllers\Web\Admin\UserController::class, 'index'])->middleware('can:manage_users')->name('accounts.index');
+    Route::post('/accounts', [\App\Http\Controllers\Web\Admin\UserController::class, 'store'])->middleware('can:manage_users')->name('accounts.store');
+    Route::put('/accounts/{user}', [\App\Http\Controllers\Web\Admin\UserController::class, 'update'])->middleware('can:manage_users')->name('accounts.update');
+    Route::delete('/accounts/{user}', [\App\Http\Controllers\Web\Admin\UserController::class, 'destroy'])->middleware('can:manage_users')->name('accounts.destroy');
     Route::get('/lookups', [\App\Http\Controllers\Web\Admin\LookupController::class, 'index'])->middleware('can:manage_lookups');
     Route::get('/plans', [\App\Http\Controllers\Web\Admin\PlanController::class, 'index'])->middleware('can:manage_plans');
     Route::get('/cards', [\App\Http\Controllers\Web\Admin\CardController::class, 'indexGroup'])->middleware('can:manage_cards');

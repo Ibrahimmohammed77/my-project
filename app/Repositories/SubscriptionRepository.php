@@ -1,0 +1,97 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Models\Subscription;
+use App\Models\LookupValue;
+use App\Repositories\Contracts\SubscriptionRepositoryInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+
+class SubscriptionRepository implements SubscriptionRepositoryInterface
+{
+    protected $model;
+
+    public function __construct(Subscription $model)
+    {
+        $this->model = $model;
+    }
+
+    /**
+     * List subscriptions with filters.
+     */
+    public function listByAdmin(array $filters = [], int $perPage = 15): LengthAwarePaginator
+    {
+        $query = $this->model->with(['user', 'plan', 'status']);
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('username', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if (!empty($filters['plan_id'])) {
+            $query->where('plan_id', $filters['plan_id']);
+        }
+
+        if (!empty($filters['status_id'])) {
+            $query->where('subscription_status_id', $filters['status_id']);
+        }
+
+        $query->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage);
+    }
+
+    /**
+     * Find a subscription by ID.
+     */
+    public function find(int $id): ?Subscription
+    {
+        return $this->model->with(['user', 'plan', 'status'])->find($id);
+    }
+
+    /**
+     * Create or update a subscription.
+     */
+    public function store(array $data): Subscription
+    {
+        return DB::transaction(function () use ($data) {
+            $activeStatus = LookupValue::where('code', 'ACTIVE')
+                ->whereHas('master', function($q) {
+                    $q->where('code', 'SUBSCRIPTION_STATUS');
+                })->first();
+
+            // Calculate dates
+            $startDate = $data['start_date'] ?? now();
+            $endDate = $data['end_date'] ?? ($data['billing_cycle'] === 'yearly' 
+                ? now()->addYear() 
+                : now()->addMonth());
+            
+            $renewalDate = $data['renewal_date'] ?? $endDate->copy()->subDays(7);
+
+            return $this->model->updateOrCreate(
+                ['user_id' => $data['user_id']],
+                [
+                    'plan_id' => $data['plan_id'],
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'renewal_date' => $renewalDate,
+                    'auto_renew' => $data['auto_renew'] ?? true,
+                    'subscription_status_id' => $data['subscription_status_id'] ?? $activeStatus->lookup_value_id,
+                ]
+            );
+        });
+    }
+
+    /**
+     * Delete a subscription.
+     */
+    public function delete(Subscription $subscription): bool
+    {
+        return $subscription->delete();
+    }
+}

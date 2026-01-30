@@ -24,10 +24,30 @@ class CardFactory extends Factory
             'card_number' => (string) $this->faker->unique()->numberBetween(100000000000, 999999999999),
             'owner_type' => Studio::class,
             'owner_id' => Studio::factory(),
-            'card_type_id' => LookupValue::factory(),
-            'card_status_id' => LookupValue::factory(),
+            'card_type_id' => LookupValue::where('code', 'STANDARD')
+                ->whereHas('master', fn($q) => $q->where('code', 'CARD_TYPE'))
+                ->value('lookup_value_id'),
+            'card_status_id' => LookupValue::where('code', 'ACTIVE')
+                ->whereHas('master', fn($q) => $q->where('code', 'CARD_STATUS'))
+                ->value('lookup_value_id'),
             'activation_date' => now(),
             'expiry_date' => now()->addYear(),
         ];
+    }
+
+    public function active(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'card_status_id' => LookupValue::where('code', 'ACTIVE')
+                ->whereHas('master', fn($q) => $q->where('code', 'CARD_STATUS'))
+                ->value('lookup_value_id'),
+        ]);
+    }
+
+    public function expired(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'expiry_date' => now()->subDay(),
+        ]);
     }
 }

@@ -12,11 +12,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            LookupSeeder::class,
             SystemSeeder::class,
-            UserSeeder::class,
+            RolePermissionSeeder::class,
+            LookupSeeder::class,
             PlanSeeder::class,
-            TestDataSeeder::class,
+            AdminSeeder::class,
+            StudioSeeder::class,
+            SchoolSeeder::class,
+            // TestDataSeeder::class, // Replaced by more specific seeders
         ]);
     }
 }

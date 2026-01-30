@@ -92,4 +92,31 @@ class School extends Model
         // افترض وجود موديل ClassRoom مستقبلاً
         return $this->hasMany(User::class, 'id', 'user_id')->whereRaw('1=0');
     }
+
+    /**
+     * Filter schools by search term and status.
+     */
+    public function scopeFilter($query, array $filters)
+    {
+        $query->when($filters['search'] ?? null, function ($q, $search) {
+            $q->where(function ($q) use ($search) {
+                // Search in School fields
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%")
+                  // Search in related User fields
+                  ->orWhereHas('user', function ($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhere('username', 'like', "%{$search}%");
+                  });
+            });
+        });
+
+        $query->when($filters['status_id'] ?? null, function ($q, $statusId) {
+            $q->whereHas('user', function ($q) use ($statusId) {
+                $q->where('user_status_id', $statusId);
+            });
+        });
+    }
 }

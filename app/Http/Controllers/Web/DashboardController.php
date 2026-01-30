@@ -237,8 +237,8 @@ class DashboardController extends Controller
         }
  
         // الأولوية 4: الموظف
-        if ($user->hasPermission('access-employee-dashboard')) {
-            return redirect()->route('dashboard.employee');
+        if ($user->hasPermission('access-final-user-dashboard')) {
+            return redirect()->route('dashboard.final_user');
         }
  
         // الأولوية 5: المحرر
@@ -260,6 +260,11 @@ class DashboardController extends Controller
      */
     private function needsProfileCompletion($user): bool
     {
+        // استثناء المشرفين من هذا التحقق
+        if ($user->hasPermission('access-admin-dashboard')) {
+            return false;
+        }
+
         // التحقق من المعلومات الأساسية
         if (empty($user->name) || empty($user->email) || empty($user->phone)) {
             return true;

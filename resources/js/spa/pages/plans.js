@@ -7,6 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
 const tbody = document.querySelector('#plans-tbody');
 const loadingState = document.getElementById('loading-state');
 const emptyState = document.getElementById('empty-state');
+const planModal = document.getElementById('plan-modal');
+const planForm = document.getElementById('plan-form');
+const modalTitle = document.getElementById('modal-title');
+const planIdInput = document.getElementById('plan-id');
+
+let plans = [];
 
 async function loadPlans() {
     if (!tbody) return;
@@ -15,7 +21,7 @@ async function loadPlans() {
     emptyState?.classList.add('hidden');
 
     try {
-        const plans = await PlanService.getAll();
+        plans = await PlanService.getAll();
         loadingState?.classList.add('hidden');
         renderPlans(plans);
     } catch (error) {
@@ -23,17 +29,17 @@ async function loadPlans() {
     }
 }
 
-function renderPlans(plans) {
+function renderPlans(plansToRender) {
     if (!tbody) return;
 
-    if (plans.length === 0) {
+    if (plansToRender.length === 0) {
         emptyState?.classList.remove('hidden');
         tbody.innerHTML = '';
         return;
     }
 
     emptyState?.classList.add('hidden');
-    tbody.innerHTML = plans.map(plan => `
+    tbody.innerHTML = plansToRender.map(plan => `
         <tr class="hover:bg-gray-50 transition-colors">
             <td class="px-6 py-4">
                 <div class="font-bold text-gray-900">${plan.name}</div>
@@ -49,10 +55,98 @@ function renderPlans(plans) {
                 </span>
             </td>
             <td class="px-6 py-4 text-center">
-                <button onclick="editPlan(${plan.id})" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                    <i class="fas fa-edit"></i>
-                </button>
+                <div class="flex items-center justify-center gap-2">
+                    <button onclick="editPlan(${plan.id})" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="تعديل">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deletePlan(${plan.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="حذف">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </td>
         </tr>
     `).join('');
 }
+
+window.showCreateModal = () => {
+    if(modalTitle) modalTitle.textContent = 'إضافة خطة جديدة';
+    planForm.reset();
+    planIdInput.value = '';
+    
+    // Reset toggle
+    const toggle = document.getElementById('is_active');
+    if(toggle) toggle.checked = true;
+
+    planModal.classList.remove('hidden');
+};
+
+window.editPlan = (id) => {
+    const plan = plans.find(p => p.id === id);
+    if (!plan) return;
+
+    if(modalTitle) modalTitle.textContent = 'تعديل الخطة';
+    planIdInput.value = plan.id;
+    
+    document.getElementById('name').value = plan.name;
+    document.getElementById('description').value = plan.description || '';
+    document.getElementById('price_monthly').value = plan.price_monthly;
+    document.getElementById('price_yearly').value = plan.price_yearly;
+    
+    // Features are JSON, might need parsing if form has feature inputs
+    // For now assuming basic fields
+
+    const toggle = document.getElementById('is_active');
+    if(toggle) toggle.checked = plan.is_active;
+
+    planModal.classList.remove('hidden');
+};
+
+window.closeModal = () => {
+    planModal.classList.add('hidden');
+};
+
+window.deletePlan = async (id) => {
+    if (!confirm('هل أنت متأكد من حذف هذه الخطة؟')) return;
+    try {
+        await PlanService.delete(id);
+        loadPlans(); // Reload
+        // showToast('تم الحذف بنجاح', 'success'); // If toast util exists
+    } catch (error) {
+        alert('حدث خطأ أثناء الحذف');
+    }
+};
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadPlans();
+
+    if (planForm) {
+        planForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = planIdInput.value;
+            
+            // Construct Plan object
+            // Ideally use Plan model, or simple object
+            const formData = {
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                price_monthly: document.getElementById('price_monthly').value,
+                price_yearly: document.getElementById('price_yearly').value,
+                is_active: document.getElementById('is_active').checked
+            };
+            // Map to Plan Model logic if needed properly
+
+            try {
+                if (id) {
+                    await PlanService.update(id, new Plan({ ...formData, id }));
+                } else {
+                    await PlanService.create(new Plan(formData));
+                }
+                closeModal();
+                loadPlans();
+            } catch (error) {
+                 alert('حدث خطأ: ' + (error.response?.data?.message || error.message));
+            }
+        });
+    }
+});

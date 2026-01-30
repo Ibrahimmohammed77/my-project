@@ -30,7 +30,7 @@ class UpdateUserRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'regex:/^[a-zA-Z0-9._-]+$/',
+                'username_format',
                 Rule::unique('users', 'username')->ignore($userId),
             ],
             'full_name' => ['required', 'string', 'max:255'],
@@ -41,11 +41,13 @@ class UpdateUserRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId),
             ],
-            'phone' => ['nullable', 'string', 'max:20', 'regex:/^0\d{9}$/'], // Yemeni phone format
-            'password' => ['nullable', 'confirmed', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'],
-            'role_id' => ['required', 'exists:roles,role_id'],
-            'user_status_id' => ['nullable', 'exists:lookup_values,lookup_value_id'],
+            'phone' => ['nullable', 'string', 'yemeni_phone', Rule::unique('users', 'phone')->ignore($userId)],
+            'password' => ['nullable', 'string', 'min:8', 'strong_password'],
+            'role_id' => ['required', 'exists:roles,role_id,is_active,1'],
+            'user_status_id' => ['required', 'exists:lookup_values,lookup_value_id,is_active,1'],
             'is_active' => ['boolean'],
+            'school_type_id' => ['nullable', 'exists:lookup_values,lookup_value_id,is_active,1'],
+            'school_level_id' => ['nullable', 'exists:lookup_values,lookup_value_id,is_active,1'],
         ];
     }
 

@@ -43,4 +43,40 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_type_id' => \App\Models\LookupValue::where('code', 'ADMIN')
+                ->whereHas('master', fn($q) => $q->where('code', 'USER_TYPE'))
+                ->value('lookup_value_id'),
+        ]);
+    }
+
+    public function studioOwner(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_type_id' => \App\Models\LookupValue::where('code', 'STUDIO_OWNER')
+                ->whereHas('master', fn($q) => $q->where('code', 'USER_TYPE'))
+                ->value('lookup_value_id'),
+        ]);
+    }
+
+    public function schoolOwner(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_type_id' => \App\Models\LookupValue::where('code', 'SCHOOL_OWNER')
+                ->whereHas('master', fn($q) => $q->where('code', 'USER_TYPE'))
+                ->value('lookup_value_id'),
+        ]);
+    }
+
+    public function customer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_type_id' => \App\Models\LookupValue::where('code', 'CUSTOMER')
+                ->whereHas('master', fn($q) => $q->where('code', 'USER_TYPE'))
+                ->value('lookup_value_id'),
+        ]);
+    }
 }

@@ -2,87 +2,75 @@
 
 namespace Database\Seeders;
 
-use App\Models\Plan;
-use App\Models\Role;
-use App\Models\School;
-use App\Models\StorageLibrary;
-use App\Models\Subscription;
-use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\School;
+use App\Models\Card;
+use App\Models\Role;
+use App\Models\LookupValue;
+use Illuminate\Support\Str;
 
 class SchoolSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        // 1. Ensure Roles Exist
-        $schoolRole = Role::firstOrCreate(['name' => 'school-owner']);
+        $schoolRole = Role::where('name', 'school_owner')->first();
+        $studentRole = Role::where('name', 'student')->first(); // Ensure this role exists!
 
-        // 2. Create School Owner User
-        $user = User::firstOrCreate(
-            ['email' => 'school@example.com'],
-            [
-                'name' => 'مدرسة الأمل النموذجية',
-                'username' => 'school_admin',
-                'password' => Hash::make('password123'),
-                'phone' => '0777777777',
-                'email_verified_at' => now(),
-            ]
-        );
+        $primaryLevel = LookupValue::where('code', 'PRIMARY')
+            ->whereHas('master', fn($q) => $q->where('code', 'SCHOOL_LEVEL'))
+            ->value('lookup_value_id');
+            
+        $activeCardStatus = LookupValue::where('code', 'ACTIVE')
+            ->whereHas('master', fn($q) => $q->where('code', 'CARD_STATUS'))
+            ->value('lookup_value_id');
 
-        $user->roles()->syncWithoutDetaching([$schoolRole->role_id]);
+        // Create 2 Schools
+        for ($s = 1; $s <= 2; $s++) {
+            $schoolUser = User::factory()->schoolOwner()->create([
+                'email' => "school{$s}@example.com",
+                'name' => "School Owner {$s}",
+            ]);
 
-        // 3. Create/Get Plan
-        $plan = Plan::firstOrCreate(
-            ['name' => 'خطة المدارس الأساسية'],
-            [
-                'description' => 'خطة مخصصة للمؤسسات التعليمية',
-                'storage_limit' => 1024 * 1024 * 5, // 5GB
-                'price_monthly' => 0,
-                'price_yearly' => 0,
-                'max_albums' => 50,
-                'max_cards' => 1000,
-                'max_users' => 10,
-                'max_storage_libraries' => 1,
-                'is_active' => true,
-            ]
-        );
+            if ($schoolRole) {
+                $schoolUser->roles()->syncWithoutDetaching([$schoolRole->role_id]);
+            }
 
-        // 4. Create Active Subscription
-        Subscription::updateOrCreate(
-            ['user_id' => $user->id, 'plan_id' => $plan->plan_id],
-            [
-                'start_date' => now(),
-                'end_date' => now()->addYear(),
-                'renewal_date' => now()->addYear(),
-                'auto_renew' => true,
-            ]
-        );
+            $school = School::create([
+                'user_id' => $schoolUser->id,
+                'description' => "School {$s}",
+                'address' => "School Address {$s}",
+                'city' => "Jeddah",
+                'school_level_id' => $primaryLevel
+            ]);
 
-        // 5. Create School record
-        $school = School::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'description' => 'مدرسة رائدة في التعليم المتميز',
-                'address' => 'شارع الستين، صنعاء',
-                'city' => 'صنعاء',
-                'settings' => ['theme' => 'light'],
-            ]
-        );
+            // Create Students (Users + Cards)
+            for ($st = 1; $st <= 20; $st++) {
+                $studentUser = User::factory()->create([ // Default user type, maybe change if student type exists
+                    'name' => "Student {$s}-{$st}",
+                    'email' => "student{$s}_{$st}@school.com"
+                ]);
+                
+                // If we had a student role/type
+                // $studentUser->user_type_id = ...
+                // $studentUser->save();
 
-        // 6. Create Storage Library for the School
-        StorageLibrary::updateOrCreate(
-            ['school_id' => $school->school_id],
-            [
-                'user_id' => $user->id,
-                'name' => 'مكتبة تخزين المدرسة المركزية',
-                'storage_limit' => 1024 * 1024 * 5, // 5GB
-            ]
-        );
-
-        $this->command->info('School environment seeded successfully! User: school@example.com / pass: password123');
+                // Create Card linking Student to School
+                Card::create([
+                    'card_number' => "SCH{$s}-ST{$st}",
+                    'card_uuid' => Str::uuid(),
+                    'owner_type' => School::class,
+                    'owner_id' => $school->school_id,
+                    'holder_id' => $studentUser->id,
+                    'card_type_id' => $primaryLevel = LookupValue::where('code', 'STANDARD') // Reusing standard card type lookup
+                        ->whereHas('master', fn($q) => $q->where('code', 'CARD_TYPE'))
+                        ->value('lookup_value_id'),
+                    'card_status_id' => $activeCardStatus,
+                    'expiry_date' => now()->addYear()
+                ]);
+            }
+        }
+        
+        $this->command->info('Schools seeded successfully.');
     }
 }

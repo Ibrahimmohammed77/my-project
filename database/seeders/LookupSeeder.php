@@ -65,7 +65,7 @@ class LookupSeeder extends Seeder
                     ['code' => 'STUDIO_OWNER', 'name' => 'صاحب استوديو'],
                     ['code' => 'SCHOOL_OWNER', 'name' => 'صاحب مدرسة'],
                     ['code' => 'CUSTOMER', 'name' => 'عميل'],
-                    ['code' => 'EMPLOYEE', 'name' => 'موظف'],
+                    ['code' => 'EMPLOYEE', 'name' => 'مستخدم نهائي'],
                 ];
             case 'SCHOOL_TYPE':
                 return [

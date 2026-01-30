@@ -6,11 +6,13 @@ export class Account {
         this.email = data.email || null;
         this.phone = data.phone || '';
         this.profile_image = data.profile_image || null;
-        this.account_status_id = data.account_status_id || null;
-        this.account_type_id = data.account_type_id || null;
+        this.account_status_id = data.account_status_id || data.user_status_id || null;
+        this.account_type_id = data.account_type_id || data.user_type_id || null;
         this.password = data.password || null; // Only for creation/update
         this.password_confirmation = data.password_confirmation || null;
         this.account_type_code = data.account_type_code || null; // Virtual field for validation
+        // Handle role_id from first role if available, or direct property
+        this.role_id = data.role_id || (data.roles && data.roles.length > 0 ? data.roles[0].role_id : null);
 
         // Dynamic Fields
         this.studio_name = data.studio_name || null;
@@ -36,13 +38,16 @@ export class Account {
     }
 
     toJson() {
+        // Map frontend model to backend request fields
         const data = {
             username: this.username,
             full_name: this.full_name,
             email: this.email,
             phone: this.phone,
-            account_status_id: this.account_status_id,
-            account_type_id: this.account_type_id
+            user_status_id: this.account_status_id, // Map to correct backend field
+            user_type_id: this.account_type_id,     // Map to correct backend field
+            role_id: this.role_id,
+            is_active: true // Force active status on creation/update
         };
         
         // Add dynamic fields if present
@@ -60,7 +65,7 @@ export class Account {
         
         if (this.password) {
             data.password = this.password;
-            data.password_confirmation = this.password_confirmation;
+            data.password_confirmation = this.password_confirmation || this.password;
         }
         
         return data;

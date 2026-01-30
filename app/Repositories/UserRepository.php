@@ -208,7 +208,7 @@ class UserRepository implements UserRepositoryInterface
                 $user->roles()->sync([$data['role_id']]);
             }
 
-            return $user->load('roles');
+            return $user->load(['roles', 'type']);
         });
     }
 
@@ -238,7 +238,7 @@ class UserRepository implements UserRepositoryInterface
                 $user->roles()->sync([$data['role_id']]);
             }
 
-            return $user->load('roles');
+            return $user->load(['roles', 'type']);
         });
     }
 
@@ -247,7 +247,7 @@ class UserRepository implements UserRepositoryInterface
      */
     public function getCustomerTypeId(): int
     {
-        return LookupValue::where('code', 'customer')
+        return LookupValue::where('code', 'CUSTOMER')
             ->first()
             ->lookup_value_id;
     }
@@ -257,7 +257,7 @@ class UserRepository implements UserRepositoryInterface
      */
     public function getDefaultStatusId(): int
     {
-        return LookupValue::where('code', 'active')
+        return LookupValue::where('code', 'ACTIVE')
             ->first()
             ->lookup_value_id;
     }

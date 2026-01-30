@@ -32,16 +32,30 @@ class AlbumController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $school = Auth::user()->school;
-        $albums = $school->albums()->withCount('photos')->latest()->get();
+        $query = $school->albums()->withCount('photos')->latest();
 
-        if (request()->wantsJson()) {
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $albums = $query->paginate($request->get('per_page', 10));
+
+        if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'albums' => $albums
+                    'albums' => $albums->items(),
+                    'pagination' => [
+                        'total' => $albums->total(),
+                        'per_page' => $albums->perPage(),
+                        'current_page' => $albums->currentPage(),
+                        'last_page' => $albums->lastPage(),
+                        'from' => $albums->firstItem(),
+                        'to' => $albums->lastItem()
+                    ]
                 ]
             ]);
         }
@@ -93,6 +107,9 @@ class AlbumController extends Controller
         $validated = $request->validated();
 
         try {
+            // Ensure the album belongs to the school
+            $albumModel = $school->albums()->findOrFail($id);
+
             $album = $this->updateAlbumUseCase->execute($school, (int)$id, $validated);
 
             if (isset($validated['card_ids'])) {
@@ -108,6 +125,14 @@ class AlbumController extends Controller
             }
 
             return redirect()->route('school.albums.index')->with('success', 'تم تحديث ألبوم المدرسة بنجاح');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لم يتم العثور على الألبوم'
+                ], 404);
+            }
+            throw $e;
         } catch (\Exception $e) {
             if ($request->wantsJson()) {
                 return response()->json([
@@ -125,17 +150,35 @@ class AlbumController extends Controller
     public function destroy($id)
     {
         $school = Auth::user()->school;
-        $album = $school->albums()->findOrFail($id);
         
-        $album->delete();
+        try {
+            $album = $school->albums()->findOrFail($id);
+            $album->delete();
 
-        if (request()->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'تم حذف ألبوم المدرسة بنجاح'
-            ]);
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم حذف ألبوم المدرسة بنجاح'
+                ]);
+            }
+
+            return redirect()->route('school.albums.index')->with('success', 'تم حذف ألبوم المدرسة بنجاح');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لم يتم العثور على الألبوم'
+                ], 404);
+            }
+            throw $e;
+        } catch (\Exception $e) {
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 422);
+            }
+            return redirect()->back()->with('error', $e->getMessage());
         }
-
-        return redirect()->route('school.albums.index')->with('success', 'تم حذف ألبوم المدرسة بنجاح');
     }
 }

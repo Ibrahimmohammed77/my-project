@@ -68,4 +68,41 @@ class SchoolProfileControllerTest extends TestCase
         $this->assertEquals('New Description', $this->school->description);
         $this->assertEquals('New City', $this->school->city);
     }
+
+    /** @test */
+    public function it_fails_validation_for_invalid_profile_data()
+    {
+        $invalidData = [
+            'name' => '', // Required/Sometimes but cannot be empty if present
+        ];
+
+        $response = $this->actingAs($this->schoolOwner)
+            ->putJson(route('school.profile.update'), $invalidData);
+
+        // Depending on how 'sometimes' and validation works, if it's required when present
+        // Actually name isn't required in my FormRequest, it's just sometimes|string.
+        // Let's try an invalid logo.
+        $invalidData = [
+            'logo' => 'not-an-image'
+        ];
+
+        $response = $this->actingAs($this->schoolOwner)
+            ->putJson(route('school.profile.update'), $invalidData);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('logo');
+    }
+
+    /** @test */
+    public function it_denies_unauthorized_access_to_profile()
+    {
+        $studioOwner = User::factory()->create();
+        Role::firstOrCreate(['name' => 'studio-owner']);
+        $studioOwner->roles()->attach(Role::where('name', 'studio-owner')->first()->role_id);
+
+        $response = $this->actingAs($studioOwner)
+            ->getJson(route('school.profile.edit'));
+
+        $response->assertStatus(403);
+    }
 }

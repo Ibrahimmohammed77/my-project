@@ -210,6 +210,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Contracts\RoleRepositoryInterface::class,
             \App\Repositories\RoleRepository::class
         );
+
+        // Subscription Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\SubscriptionRepositoryInterface::class,
+            \App\Repositories\SubscriptionRepository::class
+        );
     }
 
     /**

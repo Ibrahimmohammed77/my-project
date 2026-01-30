@@ -34,12 +34,7 @@ class CardController extends Controller
         $groups = $this->manageCardGroupUseCase->listGroups();
 
         if (request()->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'groups' => $groups
-                ]
-            ]);
+            return $this->successResponse(['groups' => $groups], 'تم استرجاع مجموعات الكروت بنجاح');
         }
 
         return view('spa.cards.groups.index', compact('groups'));
@@ -85,12 +80,7 @@ class CardController extends Controller
         );
 
         if (request()->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'cards' => $cards
-                ]
-            ]);
+            return $this->paginatedResponse($cards, 'cards', 'تم استرجاع الكروت بنجاح');
         }
 
         return view('spa.cards.index', compact('group', 'cards'));

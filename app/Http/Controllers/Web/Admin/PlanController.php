@@ -42,12 +42,7 @@ class PlanController extends Controller
         );
 
         if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'plans' => $plans
-                ]
-            ]);
+            return $this->paginatedResponse($plans, 'plans', 'تم استرجاع الخطط بنجاح');
         }
 
         return view('spa.plans.index', compact('plans'));

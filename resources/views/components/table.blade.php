@@ -254,8 +254,6 @@
         for (let i = start; i < end && i < allRows.length; i++) {
             allRows[i].style.display = '';
         }
-        
-        updatePagination();
     }
     
     // Re-initialize when rows change

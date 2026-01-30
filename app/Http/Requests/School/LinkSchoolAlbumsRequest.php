@@ -11,8 +11,7 @@ class LinkSchoolAlbumsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $card = $this->user()->school->cards()->find($this->route('card'));
-        return $card !== null;
+        return $this->user()->hasRole('school-owner');
     }
 
     /**

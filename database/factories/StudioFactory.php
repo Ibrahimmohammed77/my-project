@@ -13,7 +13,7 @@ class StudioFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
+            'user_id' => User::factory()->studioOwner(),
             'description' => $this->faker->paragraph(),
             'address' => $this->faker->address(),
             'city' => $this->faker->city(),

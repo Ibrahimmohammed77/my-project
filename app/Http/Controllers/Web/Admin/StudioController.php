@@ -15,19 +15,16 @@ class StudioController extends Controller
      */
     public function index(Request $request): View|JsonResponse
     {
-        $studios = Studio::with('user', 'status', 'subscription')->get();
+        $studios = Studio::with('user', 'subscription')
+            ->filter($request->only('search', 'status_id'))
+            ->paginate($request->get('per_page', 15));
 
         $statuses = \App\Models\LookupValue::whereHas('master', function ($q) {
             $q->where('code', 'user_status');
         })->get();
 
         if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'studios' => $studios
-                ]
-            ]);
+            return $this->paginatedResponse($studios, 'studios', 'تم استرجاع الاستوديوهات بنجاح');
         }
 
         return view('spa.studios.index', compact('studios', 'statuses'));

@@ -126,6 +126,9 @@
                                     <x-sidebar-link href="{{ route('spa.plans') }}" :active="request()->routeIs('spa.plans')" icon="fa-box-archive" class="text-sm">
                                         الخطط
                                     </x-sidebar-link>
+                                    <x-sidebar-link href="{{ route('spa.subscriptions') }}" :active="request()->routeIs('spa.subscriptions')" icon="fa-calendar-check" class="text-sm">
+                                        الاشتراكات
+                                    </x-sidebar-link>
                                     <x-sidebar-link href="{{ route('spa.cards') }}" :active="request()->routeIs('spa.cards')" icon="fa-id-card-clip" class="text-sm">
                                         إدارة الكروت
                                     </x-sidebar-link>

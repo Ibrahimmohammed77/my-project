@@ -18,16 +18,39 @@ class CardController extends Controller
         $this->linkCardToAlbumUseCase = $linkCardToAlbumUseCase;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $school = Auth::user()->school;
-        $cards = $school->cards()->with('type', 'status')->latest()->get();
+        $query = $school->cards()->with('type', 'status')->latest();
 
-        if (request()->wantsJson()) {
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where('card_number', 'like', '%' . $search . '%');
+        }
+
+        if ($request->has('status_id')) {
+            $query->where('status_id', $request->status_id);
+        }
+
+        if ($request->has('type_id')) {
+            $query->where('type_id', $request->type_id);
+        }
+
+        $cards = $query->paginate($request->get('per_page', 10));
+
+        if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'cards' => $cards
+                    'cards' => $cards->items(),
+                    'pagination' => [
+                        'total' => $cards->total(),
+                        'per_page' => $cards->perPage(),
+                        'current_page' => $cards->currentPage(),
+                        'last_page' => $cards->lastPage(),
+                        'from' => $cards->firstItem(),
+                        'to' => $cards->lastItem()
+                    ]
                 ]
             ]);
         }
@@ -71,6 +94,14 @@ class CardController extends Controller
             }
 
             return redirect()->route('school.cards.show', $id)->with('success', 'تم ربط كارت المدرسة بالألبومات بنجاح');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لم يتم العثور على الكارت'
+                ], 404);
+            }
+            throw $e;
         } catch (\Exception $e) {
             if ($request->wantsJson()) {
                 return response()->json([

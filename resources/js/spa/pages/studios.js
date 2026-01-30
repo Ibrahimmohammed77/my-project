@@ -26,7 +26,12 @@ window.editStudio = async (id) => {
     document.getElementById('name').value = studio.name;
     document.getElementById('email').value = studio.email || '';
     document.getElementById('phone').value = studio.phone || '';
-    document.getElementById('website').value = studio.website || '';
+    document.getElementById('city').value = studio.city || '';
+    document.getElementById('address').value = studio.address || '';
+    
+    // Hide credentials in edit mode as requested
+    const credentialsSection = document.getElementById('credentials-section');
+    if(credentialsSection) credentialsSection.classList.add('hidden');
     
     if(studio.studio_status_id) {
         document.getElementById('studio_status_id').value = studio.studio_status_id;
@@ -51,6 +56,10 @@ window.showCreateModal = () => {
     studioForm.reset();
     studioIdInput.value = '';
     
+    // Show credentials in create mode
+    const credentialsSection = document.getElementById('credentials-section');
+    if(credentialsSection) credentialsSection.classList.remove('hidden');
+
     studioModal.classList.remove('hidden');
 };
 
@@ -112,7 +121,6 @@ function renderStudios() {
                     </div>
                     <div>
                         <div class="font-bold text-gray-900 text-sm">${studio.name}</div>
-                        ${studio.website ? `<a href="${studio.website}" target="_blank" class="text-xs text-blue-500 hover:underline">${studio.website}</a>` : ''}
                     </div>
                 </div>
             </td>
@@ -179,8 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value || null,
                 phone: document.getElementById('phone').value || null,
-                website: document.getElementById('website').value || null,
-                studio_status_id: document.getElementById('studio_status_id').value
+                city: document.getElementById('city').value || null,
+                address: document.getElementById('address').value || null,
+                studio_status_id: document.getElementById('studio_status_id').value,
+                username: document.getElementById('username')?.value || null,
+                password: document.getElementById('password')?.value || null
             });
             
             try {

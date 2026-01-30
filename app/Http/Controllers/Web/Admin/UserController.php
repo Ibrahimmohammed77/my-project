@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\CreateUserRequest;
 use App\UseCases\Admin\CreateUserUseCase;
 use App\UseCases\Admin\ListUsersUseCase;
 use App\UseCases\Admin\UpdateUserUseCase;
+use App\UseCases\Admin\DeleteUserUseCase;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
 use App\Models\Role;
@@ -23,15 +24,18 @@ class UserController extends Controller
     protected $createUserUseCase;
     protected $listUsersUseCase;
     protected $updateUserUseCase;
+    protected $deleteUserUseCase;
 
     public function __construct(
         CreateUserUseCase $createUserUseCase,
         ListUsersUseCase $listUsersUseCase,
-        UpdateUserUseCase $updateUserUseCase
+        UpdateUserUseCase $updateUserUseCase,
+        DeleteUserUseCase $deleteUserUseCase
     ) {
         $this->createUserUseCase = $createUserUseCase;
         $this->listUsersUseCase = $listUsersUseCase;
         $this->updateUserUseCase = $updateUserUseCase;
+        $this->deleteUserUseCase = $deleteUserUseCase;
     }
 
     /**
@@ -40,6 +44,13 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only(['search', 'role_id', 'status_id', 'type_id']);
+        
+        // If no role filter is applied, exclude Schools and Studios from general list
+        if (!isset($filters['role_id'])) {
+            $excludedRoles = Role::whereIn('name', ['studio_owner', 'school_owner'])->pluck('role_id')->toArray();
+            $filters['exclude_roles'] = $excludedRoles;
+        }
+
         $users = $this->listUsersUseCase->execute($filters, $request->get('per_page', 15));
 
         $roles = Role::where('name', '!=', 'super_admin')
@@ -176,7 +187,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         try {
-            $user->delete();
+            $this->deleteUserUseCase->execute($user);
             
             if (request()->wantsJson()) {
                 return response()->json([

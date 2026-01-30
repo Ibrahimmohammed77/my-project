@@ -33,6 +33,8 @@ class CreateUserRequest extends FormRequest
             'is_active' => 'boolean',
             'school_type_id' => 'nullable|exists:lookup_values,lookup_value_id,is_active,1',
             'school_level_id' => 'nullable|exists:lookup_values,lookup_value_id,is_active,1',
+            'city' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
         ];
     }
 

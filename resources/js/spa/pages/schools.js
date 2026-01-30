@@ -26,6 +26,7 @@ window.editSchool = async (id) => {
     document.getElementById('email').value = school.email || '';
     document.getElementById('phone').value = school.phone || '';
     document.getElementById('city').value = school.city || '';
+    document.getElementById('address').value = school.address || '';
     
     if(school.school_status_id) {
         document.getElementById('school_status_id').value = school.school_status_id;
@@ -36,6 +37,10 @@ window.editSchool = async (id) => {
     if(school.school_level_id) {
         document.getElementById('school_level_id').value = school.school_level_id;
     }
+
+    // Hide credentials in edit mode
+    const credentialsSection = document.getElementById('credentials-section');
+    if(credentialsSection) credentialsSection.classList.add('hidden');
 
     schoolModal.classList.remove('hidden');
 };
@@ -56,6 +61,10 @@ window.showCreateModal = () => {
     schoolForm.reset();
     schoolIdInput.value = '';
     
+    // Show credentials in create mode
+    const credentialsSection = document.getElementById('credentials-section');
+    if(credentialsSection) credentialsSection.classList.remove('hidden');
+
     schoolModal.classList.remove('hidden');
 };
 
@@ -190,9 +199,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 email: document.getElementById('email').value || null,
                 phone: document.getElementById('phone').value || null,
                 city: document.getElementById('city').value || null,
+                address: document.getElementById('address').value || null,
                 school_status_id: document.getElementById('school_status_id').value,
                 school_type_id: document.getElementById('school_type_id').value,
-                school_level_id: document.getElementById('school_level_id').value
+                school_level_id: document.getElementById('school_level_id').value,
+                username: document.getElementById('username')?.value || null,
+                password: document.getElementById('password')?.value || null
             });
             
             try {

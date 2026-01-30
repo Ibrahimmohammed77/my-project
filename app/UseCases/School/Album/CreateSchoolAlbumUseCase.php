@@ -23,12 +23,6 @@ class CreateSchoolAlbumUseCase
             throw new Exception('المدرسة ليس لديها اشتراك نشط');
         }
 
-        // Check album limit
-        $currentAlbumsCount = $school->albums()->count();
-        if ($currentAlbumsCount >= $plan->max_albums) {
-            throw new Exception('تم الوصول للحد الأقصى للألبومات المسموح بها في خطتك');
-        }
-
         // Discover Storage Library
         $storageLibrary = StorageLibrary::where('school_id', $school->school_id)->first();
         if (!$storageLibrary) {

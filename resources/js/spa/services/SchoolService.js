@@ -1,10 +1,11 @@
-import axios from 'axios';
+import ApiClient from '../core/api/ApiClient';
 import { School } from '../models/School';
+import { API_ENDPOINTS, getEndpoint } from '../core/api/endpoints';
 
 export class SchoolService {
     static async getAll() {
         try {
-            const response = await axios.get('/schools');
+            const response = await ApiClient.get(API_ENDPOINTS.ADMIN.SCHOOLS.LIST);
             return response.data.data.schools.map(schoolData => School.fromJson(schoolData));
         } catch (error) {
             console.error('Error fetching schools:', error);
@@ -14,7 +15,7 @@ export class SchoolService {
 
     static async create(school) {
         try {
-            const response = await axios.post('/schools', school.toJson());
+            const response = await ApiClient.post(API_ENDPOINTS.ADMIN.SCHOOLS.CREATE, school.toJson());
             return response.data;
         } catch (error) {
             console.error('Error creating school:', error);
@@ -24,7 +25,7 @@ export class SchoolService {
 
     static async update(id, school) {
         try {
-            const response = await axios.put(`/schools/${id}`, school.toJson());
+            const response = await ApiClient.put(getEndpoint(API_ENDPOINTS.ADMIN.SCHOOLS.UPDATE, id), school.toJson());
             return response.data;
         } catch (error) {
             console.error('Error updating school:', error);
@@ -34,7 +35,7 @@ export class SchoolService {
 
     static async delete(id) {
         try {
-            await axios.delete(`/schools/${id}`);
+            await ApiClient.delete(getEndpoint(API_ENDPOINTS.ADMIN.SCHOOLS.DELETE, id));
         } catch (error) {
             console.error('Error deleting school:', error);
             throw error;

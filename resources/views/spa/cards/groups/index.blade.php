@@ -24,6 +24,6 @@
     </x-table>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/cards.js')
+    @vite('resources/js/spa/modules/cards/index.js')
 @endpush
 @endsection

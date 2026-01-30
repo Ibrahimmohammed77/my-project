@@ -181,17 +181,27 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:manage_studios')->group(function () {
         Route::get('admin/studios', [\App\Http\Controllers\Web\Admin\StudioController::class, 'index'])->name('spa.studios');
+        Route::post('admin/studios', [\App\Http\Controllers\Web\Admin\StudioController::class, 'store'])->name('admin.studios.store');
+        Route::put('admin/studios/{studio}', [\App\Http\Controllers\Web\Admin\StudioController::class, 'update'])->name('admin.studios.update');
+        Route::delete('admin/studios/{studio}', [\App\Http\Controllers\Web\Admin\StudioController::class, 'destroy'])->name('admin.studios.destroy');
         Route::get('/studios', [\App\Http\Controllers\Web\Admin\StudioController::class, 'index']);
     });
 
     Route::middleware('can:manage_schools')->group(function () {
         Route::get('admin/schools', [\App\Http\Controllers\Web\Admin\SchoolController::class, 'index'])->name('spa.schools');
+        Route::post('admin/schools', [\App\Http\Controllers\Web\Admin\SchoolController::class, 'store'])->name('admin.schools.store');
+        Route::put('admin/schools/{school}', [\App\Http\Controllers\Web\Admin\SchoolController::class, 'update'])->name('admin.schools.update');
+        Route::delete('admin/schools/{school}', [\App\Http\Controllers\Web\Admin\SchoolController::class, 'destroy'])->name('admin.schools.destroy');
         Route::get('/schools', [\App\Http\Controllers\Web\Admin\SchoolController::class, 'index']);
     });
 
     Route::middleware('can:manage_permissions')->group(function () {
         Route::get('admin/permissions', [\App\Http\Controllers\Web\Admin\PermissionController::class, 'index'])->name('spa.permissions');
         Route::get('/permissions', [\App\Http\Controllers\Web\Admin\PermissionController::class, 'index']);
+    });
+
+    Route::middleware('can:manage_users')->group(function () {
+        Route::get('admin/subscribers', [\App\Http\Controllers\Web\Admin\SubscriberController::class, 'index'])->name('spa.subscribers');
     });
 
     // Root-level routes for other SPA services
@@ -202,11 +212,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/lookups', [\App\Http\Controllers\Web\Admin\LookupController::class, 'index'])->middleware('can:manage_lookups');
     Route::get('/plans', [\App\Http\Controllers\Web\Admin\PlanController::class, 'index'])->middleware('can:manage_plans');
     Route::get('/cards', [\App\Http\Controllers\Web\Admin\CardController::class, 'indexGroup'])->middleware('can:manage_cards');
-
-    Route::middleware('can:is-admin')->group(function () {
-        // Route::resource('admin/studios', \App\Http\Controllers\Admin\StudioController::class);
-        // Route::resource('admin/schools', \App\Http\Controllers\Admin\SchoolController::class);
-    });
 });
 
 // Static Pages

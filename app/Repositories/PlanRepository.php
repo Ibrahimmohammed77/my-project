@@ -18,7 +18,7 @@ class PlanRepository implements PlanRepositoryInterface
 
     public function listByAdmin(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = $this->model->with('billingCycle');
+        $query = $this->model->newQuery();
 
         if (!empty($filters['search'])) {
             $query->where('name', 'like', '%' . $filters['search'] . '%');
@@ -34,6 +34,7 @@ class PlanRepository implements PlanRepositoryInterface
     public function store(array $data): Plan
     {
         return DB::transaction(function () use ($data) {
+            $data['storage_limit'] = $data['storage_limit'] ?? 0;
             return $this->model->create($data);
         });
     }

@@ -1,5 +1,5 @@
-import { showToast } from '../components/toast';
-import { setupSearch } from '../components/search';
+import { showToast } from '../utils/toast.js';
+import { setupSearch } from '../components/search.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.querySelector('#students-table tbody');

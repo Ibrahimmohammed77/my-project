@@ -1,18 +1,20 @@
 export class Account {
     constructor(data = {}) {
-        this.account_id = data.account_id || null;
+        this.id = data.id || data.account_id || data.user_id || null;
+        this.account_id = this.id;
         this.username = data.username || '';
-        this.full_name = data.full_name || '';
+        this.full_name = data.full_name || data.name || '';
         this.email = data.email || null;
         this.phone = data.phone || '';
         this.profile_image = data.profile_image || null;
-        this.account_status_id = data.account_status_id || data.user_status_id || null;
-        this.account_type_id = data.account_type_id || data.user_type_id || null;
-        this.password = data.password || null; // Only for creation/update
-        this.password_confirmation = data.password_confirmation || null;
-        this.account_type_code = data.account_type_code || null; // Virtual field for validation
+        this.account_status_id = data.user_status_id || data.account_status_id || data.status_id || null;
+        this.account_type_id = data.user_type_id || data.account_type_id || data.type_id || null;
+        
         // Handle role_id from first role if available, or direct property
-        this.role_id = data.role_id || (data.roles && data.roles.length > 0 ? data.roles[0].role_id : null);
+        this.role_id = data.role_id || null;
+        if (!this.role_id && data.roles && data.roles.length > 0) {
+            this.role_id = data.roles[0].role_id || data.roles[0].id;
+        }
 
         // Dynamic Fields
         this.studio_name = data.studio_name || null;
@@ -24,6 +26,10 @@ export class Account {
         this.school_status_id = data.school_status_id || null;
         
         this.subscriber_status_id = data.subscriber_status_id || null;
+        
+        // Profile fields flattened
+        this.city = data.city || data.studio?.city || data.school?.city || null;
+        this.address = data.address || data.studio?.address || data.school?.address || null;
         
         // Related objects
         this.status = data.status || null;

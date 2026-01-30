@@ -105,6 +105,6 @@
 </div>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/customers.js')
+    @vite('resources/js/spa/modules/customers/index.js')
 @endpush
 @endsection

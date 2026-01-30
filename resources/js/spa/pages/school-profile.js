@@ -1,4 +1,4 @@
-import { showToast } from '../components/toast';
+import { showToast } from '../utils/toast.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const profileForm = document.querySelector('#school-profile-form');

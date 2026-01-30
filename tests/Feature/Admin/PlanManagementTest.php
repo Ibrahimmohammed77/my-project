@@ -50,20 +50,13 @@ class PlanManagementTest extends TestCase
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
         
-        $billingCycle = LookupValue::where('code', 'monthly')->first();
-
         $response = $this->actingAs($admin)->post(route('admin.plans.store'), [
             'name' => 'Pro Plan',
             'description' => 'Best for pros',
             'storage_limit' => 50,
             'price_monthly' => 2000,
             'price_yearly' => 20000,
-            'max_albums' => 10,
-            'max_cards' => 100,
-            'max_users' => 5,
-            'max_storage_libraries' => 2,
             'features' => ['feature1', 'feature2'],
-            'billing_cycle_id' => $billingCycle->lookup_value_id,
             'is_active' => true,
         ]);
 
@@ -85,19 +78,13 @@ class PlanManagementTest extends TestCase
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
         
-        $billingCycle = LookupValue::where('code', 'monthly')->first();
         $plan = Plan::create([
             'name' => 'Basic Plan',
             'description' => 'Basic',
             'storage_limit' => 10,
             'price_monthly' => 1000,
             'price_yearly' => 10000,
-            'max_albums' => 5,
-            'max_cards' => 50,
-            'max_users' => 2,
-            'max_storage_libraries' => 1,
             'features' => ['f1'],
-            'billing_cycle_id' => $billingCycle->lookup_value_id,
             'is_active' => true
         ]);
 
@@ -107,12 +94,7 @@ class PlanManagementTest extends TestCase
             'storage_limit' => 20,
             'price_monthly' => 1500,
             'price_yearly' => 15000,
-            'max_albums' => 10,
-            'max_cards' => 100,
-            'max_users' => 4,
-            'max_storage_libraries' => 2,
             'features' => ['f1', 'f2'],
-            'billing_cycle_id' => $billingCycle->lookup_value_id,
             'is_active' => false,
         ]);
 
@@ -126,19 +108,13 @@ class PlanManagementTest extends TestCase
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
         
-        $billingCycle = LookupValue::where('code', 'monthly')->first();
         $plan = Plan::create([
             'name' => 'To Delete',
             'description' => 'Desc',
             'storage_limit' => 1,
             'price_monthly' => 100,
             'price_yearly' => 1000,
-            'max_albums' => 1,
-            'max_cards' => 10,
-            'max_users' => 1,
-            'max_storage_libraries' => 1,
             'features' => ['f1'],
-            'billing_cycle_id' => $billingCycle->lookup_value_id,
             'is_active' => true
         ]);
 

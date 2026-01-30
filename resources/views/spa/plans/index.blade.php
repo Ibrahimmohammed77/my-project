@@ -18,6 +18,7 @@
     <x-table :headers="[
         ['name' => 'الخطة', 'class' => 'w-1/3'],
         ['name' => 'الأسعار'],
+        ['name' => 'المساحة'],
         ['name' => 'الحالة'],
         ['name' => 'إجراءات', 'class' => 'text-center']
     ]" id="plans">
@@ -25,58 +26,90 @@
     </x-table>
 
     <!-- Plan Modal -->
-    <div id="plan-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:mr-4 sm:text-right w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">إضافة خطة جديدة</h3>
-                            <div class="mt-4">
-                                <form id="plan-form" class="space-y-4">
-                                    <input type="hidden" id="plan-id">
-                                    <div>
-                                        <label for="name" class="block text-sm font-medium text-gray-700">اسم الخطة</label>
-                                        <input type="text" name="name" id="name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-accent focus:border-accent sm:text-sm">
-                                    </div>
-                                    <div>
-                                        <label for="description" class="block text-sm font-medium text-gray-700">الوصف</label>
-                                        <textarea name="description" id="description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-accent focus:border-accent sm:text-sm"></textarea>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label for="price_monthly" class="block text-sm font-medium text-gray-700">سعر شهري</label>
-                                            <input type="number" step="0.01" name="price_monthly" id="price_monthly" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-accent focus:border-accent sm:text-sm">
-                                        </div>
-                                        <div>
-                                            <label for="price_yearly" class="block text-sm font-medium text-gray-700">سعر سنوي</label>
-                                            <input type="number" step="0.01" name="price_yearly" id="price_yearly" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-accent focus:border-accent sm:text-sm">
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input type="checkbox" name="is_active" id="is_active" class="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded">
-                                        <label for="is_active" class="mr-2 block text-sm text-gray-900">نشط</label>
-                                    </div>
-                                    <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-                                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-accent text-base font-medium text-white hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent sm:col-start-2 sm:text-sm">
-                                            حفظ
-                                        </button>
-                                        <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm">
-                                            إلغاء
-                                        </button>
-                                    </div>
-                                </form>
+    <div id="plan-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-2xl bg-white text-right shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
+                <!-- Modal Header -->
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2" id="modal-title">
+                        <span class="w-2 h-6 bg-accent rounded-full"></span>
+                        <span>إضافة خطة جديدة</span>
+                    </h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="px-6 py-6 text-right">
+                    <form id="plan-form" class="space-y-5">
+                        <input type="hidden" id="plan-id">
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5 ml-auto">اسم الخطة <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <i class="fas fa-layer-group absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <input type="text" id="name" required class="w-full pr-8 pl-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm" placeholder="مثال: الخطة الذهبية">
                             </div>
                         </div>
-                    </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5 ml-auto">الوصف</label>
+                            <textarea id="description" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm" rows="3" placeholder="مواصفات ومميزات هذه الخطة..."></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1.5 ml-auto">السعر الشهري (ريال) <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <i class="fas fa-calendar-alt absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                    <input type="number" step="0.01" id="price_monthly" required class="w-full pr-8 pl-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1.5 ml-auto">السعر السنوي (ريال) <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                    <input type="number" step="0.01" id="price_yearly" required class="w-full pr-8 pl-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5 ml-auto">مساحة التخزين (جيجابايت) <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <i class="fas fa-hdd absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <input type="number" id="storage_limit" required class="w-full pr-8 pl-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm" placeholder="مثال: 50">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5 ml-auto">المميزات (واحدة في كل سطر)</label>
+                            <textarea id="features" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm" rows="3" placeholder="ميزة 1&#10;ميزة 2&#10;ميزة 3..."></textarea>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <label for="is_active" class="text-sm font-bold text-gray-700 cursor-pointer">تفعيل الخطة</label>
+                            <div class="relative inline-flex h-6 w-11 items-center cursor-pointer">
+                                <input type="checkbox" id="is_active" class="sr-only peer">
+                                <div onclick="document.getElementById('is_active').click()" class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent transition-colors"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex flex-row-reverse gap-3">
+                    <button type="submit" form="plan-form" class="flex-1 sm:flex-none justify-center rounded-xl bg-accent px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-accent/20 hover:bg-accent-hover active:scale-95 transition-all">حفظ البيانات</button>
+                    <button type="button" onclick="closeModal()" class="flex-1 sm:flex-none justify-center rounded-xl border border-gray-200 bg-white px-8 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-gray-900 active:scale-95 transition-all">إلغاء</button>
                 </div>
             </div>
         </div>
     </div>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/plans.js')
+    @vite('resources/js/spa/modules/plans/index.js')
 @endpush
 @endsection

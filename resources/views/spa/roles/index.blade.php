@@ -71,6 +71,6 @@
 </div>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/roles.js')
+    @vite('resources/js/spa/modules/roles/index.js')
 @endpush
 @endsection

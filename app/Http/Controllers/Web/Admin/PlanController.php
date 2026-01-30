@@ -52,9 +52,13 @@ class PlanController extends Controller
     {
         Gate::authorize('manage_plans');
 
-        $this->createPlanUseCase->execute($request->validated());
+        $plan = $this->createPlanUseCase->execute($request->validated());
 
-        return redirect()->back()->with('success', 'تم إضافة الخطة بنجاح');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم إضافة الخطة بنجاح',
+            'data' => ['plan' => $plan]
+        ]);
     }
 
     public function edit(Plan $plan)
@@ -72,9 +76,13 @@ class PlanController extends Controller
     {
         Gate::authorize('manage_plans');
 
-        $this->updatePlanUseCase->execute($plan, $request->validated());
+        $updatedPlan = $this->updatePlanUseCase->execute($plan, $request->validated());
 
-        return redirect()->back()->with('success', 'تم تحديث الخطة بنجاح');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم تحديث الخطة بنجاح',
+            'data' => ['plan' => $updatedPlan]
+        ]);
     }
 
     public function destroy(Plan $plan)

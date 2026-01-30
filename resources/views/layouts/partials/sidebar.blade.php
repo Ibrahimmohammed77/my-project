@@ -32,11 +32,26 @@
 
         <div class="my-6 border-t border-white/10"></div>
         
-        <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">النظام</p>
+        <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">إدارة الحسابات</p>
 
-        <a href="{{ route('accounts.index') }}" class="flex items-center gap-4 px-4 py-3.5 {{ request()->routeIs('accounts.*') ? 'bg-accent text-white rounded-xl shadow-glow' : 'text-gray-400 hover:text-white hover:bg-white/5 rounded-xl' }} transition-all-300 group">
-            <i class="fa-solid fa-users-gear w-5 text-center text-lg {{ request()->routeIs('accounts.*') ? '' : 'group-hover:text-accent' }} transition-colors"></i>
-            <span class="font-medium">إدارة المستخدمين</span>
+        <a href="{{ route('spa.schools') }}" class="flex items-center gap-4 px-4 py-3.5 {{ request()->routeIs('spa.schools') ? 'bg-accent text-white rounded-xl shadow-glow' : 'text-gray-400 hover:text-white hover:bg-white/5 rounded-xl' }} transition-all-300 group">
+            <i class="fa-solid fa-school w-5 text-center text-lg {{ request()->routeIs('spa.schools') ? '' : 'group-hover:text-accent' }} transition-colors"></i>
+            <span class="font-medium">إدارة المدارس</span>
+        </a>
+
+        <a href="{{ route('spa.studios') }}" class="flex items-center gap-4 px-4 py-3.5 {{ request()->routeIs('spa.studios') ? 'bg-accent text-white rounded-xl shadow-glow' : 'text-gray-400 hover:text-white hover:bg-white/5 rounded-xl' }} transition-all-300 group">
+            <i class="fa-solid fa-camera-retro w-5 text-center text-lg {{ request()->routeIs('spa.studios') ? '' : 'group-hover:text-accent' }} transition-colors"></i>
+            <span class="font-medium">إدارة الاستوديوهات</span>
+        </a>
+
+        <a href="{{ route('spa.subscribers') }}" class="flex items-center gap-4 px-4 py-3.5 {{ request()->routeIs('spa.subscribers') ? 'bg-accent text-white rounded-xl shadow-glow' : 'text-gray-400 hover:text-white hover:bg-white/5 rounded-xl' }} transition-all-300 group">
+            <i class="fa-solid fa-user-tag w-5 text-center text-lg {{ request()->routeIs('spa.subscribers') ? '' : 'group-hover:text-accent' }} transition-colors"></i>
+            <span class="font-medium">المشاركين</span>
+        </a>
+
+        <a href="{{ route('spa.accounts') }}" class="flex items-center gap-4 px-4 py-3.5 {{ request()->routeIs('spa.accounts') ? 'bg-accent text-white rounded-xl shadow-glow' : 'text-gray-400 hover:text-white hover:bg-white/5 rounded-xl' }} transition-all-300 group">
+            <i class="fa-solid fa-users-gear w-5 text-center text-lg {{ request()->routeIs('spa.accounts') ? '' : 'group-hover:text-accent' }} transition-colors"></i>
+            <span class="font-medium">الحسابات العامة</span>
         </a>
         
         <a href="#" class="flex items-center gap-4 px-4 py-3.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all-300 group">

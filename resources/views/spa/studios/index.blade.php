@@ -51,7 +51,15 @@
                 <x-form.input name="phone" label="رقم الهاتف" icon="fa-phone" placeholder="05xxxxxxxx" />
             </div>
 
-            <x-form.input name="website" label="الموقع الإلكتروني" icon="fa-globe" placeholder="https://example.com" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-form.input name="city" label="المدينة" icon="fa-map-marker-alt" placeholder="المدينة" />
+                <x-form.input name="address" label="العنوان" icon="fa-home" placeholder="العنوان بالتفصيل" />
+            </div>
+
+            <div id="credentials-section" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-form.input name="username" label="اسم المستخدم" icon="fa-user" placeholder="اتركه فارغاً للتوليد التلقائي" />
+                <x-form.input name="password" label="كلمة المرور" type="password" icon="fa-lock" placeholder="اتركها فارغة لاستخدام الافتراضي" />
+            </div>
 
             <!-- Status Field -->
             <div>

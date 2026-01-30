@@ -59,7 +59,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">الدور <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <i class="fas fa-user-shield absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
-                        <select id="role_id" class="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm appearance-none transition-all hover:border-accent/50" required>
+                        <select id="role_id" name="role_id" class="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm appearance-none transition-all hover:border-accent/50" required>
                             <option value="">اختر الدور...</option>
                             @foreach($roles as $role)
                             <option value="{{ $role->role_id }}" data-role-name="{{ $role->name }}">{{ $role->name }}</option>
@@ -73,7 +73,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">حالة الحساب <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <i class="fas fa-toggle-on absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
-                        <select id="account_status_id" class="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm appearance-none transition-all hover:border-accent/50" required>
+                        <select id="user_status_id" name="user_status_id" class="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm appearance-none transition-all hover:border-accent/50" required>
                             <option value="">اختر الحالة...</option>
                             @foreach($statuses as $status)
                             <option value="{{ $status->lookup_value_id }}">{{ $status->name }}</option>
@@ -103,7 +103,10 @@
                     <h3 class="text-sm font-bold text-gray-700">بيانات الاستوديو</h3>
                 </div>
                 <!-- Studio has no extra fields now assuming name handled by main form -->
-                <p class="text-sm text-gray-500">لا توجد بيانات إضافية للاستوديو.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <x-form.input name="city" label="المدينة" icon="fa-map-marker-alt" placeholder="المدينة" />
+                    <x-form.input name="address" label="العنوان" icon="fa-home" placeholder="العنوان بالتفصيل" />
+                </div>
             </div>
 
             <!-- School Fields -->
@@ -116,7 +119,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">نوع المدرسة</label>
-                        <select id="school_type_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm">
+                        <select id="school_type_id" name="school_type_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm">
                             <option value="">اختر النوع (اختياري)...</option>
                             @foreach($schoolTypes as $type)
                             <option value="{{ $type->lookup_value_id }}">{{ $type->name }}</option>
@@ -127,7 +130,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">المرحلة الدراسية</label>
-                        <select id="school_level_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm">
+                        <select id="school_level_id" name="school_level_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm">
                             <option value="">اختر المرحلة (اختياري)...</option>
                             @foreach($schoolLevels as $level)
                             <option value="{{ $level->lookup_value_id }}">{{ $level->name }}</option>
@@ -135,6 +138,9 @@
                         </select>
                         <p id="school_level_id-error" class="text-red-500 text-xs mt-1 hidden field-error"></p>
                     </div>
+
+                    <x-form.input name="city" label="المدينة" icon="fa-map-marker-alt" placeholder="المدينة" />
+                    <x-form.input name="address" label="العنوان" icon="fa-home" placeholder="العنوان بالتفصيل" />
                 </div>
             </div>
 
@@ -158,6 +164,6 @@
 
     
 @push('scripts')
-    @vite('resources/js/spa/pages/accounts.js')
+    @vite('resources/js/spa/modules/accounts/index.js')
 @endpush
 @endsection

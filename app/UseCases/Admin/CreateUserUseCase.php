@@ -34,14 +34,18 @@ class CreateUserUseCase
                 if ($typeCode === 'STUDIO_OWNER') {
                     Studio::create([
                         'user_id' => $user->id,
-                        'description' => $user->name,
+                        'description' => $data['description'] ?? $user->name,
+                        'city' => $data['city'] ?? null,
+                        'address' => $data['address'] ?? null,
                     ]);
                 } elseif ($typeCode === 'SCHOOL_OWNER') {
                     School::create([
                         'user_id' => $user->id,
-                        'description' => $user->name,
+                        'description' => $data['description'] ?? $user->name,
                         'school_type_id' => $data['school_type_id'] ?? null,
                         'school_level_id' => $data['school_level_id'] ?? null,
+                        'city' => $data['city'] ?? null,
+                        'address' => $data['address'] ?? null,
                     ]);
                 }
 

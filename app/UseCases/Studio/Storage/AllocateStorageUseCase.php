@@ -23,10 +23,12 @@ class AllocateStorageUseCase
             throw new Exception('الاستوديو ليس لديه اشتراك نشط');
         }
 
-        // Limit check for storage libraries count
-        $currentLibrariesCount = $studio->storageLibraries()->count();
-        if ($currentLibrariesCount >= $studioPlan->max_storage_libraries) {
-            throw new Exception('تم الوصول للحد الأقصى لمكتبات التخزين المسموح بها');
+        // Ensure storage allocation doesn't exceed total plan storage
+        $currentAllocated = $studio->storageLibraries()->sum('storage_limit');
+        $requestedLimit = (int) $data['storage_limit'];
+        
+        if (($currentAllocated + $requestedLimit) > $studioPlan->storage_limit) {
+            throw new Exception('المساحة المطلوبة تتجاوز الحد المسموح به في خطتك (' . $studioPlan->storage_limit . ' بايت)');
         }
 
         return DB::transaction(function () use ($studio, $data) {

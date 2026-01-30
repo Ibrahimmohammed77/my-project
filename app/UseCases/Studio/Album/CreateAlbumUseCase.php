@@ -22,12 +22,6 @@ class CreateAlbumUseCase
             throw new Exception('الاستوديو ليس لديه اشتراك نشط');
         }
 
-        // Check album limit
-        $currentAlbumsCount = $studio->albums()->count();
-        if ($currentAlbumsCount >= $plan->max_albums) {
-            throw new Exception('تم الوصول للحد الأقصى للألبومات المسموح بها في خطتك');
-        }
-
         return DB::transaction(function () use ($studio, $data) {
             $album = $studio->albums()->create([
                 'name' => $data['name'],

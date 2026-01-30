@@ -27,7 +27,11 @@ export default defineConfig({
                 'resources/js/spa/pages/studio-storage.js',
                 'resources/js/spa/pages/studio-photo-review.js',
                 'resources/js/spa/pages/studio-cards.js',
-                'resources/js/spa/pages/studio-card-detail.js'
+                'resources/js/spa/pages/studio-card-detail.js',
+                'resources/js/spa/pages/school-albums.js',
+                'resources/js/spa/pages/school-cards.js',
+                'resources/js/spa/pages/school-students.js',
+                'resources/js/spa/pages/school-profile.js'
             ],
             refresh: true,
         }),

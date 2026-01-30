@@ -64,10 +64,10 @@ class SchoolAlbumControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->schoolOwner)
-            ->get(route('school.albums.index'));
+            ->getJson(route('school.albums.index'));
 
         $response->assertStatus(200);
-        $response->assertViewHas('albums');
+        $response->assertJsonCount(3, 'data.albums');
     }
 
     /** @test */
@@ -79,11 +79,12 @@ class SchoolAlbumControllerTest extends TestCase
             'is_visible' => 1,
         ];
 
-        // Ensure we don't pass storage_library_id, let the UseCase handle it
         $response = $this->actingAs($this->schoolOwner)
-            ->post(route('school.albums.store'), $albumData);
+            ->postJson(route('school.albums.store'), $albumData);
 
-        $response->assertRedirect(route('school.albums.index'));
+        $response->assertStatus(200);
+        $response->assertJsonPath('success', true);
+
         $this->assertDatabaseHas('albums', [
             'name' => 'Graduation 2026',
             'storage_library_id' => $this->storageLibrary->storage_library_id,
@@ -99,7 +100,7 @@ class SchoolAlbumControllerTest extends TestCase
         $studioOwner->roles()->attach(Role::where('name', 'studio-owner')->first()->role_id);
 
         $response = $this->actingAs($studioOwner)
-            ->get(route('school.albums.index'));
+            ->getJson(route('school.albums.index'));
 
         $response->assertStatus(403);
     }
@@ -115,10 +116,9 @@ class SchoolAlbumControllerTest extends TestCase
         ];
 
         $response = $this->actingAs($this->schoolOwner)
-            ->from(route('school.albums.index'))
-            ->post(route('school.albums.store'), $albumData);
+            ->postJson(route('school.albums.store'), $albumData);
 
-        $response->assertRedirect(route('school.albums.index'));
-        $response->assertSessionHas('error', 'لم يتم العثور على مكتبة تخزين مخصصة للمدرسة. يرجى التواصل مع الإدارة.');
+        $response->assertStatus(422);
+        $response->assertJsonPath('message', 'لم يتم العثور على مكتبة تخزين مخصصة للمدرسة. يرجى التواصل مع الإدارة.');
     }
 }

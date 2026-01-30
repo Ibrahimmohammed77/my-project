@@ -15,6 +15,17 @@ class ProfileController extends Controller
     public function edit()
     {
         $school = Auth::user()->school;
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'school' => $school,
+                    'user' => Auth::user()
+                ]
+            ]);
+        }
+
         return view('spa.school-profile.index', compact('school'));
     }
 

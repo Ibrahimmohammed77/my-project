@@ -171,13 +171,54 @@
                             </x-sidebar-link>
                         </div>
                     </div>
-
                     <!-- Settings -->
                     <div>
                         <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 px-3">الإعدادات</p>
                         <div class="space-y-1">
                             <x-sidebar-link href="{{ route('studio.profile.edit') }}" :active="request()->routeIs('studio.profile.*')" icon="fa-user-pen">
                                 بيانات الاستوديو
+                            </x-sidebar-link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- School Management (School Owner Only) -->
+            @if(Auth::user()->hasRole('school-owner'))
+            <div class="mb-6">
+                <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">إدارة المدرسة</p>
+                
+                <div class="space-y-5">
+                    <!-- Operations -->
+                    <div>
+                        <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 px-3">العمليات</p>
+                        <div class="space-y-1">
+                            <x-sidebar-link href="{{ route('school.albums.index') }}" :active="request()->routeIs('school.albums.*')" icon="fa-images">
+                                الألبومات
+                            </x-sidebar-link>
+                            <x-sidebar-link href="{{ route('school.students.index') }}" :active="request()->routeIs('school.students.*')" icon="fa-user-graduate">
+                                الطلاب
+                            </x-sidebar-link>
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    <div>
+                        <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 px-3">الموارد</p>
+                        <div class="space-y-1">
+                            <x-sidebar-link href="{{ route('school.cards.index') }}" :active="request()->routeIs('school.cards.*')" icon="fa-id-card">
+                                الكروت
+                            </x-sidebar-link>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div>
+                        <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 px-3">الإعدادات</p>
+                        <div class="space-y-1">
+                            <x-sidebar-link href="{{ route('school.profile.edit') }}" :active="request()->routeIs('school.profile.*')" icon="fa-school-flag">
+                                بيانات المدرسة
                             </x-sidebar-link>
                         </div>
                     </div>

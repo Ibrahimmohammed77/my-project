@@ -24,8 +24,8 @@ class CardFactory extends Factory
             'card_number' => (string) $this->faker->unique()->numberBetween(100000000000, 999999999999),
             'owner_type' => Studio::class,
             'owner_id' => Studio::factory(),
-            'card_type_id' => null, // Should be set in test
-            'card_status_id' => null, // Should be set in test
+            'card_type_id' => LookupValue::factory(),
+            'card_status_id' => LookupValue::factory(),
             'activation_date' => now(),
             'expiry_date' => now()->addYear(),
         ];

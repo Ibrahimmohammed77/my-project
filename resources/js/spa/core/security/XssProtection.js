@@ -10,7 +10,7 @@ export class XssProtection {
      * @returns {string} - Escaped string
      */
     static escape(str) {
-        if (typeof str !== 'string') return '';
+        if (str === null || str === undefined) return '';
         
         const entityMap = {
             '&': '&amp;',

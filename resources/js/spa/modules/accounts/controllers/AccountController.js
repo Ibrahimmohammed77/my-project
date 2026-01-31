@@ -43,7 +43,7 @@ export class AccountController {
         }
 
         // Status filter
-        const statusFilter = DOM.query('#user_status_id');
+        const statusFilter = DOM.query('#status-filter');
         if (statusFilter) {
             statusFilter.addEventListener('change', () => {
                 this.filterAndRender();

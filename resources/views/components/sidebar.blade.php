@@ -6,7 +6,7 @@
         reportsOpen: false,
         settingsOpen: false
     }">
-    
+
     <!-- Background Effects -->
     <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen"></div>
     <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen"></div>
@@ -14,7 +14,7 @@
 
     <!-- Content Container -->
     <div class="relative z-10 flex flex-col h-full bg-slate-900/40 backdrop-blur-xl border-l border-white/5">
-        
+
         <!-- Hero Logo Section -->
         <div class="relative flex flex-col items-center justify-center pt-8 pb-6 px-6">
             <div class="relative mb-3 group">
@@ -30,7 +30,7 @@
 
         <!-- Navigation -->
         <div class="flex-1 overflow-y-auto px-4 space-y-2 py-4 scrollbar-none">
-            
+
             <!-- Dashboard -->
             <div class="mb-6">
                 <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">الرئيسية</p>
@@ -42,7 +42,7 @@
             <!-- Content Management -->
             <div class="mb-6">
                 <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">المحتوى</p>
-                
+
                 <div class="space-y-1">
                     <button @click="contentOpen = !contentOpen" class="w-full flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all group duration-300">
                         <div class="flex items-center gap-3">
@@ -53,7 +53,7 @@
                         </div>
                         <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 transition-transform duration-300" :class="contentOpen ? 'rotate-180' : ''"></i>
                     </button>
-                    
+
                     <div x-show="contentOpen" x-collapse class="pl-4 pr-3 space-y-1">
                         <div class="relative border-r border-white/10 pr-4 py-1 space-y-1">
                             <a href="#" class="flex items-center justify-between px-3 py-2 text-sm text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all group/item">
@@ -73,7 +73,7 @@
             @if(Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('admin'))
             <div class="mb-6">
                 <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">الجهات</p>
-                
+
                 <div class="space-y-1">
                     <x-sidebar-link href="{{ route('spa.studios') }}" :active="request()->routeIs('spa.studios')" icon="fa-building">
                         الاستوديوهات
@@ -82,7 +82,7 @@
                         المدارس
                     </x-sidebar-link>
                     <x-sidebar-link href="{{ route('spa.accounts') }}" :active="request()->routeIs('spa.accounts')" icon="fa-users">
-                        المشاركين
+                        المشتركين
                     </x-sidebar-link>
                 </div>
             </div>
@@ -90,7 +90,7 @@
             <!-- System Settings (Admin Only) -->
             <div class="mb-6">
                 <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">النظام</p>
-                
+
                 <div class="space-y-1">
                     <button @click="identityOpen = !identityOpen" class="w-full flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all group duration-300">
                         <div class="flex items-center gap-3">
@@ -101,7 +101,7 @@
                         </div>
                         <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 transition-transform duration-300" :class="identityOpen ? 'rotate-180' : ''"></i>
                     </button>
-                    
+
                     <div x-show="identityOpen" x-collapse class="pl-4 pr-3 space-y-1">
                         <div class="relative border-r border-white/10 pr-4 py-1 space-y-1">
                             <x-sidebar-link href="{{ route('spa.roles') }}" :active="request()->routeIs('spa.roles')" icon="fa-shield-halved" class="text-sm">
@@ -132,7 +132,7 @@
             @if(Auth::user()->hasRole('studio_owner'))
             <div class="mb-6">
                 <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">إدارة الاستوديو</p>
-                
+
                 <div class="space-y-5">
                     <!-- Operations -->
                     <div>
@@ -179,7 +179,7 @@
             @if(Auth::user()->hasRole('school_owner'))
             <div class="mb-6">
                 <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">إدارة المدرسة</p>
-                
+
                 <div class="space-y-5">
                     <!-- Operations -->
                     <div>

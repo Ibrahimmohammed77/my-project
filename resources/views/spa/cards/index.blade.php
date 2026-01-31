@@ -26,9 +26,10 @@
     </x-page-header>
 
     <x-table :headers="[
-        ['name' => 'رقم الكرت / UUID', 'class' => 'w-1/3'],
-        ['name' => 'النوع / الحامل'],
-        ['name' => 'الحالة'],
+        ['name' => 'رقم الكرت / UUID', 'class' => 'w-1/4'],
+        ['name' => 'الحامل', 'class' => 'w-1/6'],
+        ['name' => 'النوع / الحالة'],
+        ['name' => 'التنشيط / الانتهاء'],
         ['name' => 'إجراءات', 'class' => 'text-center']
     ]" id="cards">
         <!-- JS renders rows here -->
@@ -39,12 +40,11 @@
         <form id="modal-form" class="space-y-4">
             <input type="hidden" name="id">
             
-            <div class="space-y-2">
-                <label class="text-sm font-semibold text-gray-700">رقم الكرت</label>
-                <input type="text" name="card_number" required placeholder="مثال: CARD-001" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm font-mono">
-            </div>
-
             <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700">رقم الكرت</label>
+                    <input type="text" name="card_number" required placeholder="مثال: CARD-001" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm font-mono">
+                </div>
                 <div class="space-y-2">
                     <label class="text-sm font-semibold text-gray-700">نوع الكرت</label>
                     <select name="card_type_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
@@ -53,15 +53,26 @@
                         @endforeach
                     </select>
                 </div>
+            </div>
 
+            <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-2">
-                    <label class="text-sm font-semibold text-gray-700">الحالة</label>
-                    <select name="card_status_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
-                        @foreach($statuses as $status)
-                            <option value="{{ $status->lookup_value_id }}">{{ $status->name }}</option>
-                        @endforeach
-                    </select>
+                    <label class="text-sm font-semibold text-gray-700">تاريخ التنشيط</label>
+                    <input type="datetime-local" name="activation_date" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
                 </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700">تاريخ الانتهاء</label>
+                    <input type="date" name="expiry_date" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700">الحالة</label>
+                <select name="card_status_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
+                    @foreach($statuses as $status)
+                        <option value="{{ $status->lookup_value_id }}">{{ $status->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="space-y-2">

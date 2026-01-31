@@ -409,6 +409,18 @@ export class AccountView {
     }
 
     /**
+     * Clear form fields
+     */
+    clearForm() {
+        if (this.form) {
+            this.form.reset();
+            // Clear hidden ID field
+            const accountId = document.getElementById('account-id');
+            if (accountId) accountId.value = '';
+        }
+    }
+
+    /**
      * Disable form
      */
     disableForm() {

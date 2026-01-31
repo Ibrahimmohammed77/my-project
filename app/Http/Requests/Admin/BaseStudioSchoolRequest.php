@@ -228,9 +228,16 @@ abstract class BaseStudioSchoolRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $phone = $this->phone;
+        if ($phone) {
+            // Keep only digits and leading +
+            $phone = preg_replace('/(?<!^)\+|[^\d+]/', '', $phone);
+        }
+
         $this->merge([
             'email' => strtolower($this->email),
             'username' => $this->username ? strtolower($this->username) : null,
+            'phone' => $phone,
         ]);
     }
 

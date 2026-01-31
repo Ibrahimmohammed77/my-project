@@ -57,10 +57,6 @@ function setupGlobalFunctions() {
             accountController.editAccount(e.detail.accountId);
         }
     });
-
-    // Form handlers
-    window.handleRoleChange = (el) => accountController.handleRoleChange(el);
-    window.updateConditionalFields = (role) => accountController.view.updateConditionalFields(role);
 }
 
 // Auto-initialize on DOM ready

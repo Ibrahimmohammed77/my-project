@@ -11,6 +11,14 @@ export class CardService {
         return [];
     }
 
+    static async getAllCards(params = {}) {
+        const response = await ApiClient.get(API_ENDPOINTS.ADMIN.CARDS.LIST, { params });
+        if (response.data?.data?.cards) {
+            return response.data.data.cards.map(c => Card.fromJson(c));
+        }
+        return [];
+    }
+
     static async getAllGroups() {
         const response = await ApiClient.get(API_ENDPOINTS.ADMIN.CARDS.GROUPS.LIST);
         if (response.data?.data?.groups) {

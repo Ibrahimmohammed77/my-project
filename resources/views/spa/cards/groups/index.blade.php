@@ -15,13 +15,21 @@
         </x-button>
     </x-page-header>
 
-    <x-table :headers="[
-        ['name' => 'المجموعة', 'class' => 'w-1/3'],
-        ['name' => 'الإحصائيات'],
-        ['name' => 'إجراءات', 'class' => 'text-center']
-    ]" id="card-groups-table">
-        <!-- JS renders rows here -->
-    </x-table>
+    <div id="sub-branches-container" class="mt-6">
+        <div id="sub-branches-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <!-- JS renders groups here -->
+        </div>
+    </div>
+    
+    <div id="empty-state" class="hidden flex flex-col items-center justify-center py-12">
+        <div class="p-4 bg-gray-50 rounded-full mb-3">
+            <i class="fas fa-folder-open text-3xl text-gray-300"></i>
+        </div>
+        <p class="text-gray-500 font-medium">لا توجد مجموعات حتى الآن</p>
+    </div>
+
+    {{-- Hidden table for legacy support if needed, or just remove it if we fully switch --}}
+    {{-- <x-table ... --}}
 
     {{-- نافذة إضافة/تعديل مجموعة --}}
     <x-modal id="modal" title="إضافة مجموعة جديدة">

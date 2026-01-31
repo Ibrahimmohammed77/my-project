@@ -35,6 +35,8 @@ export class Card {
             card_group_id: this.card_group_id,
             card_type_id: this.card_type_id,
             card_status_id: this.card_status_id,
+            activation_date: this.activation_date,
+            expiry_date: this.expiry_date,
             notes: this.notes
         };
     }

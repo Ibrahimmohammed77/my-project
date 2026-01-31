@@ -16,9 +16,6 @@ export class CardController {
     }
 
     init() {
-        // Expose globals FIRST to avoid "ReferenceError" in Blade onclick
-        this.setupGlobalExports();
-
         const groupIdInput = document.getElementById('group-id');
         this.isGroupContext = !!groupIdInput;
         this.groupId = groupIdInput?.value;
@@ -30,17 +27,6 @@ export class CardController {
         } else if (!this.isGroupContext) {
             this.loadGroups();
         }
-    }
-
-    setupGlobalExports() {
-        window.cardController = this;
-        window.showCreateModal = () => this.showCreateModal();
-        window.closeModal = () => this.view.closeModal();
-        window.editGroup = (id) => this.editGroup(id);
-        window.deleteGroup = (id) => this.deleteGroup(id);
-        window.showCreateCardModal = () => this.showCreateModal();
-        window.editCard = (id) => this.editCard(id);
-        window.deleteCard = (id) => this.deleteCard(id);
     }
 
     attachEventListeners() {

@@ -1,17 +1,19 @@
 @extends('layouts.app')
-@section('title', 'كروت المجموعة: ' . $group->name)
+@section('title', isset($group) ? 'كروت المجموعة: ' . $group->name : 'إدارة كافة الكروت')
 @section('header', 'إدارة الكروت')
 
 @section('content')
+    @if(isset($group))
     <input type="hidden" id="group-id" value="{{ $group->group_id }}">
+    @endif
     
-    <x-page-header title="كروت المجموعة: {{ $group->name }}">
+    <x-page-header title="{{ isset($group) ? 'كروت المجموعة: ' . $group->name : 'إدارة كافة الكروت' }}">
         <x-slot name="actions">
             <x-button onclick="history.back()" variant="secondary">
                 <i class="fas fa-arrow-right text-xs"></i>
                 <span>العودة للمجموعات</span>
             </x-button>
-            <x-button onclick="showCreateCardModal()" variant="primary">
+            <x-button onclick="showCreateModal()" variant="primary">
                 <i class="fas fa-plus text-xs"></i>
                 <span>كرت جديد</span>
             </x-button>

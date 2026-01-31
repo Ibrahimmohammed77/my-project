@@ -20,8 +20,6 @@ export default defineConfig({
                 "resources/js/spa/modules/cards/index.js",
                 "resources/js/spa/modules/schools/index.js",
                 "resources/js/spa/modules/studios/index.js",
-                "resources/js/spa/modules/subscribers/index.js",
-
                 "resources/js/spa/modules/subscriptions/index.js",
 
                 // Studio
@@ -51,6 +49,8 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        host: '127.0.0.1',
+        port: 3001,
         watch: {
             ignored: ["**/storage/framework/views/**"],
         },

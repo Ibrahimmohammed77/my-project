@@ -11,6 +11,15 @@ class CardRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        if ($this->route('group')) {
+            $this->merge([
+                'card_group_id' => $this->route('group')->group_id
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [

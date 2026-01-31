@@ -25,20 +25,21 @@ export class SchoolController {
     init() {
         this.attachEventListeners();
         this.loadSchools();
+        this.metadata = null;
     }
 
     attachEventListeners() {
         const searchInput = DOM.query('#search');
         if (searchInput) {
             searchInput.addEventListener('input', debounce(() => {
-                this.filterAndRender();
+                this.loadSchools();  // Reload from server on search
             }, 300));
         }
 
         const statusFilter = DOM.query('#status-filter');
         if (statusFilter) {
             statusFilter.addEventListener('change', () => {
-                this.filterAndRender();
+                this.loadSchools();  // Reload from server on filter
             });
         }
 
@@ -76,11 +77,23 @@ export class SchoolController {
         }
     }
 
-    async loadSchools() {
+    async loadSchools(page = 1) {
         this.view.showLoading();
 
         try {
-            this.schools = await SchoolService.getAll();
+            const searchInput = DOM.query('#search');
+            const statusFilter = DOM.query('#status-filter');
+            
+            const params = {
+                page,
+                search: searchInput?.value || '',
+                status_id: statusFilter?.value || ''
+            };
+
+            const response = await SchoolService.getAll(params);
+            this.schools = response.items || response;
+            this.metadata = response.meta || null;
+            
             this.filterAndRender();
         } catch (error) {
             console.error('Failed to load schools:', error);
@@ -90,22 +103,19 @@ export class SchoolController {
         }
     }
 
+    async loadPage(page) {
+        if (page < 1 || (this.metadata && page > this.metadata.last_page)) return;
+        await this.loadSchools(page);
+    }
+
     filterAndRender() {
-        const searchInput = DOM.query('#search');
-        const statusFilter = DOM.query('#status-filter');
-
-        const searchTerm = (searchInput ? searchInput.value : '').toLowerCase();
-        const statusValue = statusFilter ? statusFilter.value : '';
-
-        const filtered = this.schools.filter(school => {
-            const matchesSearch = !searchTerm ||
-                (school.name && school.name.toLowerCase().includes(searchTerm)) ||
-                (school.email && school.email.toLowerCase().includes(searchTerm));
-            const matchesStatus = !statusValue || (school.status?.lookup_value_id == statusValue);
-            return matchesSearch && matchesStatus;
-        });
-
-        this.view.render(filtered);
+        // Server-side filtering now, so just render all schools from response
+        this.view.render(this.schools);
+        
+        // Update pagination UI if metadata exists
+        if (this.metadata && this.view.renderPagination) {
+            this.view.renderPagination(this.metadata);
+        }
     }
 
     showCreateModal() {

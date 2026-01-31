@@ -307,8 +307,8 @@ class AppServiceProvider extends ServiceProvider
         // With common relations macro
         \Illuminate\Database\Eloquent\Builder::macro('withCommonRelations', function () {
             return $this->with([
-                'status:id,code,name',
-                'type:id,code,name',
+                'status:lookup_value_id,code,name',
+                'type:lookup_value_id,code,name',
                 'roles:id,name',
             ]);
         });

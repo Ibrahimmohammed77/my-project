@@ -182,11 +182,11 @@ class Card extends Model
     public function scopeWithCommonRelations(Builder $query): Builder
     {
         return $query->with([
-            'group:id,name',
+            'group:group_id,name',
             'holder:id,name,email,phone',
-            'type:id,code,name',
-            'status:id,code,name',
-            'owner:id,name',
+            'type:lookup_value_id,code,name',
+            'status:lookup_value_id,code,name',
+            'owner',
         ]);
     }
 

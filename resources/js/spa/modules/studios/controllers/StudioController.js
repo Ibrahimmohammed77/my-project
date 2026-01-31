@@ -25,20 +25,21 @@ export class StudioController {
     init() {
         this.attachEventListeners();
         this.loadStudios();
+        this.metadata = null;
     }
 
     attachEventListeners() {
         const searchInput = DOM.query('#search');
         if (searchInput) {
             searchInput.addEventListener('input', debounce(() => {
-                this.filterAndRender();
+                this.loadStudios();  // Reload from server on search
             }, 300));
         }
 
         const statusFilter = DOM.query('#status-filter');
         if (statusFilter) {
             statusFilter.addEventListener('change', () => {
-                this.filterAndRender();
+                this.loadStudios();  // Reload from server on filter
             });
         }
 
@@ -76,11 +77,23 @@ export class StudioController {
         }
     }
 
-    async loadStudios() {
+    async loadStudios(page = 1){
         this.view.showLoading();
 
         try {
-            this.studios = await StudioService.getAll();
+            const searchInput = DOM.query('#search');
+            const statusFilter = DOM.query('#status-filter');
+            
+            const params = {
+                page,
+                search: searchInput?.value || '',
+                status_id: statusFilter?.value || ''
+            };
+
+            const response = await StudioService.getAll(params);
+            this.studios = response.items || response;
+            this.metadata = response.meta || null;
+            
             this.filterAndRender();
         } catch (error) {
             console.error('Failed to load studios:', error);
@@ -90,22 +103,19 @@ export class StudioController {
         }
     }
 
+    async loadPage(page) {
+        if (page < 1 || (this.metadata && page > this.metadata.last_page)) return;
+        await this.loadStudios(page);
+    }
+
     filterAndRender() {
-        const searchInput = DOM.query('#search');
-        const statusFilter = DOM.query('#status-filter');
-
-        const searchTerm = (searchInput ? searchInput.value : '').toLowerCase();
-        const statusValue = statusFilter ? statusFilter.value : '';
-
-        const filtered = this.studios.filter(studio => {
-            const matchesSearch = !searchTerm ||
-                (studio.name && studio.name.toLowerCase().includes(searchTerm)) ||
-                (studio.email && studio.email.toLowerCase().includes(searchTerm));
-            const matchesStatus = !statusValue || (studio.status?.lookup_value_id == statusValue);
-            return matchesSearch && matchesStatus;
-        });
-
-        this.view.render(filtered);
+        // Server-side filtering now, so just render all studios from response
+        this.view.render(this.studios);
+        
+        // Update pagination UI if metadata exists
+        if (this.metadata && this.view.renderPagination) {
+            this.view.renderPagination(this.metadata);
+        }
     }
 
     showCreateModal() {

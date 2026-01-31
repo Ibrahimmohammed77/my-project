@@ -14,6 +14,7 @@ export class PlanController {
     init() {
         this.attachEventListeners();
         this.loadPlans();
+        this.metadata = null;
     }
 
     attachEventListeners() {
@@ -22,12 +23,20 @@ export class PlanController {
         }
     }
 
-    async loadPlans() {
+    async loadPlans(page = 1) {
         this.view.showLoading();
         try {
-            this.plans = await PlanService.getAll();
+            const response = await PlanService.getAll({ page });
+            this.plans = response.items || response;
+            this.metadata = response.meta || null;
+            
             this.view.hideLoading();
             this.view.renderPlans(this.plans);
+            
+            // Update pagination UI if metadata exists
+            if (this.metadata && this.view.renderPagination) {
+                this.view.renderPagination(this.metadata);
+            }
         } catch (error) {
             console.error('Failed to load plans:', error);
             this.view.hideLoading();
@@ -35,6 +44,11 @@ export class PlanController {
                 this.view.loadingState.innerHTML = '<p class="text-red-500 text-center py-4">حدث خطأ أثناء تحميل البيانات</p>';
             }
         }
+    }
+
+    async loadPage(page) {
+        if (page < 1 || (this.metadata && page > this.metadata.last_page)) return;
+        await this.loadPlans(page);
     }
 
     showCreateModal() {

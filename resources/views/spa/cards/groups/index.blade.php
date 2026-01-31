@@ -38,6 +38,12 @@
                 <textarea name="description" rows="3" placeholder="وصف اختياري للمجموعة..." class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm resize-none"></textarea>
             </div>
 
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700">عدد الكروت الفرعية المتاحة</label>
+                <input type="number" name="sub_card_available" min="0" value="0" required placeholder="مثال: 30" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
+                <p class="text-xs text-gray-500">عدد الكروت الفرعية التي يمكن إنشاؤها في هذه المجموعة</p>
+            </div>
+
             <div class="flex justify-end gap-3 pt-2">
                 <x-button type="button" onclick="closeModal()" variant="secondary">إلغاء</x-button>
                 <x-button type="submit" variant="primary">حفظ المجموعه</x-button>

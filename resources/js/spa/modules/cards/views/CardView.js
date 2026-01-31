@@ -43,8 +43,8 @@ export class CardView {
                     <div class="text-xs text-gray-500">${XssProtection.escape(group.description || '')}</div>
                 </td>
                 <td class="px-6 py-4">
-                    <div class="text-sm text-gray-900">المتاح: ${group.available_count || 0}</div>
-                    <div class="text-xs text-gray-500">تم الاستهلاك: ${group.used_count || 0}</div>
+                    <div class="text-sm text-gray-900">المتاح: ${group.available_cards || 0}</div>
+                    <div class="text-xs text-gray-500">تم الاستهلاك: ${group.sub_card_used || 0}</div>
                 </td>
                 <td class="px-6 py-4 text-center">
                     <div class="flex justify-center gap-2">

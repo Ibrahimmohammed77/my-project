@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\LookupValueRequest;
 use App\Models\LookupValue;
+use App\Traits\HasApiResponse;
 use App\UseCases\Admin\Lookup\ListLookupsUseCase;
 use App\UseCases\Admin\Lookup\ManageLookupValueUseCase;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Gate;
 
 class LookupController extends Controller
 {
+    use HasApiResponse;
+
     protected $listLookupsUseCase;
     protected $manageLookupValueUseCase;
 

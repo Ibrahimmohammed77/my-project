@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Gate;
 
 class RoleController extends Controller
 {
+    use HasApiResponse;
+
     protected $manageRoleUseCase;
 
     public function __construct(ManageRoleUseCase $manageRoleUseCase)

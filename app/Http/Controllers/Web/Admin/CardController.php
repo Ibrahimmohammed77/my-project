@@ -138,9 +138,6 @@ class CardController extends Controller
         return view('spa.cards.index', compact('cards', 'groups', 'types', 'statuses'));
     }
 
-    /**
-     * عرض كروت مجموعة معينة.
-     */
     public function indexByGroup(CardGroup $group, Request $request): View|JsonResponse
     {
         Gate::authorize('manage_cards');
@@ -151,11 +148,14 @@ class CardController extends Controller
             $request->get('per_page', 15)
         );
 
+        $types = \App\Models\LookupValue::whereHas('master', fn($q) => $q->where('code', 'CARD_TYPE'))->get();
+        $statuses = \App\Models\LookupValue::whereHas('master', fn($q) => $q->where('code', 'CARD_STATUS'))->get();
+
         if ($request->wantsJson()) {
             return $this->paginatedResponse($cards, 'cards', 'تم استرجاع كروت المجموعة بنجاح');
         }
 
-        return view('spa.cards.group-cards', compact('group', 'cards'));
+        return view('spa.cards.index', compact('group', 'cards', 'types', 'statuses'));
     }
 
     /**

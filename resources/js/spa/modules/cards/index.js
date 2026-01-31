@@ -1,13 +1,16 @@
 import { CardController } from './controllers/CardController.js';
 
-const initCards = () => {
-    if (!window.cardController) {
-        new CardController();
-    }
-};
+// Initialize immediately to ensure globals are available for Blade onclick handlers
+const cardController = new CardController();
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCards);
-} else {
-    initCards();
-}
+// Expose to window
+window.cardController = cardController;
+window.showCreateModal = () => cardController.showCreateModal();
+window.showCreateCardModal = () => cardController.showCreateModal();
+window.closeModal = () => cardController.view.closeModal();
+window.editGroup = (id) => cardController.editGroup(id);
+window.deleteGroup = (id) => cardController.deleteGroup(id);
+window.editCard = (id) => cardController.editCard(id);
+window.deleteCard = (id) => cardController.deleteCard(id);
+
+export default cardController;

@@ -131,14 +131,20 @@ export class CardController {
     showCreateModal() {
         this.currentItem = null;
         this.view.clearForm();
-        this.view.openModal(this.isGroupContext ? 'إضافة كرت جديد' : 'إضافة كرت جديد');
+        this.view.openModal(this.isGroupContext ? 'إضافة كرت فرعي جديد' : 'إضافة كرت جديد');
         clearErrors();
     }
 
     showCreateGroupModal() {
         this.currentItem = null;
         if (this.view.groupForm) this.view.groupForm.reset();
-        this.view.openGroupModal('إضافة فرع فرعي جديد');
+        // If we don't have a separate group modal in this view, we'll use the main one but change title
+        if (this.view.groupModal) {
+            this.view.openGroupModal('إضافة فرع فرعي جديد');
+        } else {
+            // Re-use main modal for group creation if separate one doesn't exist
+            this.view.openModal('إضافة فرع فرعي جديد');
+        }
         clearErrors();
     }
 
@@ -190,54 +196,82 @@ export class CardController {
 
     async handleFormSubmit(e) { 
         clearErrors();
-        // Check if group modal is open or if the event target is group form
-        const isGroupForm = e && e.target && e.target.id === 'group-modal-form';
         
-        if (isGroupForm) {
-            const formData = DOM.getFormData(this.view.groupForm);
-            try {
-                let result;
-                if (this.currentItem) {
-                     result = await CardService.updateGroup(this.currentItem.id || this.currentItem.group_id, formData);
-                     this.loadGroups(); // Always reload groups as we are in groups view
-                } else {
-                     result = await CardService.createGroup(formData);
-                     this.loadGroups();
-                }
-                this.view.closeGroupModal();
-                Toast.success('تم حفظ الفرع بنجاح');
-            } catch (error) {
-                 console.error('Submit group error:', error);
-                 if (error.response?.status === 422) {
-                    showErrors(error.response.data.errors);
-                 } else {
-                    Toast.error('حدث خطأ أثناء حفظ الفرع');
-                 }
-            }
+        // Handle explicit Group Modal (if used separately, e.g. for sub-branches inside card view? not currently used)
+        const isExplicitGroupForm = e && e.target && e.target.id === 'group-modal-form';
+        if (isExplicitGroupForm) {
+            this.handleGroupFormSubmit();
             return;
         }
 
-        // Card Modal - logic specific to Card Create/Update
-        const formData = DOM.getFormData(this.view.form);
+        // Main Modal (#modal-form) Handling
+        // Determine context based on View
+        if (this.hasGroupsGrid && !this.hasCardsTable) {
+            // Groups Index View -> creating/updating Global Groups
+            await this.handleGroupFormSubmit(this.view.form);
+        } else {
+            // Cards Index View -> creating/updating Cards
+            await this.handleCardFormSubmit(this.view.form);
+        }
+    }
+
+    async handleGroupFormSubmit(formElement = null) {
+        const form = formElement || this.view.groupForm;
+        const formData = DOM.getFormData(form);
+        
+        if (form === this.view.form) this.view.disableForm();
+
+        try {
+            let result;
+            const id = this.currentItem ? (this.currentItem.id || this.currentItem.group_id) : null;
+            
+            if (id) {
+                 result = await CardService.updateGroup(id, formData);
+            } else {
+                 result = await CardService.createGroup(formData);
+            }
+
+            // Reload Groups
+            this.loadGroups();
+
+            if (form === this.view.form) {
+                this.view.closeModal();
+            } else {
+                this.view.closeGroupModal();
+            }
+            Toast.success(id ? 'تم تحديث المجموعة بنجاح' : 'تم إضافة المجموعة بنجاح');
+        } catch (error) {
+             console.error('Submit group error:', error);
+             if (error.response?.status === 422) {
+                showErrors(error.response.data.errors);
+             } else {
+                Toast.error('حدث خطأ أثناء حفظ المجموعة');
+             }
+        } finally {
+            if (form === this.view.form) this.view.enableForm();
+        }
+    }
+
+    async handleCardFormSubmit(form) {
+        const formData = DOM.getFormData(form);
         this.view.disableForm();
 
         try {
             let result;
-            if (this.currentItem) {
+            const id = this.currentItem ? (this.currentItem.id || this.currentItem.card_id) : null;
+
+            if (id) {
                 // Update
                 if (this.isGroupContext) {
-                    result = await CardService.updateCard(this.groupId, this.currentItem.id || this.currentItem.card_id, formData);
+                    result = await CardService.updateCard(this.groupId, id, formData);
                 } else {
-                    // Update card in "All Cards" view - might need different endpoint if not under group
-                     // Assuming updateCard works with group_id or we need generic update
-                     // Based on current service, updateCard needs groupId. 
-                     // If we are in "All Cards", card has a group_id.
-                     const gId = this.currentItem.card_group_id || this.currentItem.group?.id;
-                     if(gId) {
-                        result = await CardService.updateCard(gId, this.currentItem.id || this.currentItem.card_id, formData);
+                     // Update in All Cards view - assuming card carries its group_id or we use a generic update if available
+                     // But CardService.updateCard requires groupId. 
+                     const gId = this.currentItem.card_group_id || this.currentItem.group?.id || this.currentItem.group?.group_id;
+                     if (gId) {
+                        result = await CardService.updateCard(gId, id, formData);
                      } else {
-                         // Fallback or error?
-                         console.warn("Card has no group ID");
+                         throw new Error("Card Group ID missing for update");
                      }
                 }
             } else {
@@ -245,16 +279,12 @@ export class CardController {
                 if (this.isGroupContext) {
                     result = await CardService.createCard(this.groupId, formData);
                 } else {
-                     // Can we create a card without group context? From "All Cards" view?
-                     // If form has group selection, yes. If not, maybe not allowed.
-                     // Assuming for now user only adds cards inside groups or we handle it.
-                     // If we strictly follow UI, Add Card is available. 
-                     // Let's assume params are handled.
-                     Toast.warning("Creating card from All Cards view might require Group selection");
+                     Toast.warning("Creating card from All Cards view require selecting a group (Feature pending UI update)");
+                     return;
                 }
             }
             
-            // Reload list to be safe
+            // Reload list
             if (this.isGroupContext) {
                 this.loadGroupCards(this.groupId);
             } else {
@@ -262,13 +292,14 @@ export class CardController {
             }
 
             this.view.closeModal();
-            Toast.success('تم حفظ البيانات بنجاح');
+            // Success message handled by Toast inside service or here
+            Toast.success(id ? 'تم تحديث الكرت بنجاح' : 'تم إضافة الكرت بنجاح');
         } catch (error) {
-            console.error('Submit error:', error);
+            console.error('Submit card error:', error);
             if (error.response?.status === 422) {
                 showErrors(error.response.data.errors);
             } else {
-                Toast.error('حدث خطأ أثناء حفظ البيانات');
+                Toast.error('حدث خطأ أثناء حفظ الكرت');
             }
         } finally {
             this.view.enableForm();

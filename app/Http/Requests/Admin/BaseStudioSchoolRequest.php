@@ -44,7 +44,7 @@ abstract class BaseStudioSchoolRequest extends FormRequest
             'email' => $this->emailRules($userId),
             'phone' => $this->phoneRules($userId),
             'username' => $this->usernameRules($userId),
-            'password' => $isUpdate ? 'nullable|string|min:8|strong_password' : 'required|string|min:8|strong_password',
+            'password' => $isUpdate ? 'nullable|string|min:4' : 'required|string|min:4',
             'city' => 'nullable|string|max:100',
             'address' => 'nullable|string|max:500',
             'description' => 'nullable|string|max:1000',
@@ -172,8 +172,7 @@ abstract class BaseStudioSchoolRequest extends FormRequest
             'username.max' => 'اسم المستخدم يجب أن لا يتجاوز 255 حرفًا.',
 
             'password.required' => 'كلمة المرور مطلوبة.',
-            'password.min' => 'كلمة المرور يجب أن لا تقل عن 8 أحرف.',
-            'password.strong_password' => 'كلمة المرور يجب أن تحتوي على حرف كبير، حرف صغير، رقم ورمز خاص.',
+            'password.min' => 'كلمة المرور يجب أن لا تقل عن 4 أحرف.',
 
             'city.max' => 'المدينة يجب أن لا تتجاوز 100 حرف.',
             'address.max' => 'العنوان يجب أن لا يتجاوز 500 حرف.',

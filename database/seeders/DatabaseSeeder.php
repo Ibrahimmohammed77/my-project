@@ -17,9 +17,7 @@ class DatabaseSeeder extends Seeder
             LookupSeeder::class,
             PlanSeeder::class,
             AdminSeeder::class,
-            StudioSeeder::class,
-            SchoolSeeder::class,
-            // TestDataSeeder::class, // Replaced by more specific seeders
+            TestDataSeeder::class, // Comprehensive test data
         ]);
     }
 }

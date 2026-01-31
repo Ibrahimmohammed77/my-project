@@ -11,10 +11,18 @@ use App\Models\User;
 use App\Models\Album;
 use App\Models\Photo;
 use App\Models\Card;
+use App\Models\Subscription;
+use App\Models\Plan;
+use App\Models\School;
+use App\Models\Studio;
 use App\Policies\AlbumPolicy;
 use App\Policies\PhotoPolicy;
 use App\Policies\CardPolicy;
 use App\Policies\DashboardPolicy;
+use App\Policies\SubscriptionPolicy;
+use App\Policies\PlanPolicy;
+use App\Policies\SchoolPolicy;
+use App\Policies\StudioPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -27,6 +35,10 @@ class AuthServiceProvider extends ServiceProvider
         Album::class => AlbumPolicy::class,
         Photo::class => PhotoPolicy::class,
         Card::class => CardPolicy::class,
+        Subscription::class => SubscriptionPolicy::class,
+        Plan::class => PlanPolicy::class,
+        School::class => SchoolPolicy::class,
+        Studio::class => StudioPolicy::class,
     ];
 
     /**

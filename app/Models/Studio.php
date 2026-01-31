@@ -60,6 +60,15 @@ class Studio extends Model
         return $this->morphMany(Card::class, 'owner', 'owner_type', 'owner_id', 'studio_id');
     }
 
+    /**
+     * Get customers (users who hold cards linked to this studio).
+     * Currently a placeholder to prevent crashes.
+     */
+    public function customers()
+    {
+        return $this->hasMany(User::class, 'id', 'id')->whereRaw('1=0');
+    }
+
     // ==================== SCOPES ====================
 
     public function scopeFilter(Builder $query, array $filters): Builder

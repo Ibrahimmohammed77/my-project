@@ -41,6 +41,6 @@
     </x-modal>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/school-cards.js')
+    @vite('resources/js/spa/contexts/school/cards/index.js')
 @endpush
 @endsection

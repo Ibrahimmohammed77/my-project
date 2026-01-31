@@ -43,6 +43,6 @@
     </div>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/school-profile.js')
+    @vite('resources/js/spa/contexts/school/profile/index.js')
 @endpush
 @endsection

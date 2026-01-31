@@ -60,6 +60,6 @@
     </x-modal>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/studio-photo-review.js')
+    @vite('resources/js/spa/contexts/studio/photo-review/index.js')
 @endpush
 @endsection

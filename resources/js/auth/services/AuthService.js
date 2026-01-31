@@ -1,30 +1,24 @@
-import axios from 'axios';
+import ApiClient from '../../spa/core/api/ApiClient.js';
 
 export class AuthService {
     static async register(data) {
-        try {
-            const response = await axios.post('/register', data);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        const response = await ApiClient.post('/register', data);
+        return response.data;
     }
 
     static async login(credentials) {
-        try {
-            const response = await axios.post('/login', credentials);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        const response = await ApiClient.post('/login', credentials);
+        return response.data;
     }
 
     static async logout() {
         try {
-            await axios.post('/logout');
+            await ApiClient.post('/logout');
             window.location.href = '/login';
         } catch (error) {
             console.error('Logout failed:', error);
+            // Fallback for logout if API fails
+            window.location.href = '/login';
         }
     }
 }

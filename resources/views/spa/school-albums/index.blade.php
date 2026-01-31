@@ -63,6 +63,6 @@
     </x-modal>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/school-albums.js')
+    @vite('resources/js/spa/contexts/school/albums/index.js')
 @endpush
 @endsection

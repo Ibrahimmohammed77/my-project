@@ -25,19 +25,22 @@ export default defineConfig({
                 "resources/js/spa/modules/subscriptions/index.js",
 
                 // Studio
-                "resources/js/spa/pages/studio-albums.js",
-                "resources/js/spa/pages/studio-customers.js",
-                "resources/js/spa/pages/studio-profile.js",
-                "resources/js/spa/pages/studio-storage.js",
-                "resources/js/spa/pages/studio-photo-review.js",
-                "resources/js/spa/pages/studio-cards.js",
-                "resources/js/spa/pages/studio-card-detail.js",
+                // Studio (Migrated)
+                "resources/js/spa/contexts/studio/profile/index.js",
+                "resources/js/spa/contexts/studio/albums/index.js",
+                
+                "resources/js/spa/contexts/studio/cards/index.js",
+                "resources/js/spa/contexts/studio/customers/index.js",
+                
+                "resources/js/spa/contexts/studio/storage/index.js",
+                
+                "resources/js/spa/contexts/studio/photo-review/index.js",
 
                 // School
-                "resources/js/spa/pages/school-albums.js",
-                "resources/js/spa/pages/school-cards.js",
-                "resources/js/spa/pages/school-students.js",
-                "resources/js/spa/pages/school-profile.js",
+                "resources/js/spa/contexts/school/profile/index.js",
+                "resources/js/spa/contexts/school/albums/index.js",
+                "resources/js/spa/contexts/school/cards/index.js",
+                "resources/js/spa/contexts/school/students/index.js",
 
                 // Auth
                 "resources/js/auth/pages/register.js",

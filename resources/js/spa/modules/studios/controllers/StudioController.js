@@ -3,8 +3,8 @@
  * Same pattern as AccountController: load, filter, CRUD, validation, Toast
  */
 
-import { Studio } from '../../../models/Studio.js';
-import { StudioService } from '../../../services/StudioService.js';
+import { Studio } from '../../../shared/models/Studio.js';
+import { StudioService } from '../../../shared/services/StudioService.js';
 import StudioView from '../views/StudioView.js';
 import { Toast } from '../../../core/ui/Toast.js';
 import { InputValidator } from '../../../core/security/InputValidator.js';

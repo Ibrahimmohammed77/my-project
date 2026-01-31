@@ -1,6 +1,6 @@
 // resources/js/spa/modules/subscriptions/controllers/SubscriptionController.js
-import { Subscription } from '../../../models/Subscription.js';
-import SubscriptionService from '../../../services/SubscriptionService.js';
+import { Subscription } from '../../../shared/models/Subscription.js';
+import SubscriptionService from '../../../shared/services/SubscriptionService.js';
 import SubscriptionView from '../views/SubscriptionView.js';
 import { Toast } from '../../../core/ui/Toast.js';
 import { InputValidator } from '../../../core/security/InputValidator.js';

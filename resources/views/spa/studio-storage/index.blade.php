@@ -62,6 +62,6 @@
     </x-modal>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/studio-storage.js')
+    @vite('resources/js/spa/contexts/studio/storage/index.js')
 @endpush
 @endsection

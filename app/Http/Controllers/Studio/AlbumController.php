@@ -39,16 +39,19 @@ class AlbumController extends Controller
         $studio = Auth::user()->studio;
         $albums = $studio->albums()->withCount('photos')->latest()->get();
 
+        $libraries = $studio->storageLibraries;
+
         if (request()->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'albums' => $albums
+                    'albums' => $albums,
+                    'libraries' => $libraries
                 ]
             ]);
         }
 
-        return view('spa.studio-albums.index', compact('albums'));
+        return view('spa.studio-albums.index', compact('albums', 'libraries'));
     }
 
     /**

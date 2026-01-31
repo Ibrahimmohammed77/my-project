@@ -24,6 +24,6 @@
     </x-table>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/studio-customers.js')
+    @vite('resources/js/spa/contexts/studio/customers/index.js')
 @endpush
 @endsection

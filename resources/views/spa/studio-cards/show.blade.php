@@ -17,6 +17,7 @@
 
             <div class="p-8">
                 <form id="link-albums-form">
+                    <input type="hidden" id="card-id" value="{{ $card->card_id }}">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                         @foreach($availableAlbums as $album)
                         <label class="group relative flex items-center p-4 bg-gray-50 rounded-2xl border border-gray-100 cursor-pointer hover:border-accent/40 hover:bg-white transition-all shadow-sm">
@@ -41,6 +42,6 @@
     </div>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/studio-card-detail.js')
+    @vite('resources/js/spa/contexts/studio/cards/index.js')
 @endpush
 @endsection

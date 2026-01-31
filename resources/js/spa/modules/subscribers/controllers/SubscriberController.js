@@ -3,8 +3,8 @@
  * Same pattern as AccountController: load, filter, CRUD, Toast
  */
 
-import { Subscriber } from '../../../models/Subscriber.js';
-import { SubscriberService } from '../../../services/SubscriberService.js';
+import { Subscriber } from '../../../shared/models/Subscriber.js';
+import { SubscriberService } from '../../../shared/services/SubscriberService.js';
 import SubscriberView from '../views/SubscriberView.js';
 import { Toast } from '../../../core/ui/Toast.js';
 import { InputValidator } from '../../../core/security/InputValidator.js';

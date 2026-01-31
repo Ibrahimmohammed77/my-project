@@ -31,6 +31,6 @@
     </div>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/studio-profile.js')
+    @vite('resources/js/spa/contexts/studio/profile/index.js')
 @endpush
 @endsection

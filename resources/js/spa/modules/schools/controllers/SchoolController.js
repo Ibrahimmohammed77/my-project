@@ -3,8 +3,8 @@
  * Same pattern as AccountController: load, filter, CRUD, validation, Toast
  */
 
-import { School } from '../../../models/School.js';
-import { SchoolService } from '../../../services/SchoolService.js';
+import { School } from '../../../shared/models/School.js';
+import { SchoolService } from '../../../shared/services/SchoolService.js';
 import SchoolView from '../views/SchoolView.js';
 import { Toast } from '../../../core/ui/Toast.js';
 import { InputValidator } from '../../../core/security/InputValidator.js';

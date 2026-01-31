@@ -16,7 +16,8 @@
             </div>
 
             <div class="p-8">
-                <form action="{{ route('school.cards.link-albums', $card->card_id) }}" method="POST">
+                <form id="link-albums-form">
+                    <input type="hidden" id="card-id" value="{{ $card->card_id }}">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                         @foreach($availableAlbums as $album)
@@ -41,3 +42,7 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    @vite('resources/js/spa/contexts/school/cards/index.js')
+@endpush

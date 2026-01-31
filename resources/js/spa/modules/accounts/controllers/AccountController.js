@@ -3,8 +3,8 @@
  * Orchestrates account management logic
  */
 
-import { Account } from '../../../models/Account.js';
-import { AccountService } from '../../../services/AccountService.js';
+import { Account } from '../../../shared/models/Account.js';
+import { AccountService } from '../../../shared/services/AccountService.js';
 import AccountView from '../views/AccountView.js';
 import { Toast } from '../../../core/ui/Toast.js';
 import { InputValidator } from '../../../core/security/InputValidator.js';

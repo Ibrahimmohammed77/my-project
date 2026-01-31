@@ -22,6 +22,6 @@
     </x-table>
 
 @push('scripts')
-    @vite('resources/js/spa/pages/school-students.js')
+    @vite('resources/js/spa/contexts/school/students/index.js')
 @endpush
 @endsection

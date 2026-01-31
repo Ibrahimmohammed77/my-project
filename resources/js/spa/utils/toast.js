@@ -1,87 +1,67 @@
 /**
- * Legacy Toast Utils
- * Bridge to new core Toast system for backward compatibility
+ * Toast Helper Functions
+ * Wrapper utilities for inline error handling
+ * Uses the canonical Toast from core/ui/Toast.js
  */
 
 import { Toast } from '../core/ui/Toast.js';
-import { DOM } from '../core/utils/dom.js';
 
 /**
- * Show toast notification (legacy compatibility)
- * @param {string} message - Toast message
- * @param {string} type - Toast type
- */
-export function showToast(message, type = 'success') {
-    Toast.show(message, type);
-}
-
-/**
- * Clear all field errors
- */
-export function clearErrors() {
-    // Clear inline error messages
-    DOM.queryAll('.field-error').forEach(el => {
-        el.textContent = '';
-        DOM.hide(el);
-    });
-    
-    // Remove error styles from inputs
-    DOM.queryAll('input, select, textarea').forEach(el => {
-        DOM.removeClass(el, ['border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20']);
-    });
-}
-
-/**
- * Show validation errors
- * @param {Object} errors - Errors object from Laravel
+ * Display multiple validation errors
+ * @param {Object} errors - Errors object from Laravel validation
  */
 export function showErrors(errors) {
-    clearErrors();
-    
     if (!errors || typeof errors !== 'object') {
         return;
     }
 
-    // Display errors: { field_name: ['Error message 1'] }
-    for (const [field, messages] of Object.entries(errors)) {
-        if (!Array.isArray(messages) || messages.length === 0) continue;
+    // Clear any existing inline errors first
+    clearErrors();
 
-        // Find and show error element
-        const errorEl = document.getElementById(`${field}-error`);
-        if (errorEl) {
-            errorEl.textContent = messages[0];
-            DOM.show(errorEl);
-        }
-
-        // Highlight input field
-        const inputEl = document.getElementById(field);
-        if (inputEl) {
-            DOM.addClass(inputEl, ['border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20']);
-            
-            // Clear error on input
-            const clearError = () => {
-                DOM.removeClass(inputEl, ['border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20']);
-                if (errorEl) {
-                    DOM.hide(errorEl);
-                    errorEl.textContent = '';
+    // Display each error as a Toast
+    Object.entries(errors).forEach(([field, messages]) => {
+        if (Array.isArray(messages)) {
+            messages.forEach(message => {
+                Toast.error(message);
+                
+                // Also set inline error if field exists
+                const input = document.querySelector(`[name="${field}"]`);
+                if (input) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'text-red-500 text-xs mt-1';
+                    errorDiv.textContent = message;
+                    errorDiv.dataset.error = field;
+                    
+                    input.classList.add('border-red-500');
+                    input.parentNode.appendChild(errorDiv);
                 }
-                inputEl.removeEventListener('input', clearError);
-            };
-            
-            inputEl.addEventListener('input', clearError);
+            });
         }
+    });
+}
 
-        // Also show as toast for important errors
-        if (messages.length > 0) {
-            Toast.error(messages[0], { duration: 7000 });
-        }
+/**
+ * Clear all inline validation errors
+ */
+export function clearErrors() {
+    // Remove all error divs
+    document.querySelectorAll('[data-error]').forEach(el => el.remove());
+    
+    // Remove error styling from inputs
+    document.querySelectorAll('.border-red-500').forEach(input => {
+        input.classList.remove('border-red-500');
+    });
+}
+
+/**
+ * Display a toast message (legacy wrapper)
+ * @param {string} message 
+ * @param {string} type 'success' | 'error' | 'info' | 'warning'
+ */
+export function showToast(message, type = 'success') {
+    if (typeof Toast[type] === 'function') {
+        Toast[type](message);
+    } else {
+        Toast.success(message);
     }
 }
-
-// Make globally available for legacy code
-if (typeof window !== 'undefined') {
-    window.showToast = showToast;
-    window.showErrors = showErrors;
-    window.clearErrors = clearErrors;
-}
-

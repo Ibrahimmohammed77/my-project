@@ -194,7 +194,11 @@ export class PermissionView {
 
     openModal(title) {
         if (this.modalTitle) {
-            this.modalTitle.innerHTML = title;
+            if (typeof title === 'string' && title.includes('<')) {
+                XssProtection.setHtml(this.modalTitle, title, true);
+            } else {
+                XssProtection.setTextContent(this.modalTitle, title);
+            }
         }
         this.modal?.classList.remove('hidden');
     }

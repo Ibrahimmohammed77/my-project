@@ -216,7 +216,12 @@ export class RoleView {
      */
     openModal(title) {
         if (this.modalTitle) {
-            this.modalTitle.innerHTML = title;
+            // Support both HTML-wrapped titles and plain text
+            if (typeof title === 'string' && title.includes('<')) {
+                XssProtection.setHtml(this.modalTitle, title, true);
+            } else {
+                XssProtection.setTextContent(this.modalTitle, title);
+            }
         }
         this.modal?.classList.remove('hidden');
     }

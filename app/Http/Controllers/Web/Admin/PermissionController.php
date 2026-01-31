@@ -8,8 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 
+use App\Traits\HasApiResponse;
+
 class PermissionController extends Controller
 {
+    use HasApiResponse;
+
     /**
      * Display a listing of permissions.
      */
@@ -18,12 +22,7 @@ class PermissionController extends Controller
         $permissions = Permission::active()->get();
 
         if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'permissions' => $permissions
-                ]
-            ]);
+            return $this->successResponse(['permissions' => $permissions]);
         }
 
         return view('spa.permissions.index', compact('permissions'));

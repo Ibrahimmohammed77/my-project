@@ -161,12 +161,14 @@ class CardController extends Controller
     /**
      * إنشاء كرت جديد.
      */
-    public function store(CardRequest $request): JsonResponse|RedirectResponse
+    public function store(CardRequest $request, CardGroup $group): JsonResponse|RedirectResponse
     {
         Gate::authorize('manage_cards');
 
         try {
-            $card = $this->cardService->createCard($request->validated());
+            $data = $request->validated();
+            $data['card_group_id'] = $group->group_id; // Always use group from URL in nested route
+            $card = $this->cardService->createCard($data);
 
             if ($request->wantsJson()) {
                 return $this->successResponse(
@@ -186,12 +188,14 @@ class CardController extends Controller
     /**
      * تحديث بيانات الكرت.
      */
-    public function update(CardRequest $request, Card $card): JsonResponse|RedirectResponse
+    public function update(CardRequest $request, CardGroup $group, Card $card): JsonResponse|RedirectResponse
     {
         Gate::authorize('manage_cards');
 
         try {
-            $updatedCard = $this->cardService->updateCard($card, $request->validated());
+            $data = $request->validated();
+            $data['card_group_id'] = $group->group_id; // Ensure consistent group context
+            $updatedCard = $this->cardService->updateCard($card, $data);
 
             if ($request->wantsJson()) {
                 return $this->successResponse(
@@ -211,7 +215,7 @@ class CardController extends Controller
     /**
      * حذف الكرت.
      */
-    public function destroy(Card $card): JsonResponse|RedirectResponse
+    public function destroy(CardGroup $group, Card $card): JsonResponse|RedirectResponse
     {
         Gate::authorize('manage_cards');
 

@@ -188,7 +188,7 @@
             @endif
 
             <!-- School Management (School Owner Only) -->
-            @if(Auth::user()->hasRole('school-owner'))
+            @if(Auth::user()->hasRole('school_owner'))
             <div class="mb-6">
                 <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">إدارة المدرسة</p>
                 

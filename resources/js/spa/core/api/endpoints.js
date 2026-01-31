@@ -60,8 +60,9 @@ export const API_ENDPOINTS = {
             }
         },
         CARDS: {
-            LIST: '/admin/cards',
+            LIST: '/admin/cards/all',
             GROUPS: {
+                LIST: '/admin/cards',
                 CREATE: '/admin/cards/groups',
                 UPDATE: (id) => `/admin/cards/groups/${id}`,
                 DELETE: (id) => `/admin/cards/groups/${id}`,

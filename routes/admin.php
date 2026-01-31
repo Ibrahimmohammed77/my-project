@@ -10,7 +10,6 @@ use App\Http\Controllers\Web\Admin\CardController;
 use App\Http\Controllers\Web\Admin\RoleController;
 use App\Http\Controllers\Web\Admin\SubscriptionController;
 use App\Http\Controllers\Web\Admin\PermissionController;
-use App\Http\Controllers\Web\Admin\SubscriberController;
 
 // ==================== ADMIN MANAGEMENT ROUTES ====================
 
@@ -29,9 +28,6 @@ Route::middleware('can:manage_users')->group(function () {
     Route::post('/accounts', [UserController::class, 'store'])->name('accounts.store');
     Route::put('/accounts/{user}', [UserController::class, 'update'])->name('accounts.update');
     Route::delete('/accounts/{user}', [UserController::class, 'destroy'])->name('accounts.destroy');
-
-    // Subscribers
-    Route::get('admin/subscribers', [SubscriberController::class, 'index'])->name('spa.subscribers');
 });
 
 // User search - accessible by multiple managers
@@ -76,19 +72,20 @@ Route::middleware('can:manage_lookups')->group(function () {
 // Cards Management
 Route::middleware('can:manage_cards')->group(function () {
     // Card Groups
-    Route::get('admin/cards', [CardController::class, 'indexGroup'])->name('spa.cards');
+    Route::get('admin/cards', [CardController::class, 'indexGroups'])->name('spa.cards');
     Route::post('admin/cards/groups', [CardController::class, 'storeGroup'])->name('admin.cards.groups.store');
     Route::put('admin/cards/groups/{group}', [CardController::class, 'updateGroup'])->name('admin.cards.groups.update');
     Route::delete('admin/cards/groups/{group}', [CardController::class, 'destroyGroup'])->name('admin.cards.groups.destroy');
 
     // Cards (Nested)
-    Route::get('admin/cards/groups/{group}/cards', [CardController::class, 'indexCards'])->name('admin.cards.groups.cards');
-    Route::post('admin/cards/groups/{group}/cards', [CardController::class, 'storeCard'])->name('admin.cards.groups.cards.store');
-    Route::put('admin/cards/groups/{group}/cards/{card}', [CardController::class, 'updateCard'])->name('admin.cards.groups.cards.update');
-    Route::delete('admin/cards/groups/{group}/cards/{card}', [CardController::class, 'destroyCard'])->name('admin.cards.groups.cards.destroy');
+    Route::get('admin/cards/groups/{group}/cards', [CardController::class, 'indexByGroup'])->name('admin.cards.groups.cards');
+    Route::post('admin/cards/groups/{group}/cards', [CardController::class, 'store'])->name('admin.cards.groups.cards.store');
+    Route::put('admin/cards/groups/{group}/cards/{card}', [CardController::class, 'update'])->name('admin.cards.groups.cards.update');
+    Route::delete('admin/cards/groups/{group}/cards/{card}', [CardController::class, 'destroy'])->name('admin.cards.groups.cards.destroy');
 
     // Unified Cards API
-    Route::get('/cards', [CardController::class, 'indexGroup'])->name('cards.index');
+    Route::get('/cards', [CardController::class, 'indexGroups'])->name('cards.index');
+    Route::get('/cards/all', [CardController::class, 'index'])->name('admin.cards.all');
 });
 
 // Roles Management

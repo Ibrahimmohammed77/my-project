@@ -238,7 +238,8 @@ export class SubscriptionView {
     openModal(title = 'منح اشتراك جديد') {
         if (!this.modal) return;
         if (this.modalTitle) {
-            this.modalTitle.innerHTML = '<span class="w-2 h-6 bg-accent rounded-full"></span><span>' + (title || '') + '</span>';
+            const safeTitle = XssProtection.escape(title || '');
+            XssProtection.setHtml(this.modalTitle, `<span class="w-2 h-6 bg-accent rounded-full"></span><span>${safeTitle}</span>`, true);
         }
         DOM.removeClass(this.modal, 'hidden');
     }

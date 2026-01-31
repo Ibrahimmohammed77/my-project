@@ -37,7 +37,7 @@ class StudioController extends Controller
             ->paginate($request->get('per_page', 15));
 
         $statuses = \App\Models\LookupValue::whereHas('master', function ($q) {
-            $q->where('code', 'user_status');
+            $q->where('code', 'USER_STATUS');
         })->get();
 
         if ($request->wantsJson()) {

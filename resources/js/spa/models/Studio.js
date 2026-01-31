@@ -4,6 +4,8 @@ export class Studio {
         this.name = data.user?.name || data.name || '';
         this.email = data.user?.email || data.email || null;
         this.phone = data.user?.phone || data.phone || null;
+        this.city = data.city || null;
+        this.address = data.address || null;
         this.studio_status_id = data.studio_status_id || null;
         this.status = data.user?.status || data.status || null; // Related object
         this.created_at = data.created_at || null;
@@ -18,6 +20,8 @@ export class Studio {
             name: this.name,
             email: this.email,
             phone: this.phone,
+            city: this.city || null,
+            address: this.address || null,
             studio_status_id: this.studio_status_id,
             username: this.username || null,
             password: this.password || null

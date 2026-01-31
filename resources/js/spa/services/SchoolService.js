@@ -15,7 +15,11 @@ export class SchoolService {
 
     static async create(school) {
         try {
-            const response = await ApiClient.post(API_ENDPOINTS.ADMIN.SCHOOLS.CREATE, school.toJson());
+            const data = school instanceof School ? school.toJson() : school;
+            const response = await ApiClient.post(API_ENDPOINTS.ADMIN.SCHOOLS.CREATE, data);
+            if (response.data && response.data.data && response.data.data.school) {
+                return School.fromJson(response.data.data.school);
+            }
             return response.data;
         } catch (error) {
             console.error('Error creating school:', error);
@@ -25,7 +29,11 @@ export class SchoolService {
 
     static async update(id, school) {
         try {
-            const response = await ApiClient.put(getEndpoint(API_ENDPOINTS.ADMIN.SCHOOLS.UPDATE, id), school.toJson());
+            const data = school instanceof School ? school.toJson() : school;
+            const response = await ApiClient.put(getEndpoint(API_ENDPOINTS.ADMIN.SCHOOLS.UPDATE, id), data);
+            if (response.data && response.data.data && response.data.data.school) {
+                return School.fromJson(response.data.data.school);
+            }
             return response.data;
         } catch (error) {
             console.error('Error updating school:', error);

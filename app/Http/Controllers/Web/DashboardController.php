@@ -14,6 +14,7 @@ use App\Models\Studio;
 use App\Models\School;
 use App\Models\Subscription;
 use App\Models\Invoice;
+use App\Models\LookupValue;
 use App\Models\Album;
 use App\Models\Card;
 use App\Models\Photo;
@@ -62,9 +63,10 @@ class DashboardController extends Controller
         $this->authorize('access-admin-dashboard');
 
         $stats = $this->getAdminStats();
+        $statLabels = static::getAdminStatLabels();
         $controller = $this;
 
-        return view('dashboard.admin', compact('stats', 'controller'));
+        return view('dashboard.admin', compact('stats', 'statLabels', 'controller'));
     }
 
     /**
@@ -126,23 +128,56 @@ class DashboardController extends Controller
      */
     private function getAdminStats(): array
     {
+        $defaults = [
+            'total_users' => 0,
+            'active_users' => 0,
+            'new_users_today' => 0,
+            'total_studios' => 0,
+            'total_schools' => 0,
+            'total_subscriptions' => 0,
+            'total_revenue' => 0,
+            'pending_invoices' => 0,
+        ];
+
+        try {
+            $paidStatusId = LookupValue::where('code', 'paid')->value('lookup_value_id');
+            $pendingStatusId = LookupValue::where('code', 'pending')->value('lookup_value_id');
+        } catch (\Throwable $e) {
+            $paidStatusId = null;
+            $pendingStatusId = null;
+        }
+
+        try {
+            return [
+                'total_users' => User::count(),
+                'active_users' => User::active()->count(),
+                'new_users_today' => User::whereDate('created_at', today())->count(),
+                'total_studios' => Studio::count(),
+                'total_schools' => School::count(),
+                'total_subscriptions' => Subscription::active()->count(),
+                'total_revenue' => $paidStatusId ? (float) Invoice::where('invoice_status_id', $paidStatusId)->sum('total_amount') : 0,
+                'pending_invoices' => $pendingStatusId ? Invoice::where('invoice_status_id', $pendingStatusId)->count() : 0,
+            ];
+        } catch (\Throwable $e) {
+            report($e);
+            return $defaults;
+        }
+    }
+
+    /**
+     * عناوين الإحصائيات بالعربية (للوحة المسؤول)
+     */
+    public static function getAdminStatLabels(): array
+    {
         return [
-            'total_users' => User::count(),
-            'active_users' => User::active()->count(),
-            'new_users_today' => User::whereDate('created_at', today())->count(),
-            'total_studios' => Studio::count(),
-            'total_schools' => School::count(),
-            'total_subscriptions' => Subscription::active()->count(),
-            'total_revenue' => Invoice::where('invoice_status_id', function ($query) {
-                $query->select('lookup_value_id')
-                    ->from('lookup_values')
-                    ->where('code', 'paid');
-            })->sum('total_amount'),
-            'pending_invoices' => Invoice::where('invoice_status_id', function ($query) {
-                $query->select('lookup_value_id')
-                    ->from('lookup_values')
-                    ->where('code', 'pending');
-            })->count(),
+            'total_users' => 'إجمالي المستخدمين',
+            'active_users' => 'المستخدمون النشطون',
+            'new_users_today' => 'مستخدمون جدد اليوم',
+            'total_studios' => 'إجمالي الاستوديوهات',
+            'total_schools' => 'إجمالي المدارس',
+            'total_subscriptions' => 'الاشتراكات النشطة',
+            'total_revenue' => 'إجمالي الإيرادات',
+            'pending_invoices' => 'فواتير معلقة',
         ];
     }
 

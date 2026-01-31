@@ -22,8 +22,14 @@
                 <div class="bg-white rounded-xl shadow p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-500">{{ trans("dashboard.stats.$key") }}</p>
-                            <p class="text-2xl font-bold mt-2">{{ $value }}</p>
+                            <p class="text-sm text-gray-500">{{ $statLabels[$key] ?? $key }}</p>
+                            <p class="text-2xl font-bold mt-2">
+                                @if($key === 'total_revenue')
+                                    {{ number_format($value, 0) }}
+                                @else
+                                    {{ $value }}
+                                @endif
+                            </p>
                         </div>
                         <div class="p-3 {{ $controller->getStatColor($key) }} rounded-lg">
                             <i class="{{ $controller->getStatIcon($key) }} text-white text-xl"></i>
@@ -36,36 +42,36 @@
             <!-- Quick Actions -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white rounded-xl shadow p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">إدارة المستخدمين</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">إدارة الحسابات والمستخدمين</h2>
                     <div class="space-y-3">
-                        @if(Route::has('admin.users.index'))
-                        <a href="{{ route('admin.users.index') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                        @if(Route::has('spa.accounts'))
+                        <a href="{{ route('spa.accounts') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
                             <i class="fas fa-users text-blue-600 ml-3"></i>
-                            <span>عرض جميع المستخدمين</span>
-                        </a>
-                        @endif
-                        @if(Route::has('admin.users.create'))
-                        <a href="{{ route('admin.users.create') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
-                            <i class="fas fa-user-plus text-green-600 ml-3"></i>
-                            <span>إضافة مستخدم جديد</span>
+                            <span>عرض وإدارة الحسابات</span>
                         </a>
                         @endif
                     </div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">إدارة الاستوديوهات</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">إدارة الاستوديوهات والمدارس</h2>
                     <div class="space-y-3">
-                        @if(Route::has('admin.studios.index'))
-                        <a href="{{ route('admin.studios.index') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                        @if(Route::has('spa.studios'))
+                        <a href="{{ route('spa.studios') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
                             <i class="fas fa-building text-purple-600 ml-3"></i>
                             <span>عرض الاستوديوهات</span>
                         </a>
                         @endif
-                        @if(Route::has('admin.studios.create'))
-                        <a href="{{ route('admin.studios.create') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
-                            <i class="fas fa-plus-circle text-purple-600 ml-3"></i>
-                            <span>إضافة استوديو جديد</span>
+                        @if(Route::has('spa.schools'))
+                        <a href="{{ route('spa.schools') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                            <i class="fas fa-school text-red-600 ml-3"></i>
+                            <span>عرض المدارس</span>
+                        </a>
+                        @endif
+                        @if(Route::has('spa.subscribers'))
+                        <a href="{{ route('spa.subscribers') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                            <i class="fas fa-user-tag text-green-600 ml-3"></i>
+                            <span>عرض المشتركين</span>
                         </a>
                         @endif
                     </div>
@@ -74,18 +80,7 @@
                 <div class="bg-white rounded-xl shadow p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">التقارير والإحصائيات</h2>
                     <div class="space-y-3">
-                        @if(Route::has('admin.reports.users'))
-                        <a href="{{ route('admin.reports.users') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
-                            <i class="fas fa-chart-bar text-yellow-600 ml-3"></i>
-                            <span>تقارير المستخدمين</span>
-                        </a>
-                        @endif
-                        @if(Route::has('admin.reports.financial'))
-                        <a href="{{ route('admin.reports.financial') }}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
-                            <i class="fas fa-money-bill-wave text-green-600 ml-3"></i>
-                            <span>تقارير مالية</span>
-                        </a>
-                        @endif
+                        <p class="text-sm text-gray-500 p-3">الإحصائيات العامة معروضة أعلاه. تقارير مفصلة قريباً.</p>
                     </div>
                 </div>
             </div>
@@ -97,17 +92,19 @@
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
-                        @foreach(Auth::user()->activityLogs()->latest()->take(10)->get() as $activity)
+                        @forelse(Auth::user()->activityLogs()->latest()->take(10)->get() as $activity)
                         <div class="flex items-start">
                             <div class="flex-shrink-0">
-                                <i class="fas fa-circle text-xs {{ $activity->action == 'user_logged_in' ? 'text-green-500' : 'text-blue-500' }} mt-1"></i>
+                                <i class="fas fa-circle text-xs {{ in_array($activity->action ?? '', ['login', 'user_logged_in'], true) ? 'text-green-500' : 'text-blue-500' }} mt-1"></i>
                             </div>
                             <div class="mr-3">
-                                <p class="text-sm text-gray-800">{{ $activity->getDescriptionAttribute() }}</p>
+                                <p class="text-sm text-gray-800">{{ $activity->description }}</p>
                                 <p class="text-xs text-gray-500">{{ $activity->created_at->diffForHumans() }}</p>
                             </div>
                         </div>
-                        @endforeach
+                        @empty
+                        <p class="text-sm text-gray-500">لا توجد نشاطات مسجلة.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>

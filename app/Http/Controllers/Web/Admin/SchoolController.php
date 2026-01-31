@@ -37,15 +37,15 @@ class SchoolController extends Controller
             ->paginate($request->get('per_page', 15));
 
         $statuses = \App\Models\LookupValue::whereHas('master', function ($q) {
-            $q->where('code', 'user_status');
+            $q->where('code', 'USER_STATUS');
         })->get();
 
         $types = \App\Models\LookupValue::whereHas('master', function ($q) {
-            $q->where('code', 'school_type');
+            $q->where('code', 'SCHOOL_TYPE');
         })->get();
 
         $levels = \App\Models\LookupValue::whereHas('master', function ($q) {
-            $q->where('code', 'school_level');
+            $q->where('code', 'SCHOOL_LEVEL');
         })->get();
 
         if ($request->wantsJson()) {

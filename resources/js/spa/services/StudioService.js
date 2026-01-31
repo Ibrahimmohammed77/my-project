@@ -15,7 +15,11 @@ export class StudioService {
 
     static async create(studio) {
         try {
-            const response = await ApiClient.post(API_ENDPOINTS.ADMIN.STUDIOS.CREATE, studio.toJson());
+            const data = studio instanceof Studio ? studio.toJson() : studio;
+            const response = await ApiClient.post(API_ENDPOINTS.ADMIN.STUDIOS.CREATE, data);
+            if (response.data && response.data.data && response.data.data.studio) {
+                return Studio.fromJson(response.data.data.studio);
+            }
             return response.data;
         } catch (error) {
             console.error('Error creating studio:', error);
@@ -25,7 +29,11 @@ export class StudioService {
 
     static async update(id, studio) {
         try {
-            const response = await ApiClient.put(getEndpoint(API_ENDPOINTS.ADMIN.STUDIOS.UPDATE, id), studio.toJson());
+            const data = studio instanceof Studio ? studio.toJson() : studio;
+            const response = await ApiClient.put(getEndpoint(API_ENDPOINTS.ADMIN.STUDIOS.UPDATE, id), data);
+            if (response.data && response.data.data && response.data.data.studio) {
+                return Studio.fromJson(response.data.data.studio);
+            }
             return response.data;
         } catch (error) {
             console.error('Error updating studio:', error);

@@ -125,7 +125,7 @@ class UserController extends Controller
     {
         $roles = Role::all();
         $statuses = LookupValue::whereHas('master', function ($q) {
-            $q->where('code', 'user_status');
+            $q->where('code', 'USER_STATUS');
         })->get();
 
         if (request()->wantsJson()) {

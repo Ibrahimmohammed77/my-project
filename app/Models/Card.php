@@ -179,9 +179,20 @@ class Card extends Model
         });
     }
 
-    public function scopeWithCommonRelations(Builder $query): Builder
+    public function scopeWithCardRelations(Builder $query): Builder
     {
         return $query->with([
+            'group:group_id,name',
+            'holder:id,name,email,phone',
+            'type:lookup_value_id,code,name',
+            'status:lookup_value_id,code,name',
+            'owner',
+        ]);
+    }
+
+    public function loadCardRelations(): self
+    {
+        return $this->load([
             'group:group_id,name',
             'holder:id,name,email,phone',
             'type:lookup_value_id,code,name',

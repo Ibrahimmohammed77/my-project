@@ -58,7 +58,7 @@ class CardService
 
     public function listCards(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = Card::query()->withCommonRelations();
+        $query = Card::query()->withCardRelations();
 
         // Apply filters
         foreach ($filters as $key => $value) {
@@ -140,7 +140,7 @@ class CardService
                 }
             }
 
-            return $card->fresh()->loadCommonRelations();
+            return $card->fresh()->loadCardRelations();
         });
     }
 

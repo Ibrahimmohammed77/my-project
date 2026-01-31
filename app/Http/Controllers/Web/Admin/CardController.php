@@ -172,7 +172,7 @@ class CardController extends Controller
 
             if ($request->wantsJson()) {
                 return $this->successResponse(
-                    ['card' => $card->loadCommonRelations()],
+                    ['card' => $card->loadCardRelations()],
                     'تم إضافة الكرت بنجاح'
                 );
             }

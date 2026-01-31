@@ -101,7 +101,7 @@ export class SchoolController {
             const matchesSearch = !searchTerm ||
                 (school.name && school.name.toLowerCase().includes(searchTerm)) ||
                 (school.email && school.email.toLowerCase().includes(searchTerm));
-            const matchesStatus = !statusValue || (school.status?.code === statusValue);
+            const matchesStatus = !statusValue || (school.status?.lookup_value_id == statusValue);
             return matchesSearch && matchesStatus;
         });
 

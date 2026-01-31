@@ -88,8 +88,16 @@ class AppServiceProvider extends ServiceProvider
     protected function registerCustomValidationRules(): void
     {
         Validator::extend('yemeni_phone', function ($attribute, $value, $parameters, $validator) {
-            return preg_match('/^(009677|9677|\\+9677|07)([0-9]{8})$/', $value);
-        }, 'رقم الهاتف غير صالح. يجب أن يكون رقم هاتف يمني.');
+            // التحقق من رقم الهاتف اليمني بمختلف الصيغ
+            // يدعم 77, 73, 71, 70, 78
+            // الصيغ المدعومة:
+            // 77xxxxxxx (9 أرقام)
+            // 077xxxxxxx (10 أرقام)
+            // 96777xxxxxxx (12 رقم)
+            // +96777xxxxxxx (13 رقم)
+            // 0096777xxxxxxx (14 رقم)
+            return preg_match('/^(\+967|00967|967|0)?(77|73|71|70|78)[0-9]{7}$/', $value);
+        }, 'رقم الهاتف غير صالح. يجب أن يكون رقم هاتف يمني صحيح (مثال: 77xxxxxxx)');
 
         Validator::extend('strong_password', function ($attribute, $value, $parameters, $validator) {
             return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/', $value);

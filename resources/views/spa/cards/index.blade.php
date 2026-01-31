@@ -32,6 +32,48 @@
         <!-- JS renders rows here -->
     </x-table>
 
+    {{-- نافذة إضافة/تعديل كرت --}}
+    <x-modal id="modal" title="إضافة كرت جديد">
+        <form id="modal-form" class="space-y-4">
+            <input type="hidden" name="id">
+            
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700">رقم الكرت</label>
+                <input type="text" name="card_number" required placeholder="مثال: CARD-001" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm font-mono">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700">نوع الكرت</label>
+                    <select name="card_type_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
+                        @foreach($types as $type)
+                            <option value="{{ $type->lookup_value_id }}">{{ $type->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700">الحالة</label>
+                    <select name="card_status_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
+                        @foreach($statuses as $status)
+                            <option value="{{ $status->lookup_value_id }}">{{ $status->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700">ملاحظات</label>
+                <textarea name="notes" rows="2" placeholder="ملاحظات إضافية..." class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm resize-none"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <x-button type="button" onclick="closeModal()" variant="secondary">إلغاء</x-button>
+                <x-button type="submit" variant="primary">حفظ الكرت</x-button>
+            </div>
+        </form>
+    </x-modal>
+
 @push('scripts')
     @vite('resources/js/spa/modules/cards/index.js')
 @endpush

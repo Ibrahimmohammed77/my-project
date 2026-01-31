@@ -261,6 +261,8 @@ class User extends Authenticatable
 
     // ==================== BUSINESS METHODS ====================
 
+
+
     public function recordLogin(): void
     {
         $this->timestamps = false;

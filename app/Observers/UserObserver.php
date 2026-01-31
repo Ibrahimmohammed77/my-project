@@ -112,30 +112,43 @@ class UserObserver
     /**
      * معالجة الحدث قبل الحذف
      */
+    /**
+     * معالجة الحدث قبل الحذف
+     */
     public function deleting(User $user): void
     {
         // مسح جميع ذاكرات التخزين المؤقت
         UserCacheService::flushUserCache($user->id);
-
-        // تعطيل المستخدم أولاً (إذا لم يكن محذوفاً نهائياً)
-        if (!$user->isForceDeleting()) {
-            $user->update(['is_active' => false]);
-        }
     }
 
     /**
      * معالجة الحدث بعد الحذف
      */
+    /**
+     * معالجة الحدث بعد الحذف
+     */
     public function deleted(User $user): void
     {
-        // تسجيل النشاط
-        ActivityLog::log(
-            $user->id,
-            $user->isForceDeleting() ? 'force_delete' : 'delete',
-            'user',
-            $user->id,
-            ['email' => $user->email]
-        );
+        $actorId = auth()->id();
+
+        // تجنب خطأ المفتاح الخارجي إذا كان الفاعل هو المستخدم المحذوف أو غير موجود
+        if (!$actorId || $actorId === $user->id) {
+            ActivityLog::logSystem(
+                'delete',
+                'user',
+                $user->id,
+                ['email' => $user->email]
+            );
+        } else {
+            // تسجيل النشاط بواسطة المشرف/المستخدم الآخر
+            ActivityLog::log(
+                $actorId,
+                'delete',
+                'user',
+                $user->id,
+                ['email' => $user->email]
+            );
+        }
 
         // تشغيل حدث UserDeleted
         event(new UserDeleted($user));

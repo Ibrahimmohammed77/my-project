@@ -39,6 +39,7 @@ Route::middleware('can:manage_studios')->group(function () {
     Route::post('admin/studios', [StudioController::class, 'store'])->name('admin.studios.store');
     Route::put('admin/studios/{studio}', [StudioController::class, 'update'])->name('admin.studios.update');
     Route::delete('admin/studios/{studio}', [StudioController::class, 'destroy'])->name('admin.studios.destroy');
+    Route::get('admin/studios/{studio}/statistics', [StudioController::class, 'statistics'])->name('admin.studios.statistics');
     Route::get('/studios', [StudioController::class, 'index']);
 });
 
@@ -48,6 +49,7 @@ Route::middleware('can:manage_schools')->group(function () {
     Route::post('admin/schools', [SchoolController::class, 'store'])->name('admin.schools.store');
     Route::put('admin/schools/{school}', [SchoolController::class, 'update'])->name('admin.schools.update');
     Route::delete('admin/schools/{school}', [SchoolController::class, 'destroy'])->name('admin.schools.destroy');
+    Route::get('admin/schools/{school}/statistics', [SchoolController::class, 'statistics'])->name('admin.schools.statistics');
     Route::get('/schools', [SchoolController::class, 'index']);
 });
 

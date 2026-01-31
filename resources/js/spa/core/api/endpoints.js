@@ -61,6 +61,7 @@ export const API_ENDPOINTS = {
         },
         CARDS: {
             LIST: '/admin/cards/all',
+            SHOW: (id) => `/admin/cards/${id}`,
             GROUPS: {
                 LIST: '/admin/cards',
                 CREATE: '/admin/cards/groups',
@@ -80,13 +81,15 @@ export const API_ENDPOINTS = {
             LIST: '/admin/studios',
             CREATE: '/admin/studios',
             UPDATE: (id) => `/admin/studios/${id}`,
-            DELETE: (id) => `/admin/studios/${id}`
+            DELETE: (id) => `/admin/studios/${id}`,
+            STATISTICS: (id) => `/admin/studios/${id}/statistics`
         },
         SCHOOLS: {
             LIST: '/admin/schools',
             CREATE: '/admin/schools',
             UPDATE: (id) => `/admin/schools/${id}`,
-            DELETE: (id) => `/admin/schools/${id}`
+            DELETE: (id) => `/admin/schools/${id}`,
+            STATISTICS: (id) => `/admin/schools/${id}/statistics`
         }
     },
 

@@ -65,7 +65,7 @@ class School extends Model
      */
     public function albums()
     {
-        return $this->morphMany(Album::class, 'owner');
+        return $this->morphMany(Album::class, 'owner', 'owner_type', 'owner_id', 'school_id');
     }
 
     /**
@@ -73,7 +73,7 @@ class School extends Model
      */
     public function cards()
     {
-        return $this->morphMany(Card::class, 'owner');
+        return $this->morphMany(Card::class, 'owner', 'owner_type', 'owner_id', 'school_id');
     }
 
     /**

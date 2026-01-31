@@ -49,5 +49,16 @@ export class SchoolService {
             throw error;
         }
     }
+
+    static async getStatistics(id) {
+        try {
+            const response = await ApiClient.get(getEndpoint(API_ENDPOINTS.ADMIN.SCHOOLS.STATISTICS, id));
+            return response.data?.data?.statistics || {};
+        } catch (error) {
+            console.error('Error fetching school statistics:', error);
+            throw error;
+        }
+    }
 }
+
 

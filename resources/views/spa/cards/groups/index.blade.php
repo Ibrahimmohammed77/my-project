@@ -23,6 +23,28 @@
         <!-- JS renders rows here -->
     </x-table>
 
+    {{-- نافذة إضافة/تعديل مجموعة --}}
+    <x-modal id="modal" title="إضافة مجموعة جديدة">
+        <form id="modal-form" class="space-y-4">
+            <input type="hidden" name="id">
+            
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700">اسم المجموعة</label>
+                <input type="text" name="name" required placeholder="مثال: دفعة 2024 - المستوى الأول" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm">
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700">الوصف</label>
+                <textarea name="description" rows="3" placeholder="وصف اختياري للمجموعة..." class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm resize-none"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <x-button type="button" onclick="closeModal()" variant="secondary">إلغاء</x-button>
+                <x-button type="submit" variant="primary">حفظ المجموعه</x-button>
+            </div>
+        </form>
+    </x-modal>
+
 @push('scripts')
     @vite('resources/js/spa/modules/cards/index.js')
 @endpush

@@ -32,8 +32,8 @@ class SchoolController extends Controller
         $data = [
             'schools' => $schools,
             'statuses' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'USER_STATUS'))->get(),
-            'schoolTypes' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'SCHOOL_TYPE'))->get(),
-            'schoolLevels' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'SCHOOL_LEVEL'))->get(),
+            'types' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'SCHOOL_TYPE'))->get(),
+            'levels' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'SCHOOL_LEVEL'))->get(),
         ];
 
         if ($request->wantsJson()) {

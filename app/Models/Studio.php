@@ -42,22 +42,22 @@ class Studio extends Model
 
     public function storageLibraries(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(StorageLibrary::class);
+        return $this->hasMany(StorageLibrary::class, 'studio_id', 'studio_id');
     }
 
     public function commissions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Commission::class);
+        return $this->hasMany(Commission::class, 'studio_id', 'studio_id');
     }
 
     public function albums(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
-        return $this->morphMany(Album::class, 'owner');
+        return $this->morphMany(Album::class, 'owner', 'owner_type', 'owner_id', 'studio_id');
     }
 
     public function cards(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
-        return $this->morphMany(Card::class, 'owner');
+        return $this->morphMany(Card::class, 'owner', 'owner_type', 'owner_id', 'studio_id');
     }
 
     // ==================== SCOPES ====================

@@ -49,5 +49,16 @@ export class StudioService {
             throw error;
         }
     }
+
+    static async getStatistics(id) {
+        try {
+            const response = await ApiClient.get(getEndpoint(API_ENDPOINTS.ADMIN.STUDIOS.STATISTICS, id));
+            return response.data?.data?.statistics || {};
+        } catch (error) {
+            console.error('Error fetching studio statistics:', error);
+            throw error;
+        }
+    }
 }
+
 

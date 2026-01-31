@@ -69,8 +69,25 @@
                 </div>
             </div>
 
-            <!-- Identity Management (Admin Only) -->
+            <!-- Entities Management (Admin Only) -->
             @if(Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('admin'))
+            <div class="mb-6">
+                <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">الجهات</p>
+                
+                <div class="space-y-1">
+                    <x-sidebar-link href="{{ route('spa.studios') }}" :active="request()->routeIs('spa.studios')" icon="fa-building">
+                        الاستوديوهات
+                    </x-sidebar-link>
+                    <x-sidebar-link href="{{ route('spa.schools') }}" :active="request()->routeIs('spa.schools')" icon="fa-school">
+                        المدارس
+                    </x-sidebar-link>
+                    <x-sidebar-link href="{{ route('spa.accounts') }}" :active="request()->routeIs('spa.accounts')" icon="fa-users">
+                        المشاركين
+                    </x-sidebar-link>
+                </div>
+            </div>
+
+            <!-- System Settings (Admin Only) -->
             <div class="mb-6">
                 <p class="text-[10px] font-bold text-blue-300/60 uppercase tracking-widest mb-3 px-3">النظام</p>
                 
@@ -78,62 +95,33 @@
                     <button @click="identityOpen = !identityOpen" class="w-full flex items-center justify-between px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all group duration-300">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                                <i class="fa-solid fa-users w-4 text-center text-gray-400 group-hover:text-accent transition-colors"></i>
+                                <i class="fa-solid fa-cog w-4 text-center text-gray-400 group-hover:text-accent transition-colors"></i>
                             </div>
-                            <span class="font-medium text-sm">المستخدمين</span>
+                            <span class="font-medium text-sm">الإعدادات</span>
                         </div>
                         <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 transition-transform duration-300" :class="identityOpen ? 'rotate-180' : ''"></i>
                     </button>
                     
                     <div x-show="identityOpen" x-collapse class="pl-4 pr-3 space-y-1">
-                        <div class="relative border-r border-white/10 pr-4 py-1 space-y-6">
-                            <!-- Identity Management -->
-                            <div>
-                                <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 pr-1">إدارة الهوية</p>
-                                <div class="space-y-1">
-                                    <x-sidebar-link href="{{ route('spa.accounts') }}" :active="request()->routeIs('spa.accounts')" icon="fa-user-gear" class="text-sm">
-                                        الحسابات
-                                    </x-sidebar-link>
-                                    <x-sidebar-link href="{{ route('spa.roles') }}" :active="request()->routeIs('spa.roles')" icon="fa-shield-halved" class="text-sm">
-                                        الأدوار
-                                    </x-sidebar-link>
-                                    <x-sidebar-link href="{{ route('spa.permissions') }}" :active="request()->routeIs('spa.permissions')" icon="fa-key" class="text-sm">
-                                        الصلاحيات
-                                    </x-sidebar-link>
-                                </div>
-                            </div>
-
-                            <!-- Entities Management -->
-                            <div>
-                                <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 pr-1">إدارة الجهات</p>
-                                <div class="space-y-1">
-                                    <x-sidebar-link href="{{ route('spa.studios') }}" :active="request()->routeIs('spa.studios')" icon="fa-building" class="text-sm">
-                                        الاستوديوهات
-                                    </x-sidebar-link>
-                                    <x-sidebar-link href="{{ route('spa.schools') }}" :active="request()->routeIs('spa.schools')" icon="fa-school" class="text-sm">
-                                        المدارس
-                                    </x-sidebar-link>
-                                </div>
-                            </div>
-
-                            <!-- System Settings -->
-                            <div>
-                                <p class="text-[9px] font-bold text-blue-400/40 uppercase tracking-wider mb-2 pr-1">إعدادات النظام</p>
-                                <div class="space-y-1">
-                                    <x-sidebar-link href="{{ route('spa.lookups') }}" :active="request()->routeIs('spa.lookups')" icon="fa-list-ul" class="text-sm">
-                                        القوائم
-                                    </x-sidebar-link>
-                                    <x-sidebar-link href="{{ route('spa.plans') }}" :active="request()->routeIs('spa.plans')" icon="fa-box-archive" class="text-sm">
-                                        الخطط
-                                    </x-sidebar-link>
-                                    <x-sidebar-link href="{{ route('spa.subscriptions') }}" :active="request()->routeIs('spa.subscriptions')" icon="fa-calendar-check" class="text-sm">
-                                        الاشتراكات
-                                    </x-sidebar-link>
-                                    <x-sidebar-link href="{{ route('spa.cards') }}" :active="request()->routeIs('spa.cards')" icon="fa-id-card-clip" class="text-sm">
-                                        إدارة الكروت
-                                    </x-sidebar-link>
-                                </div>
-                            </div>
+                        <div class="relative border-r border-white/10 pr-4 py-1 space-y-1">
+                            <x-sidebar-link href="{{ route('spa.roles') }}" :active="request()->routeIs('spa.roles')" icon="fa-shield-halved" class="text-sm">
+                                الأدوار
+                            </x-sidebar-link>
+                            <x-sidebar-link href="{{ route('spa.permissions') }}" :active="request()->routeIs('spa.permissions')" icon="fa-key" class="text-sm">
+                                الصلاحيات
+                            </x-sidebar-link>
+                            <x-sidebar-link href="{{ route('spa.lookups') }}" :active="request()->routeIs('spa.lookups')" icon="fa-list-ul" class="text-sm">
+                                القوائم
+                            </x-sidebar-link>
+                            <x-sidebar-link href="{{ route('spa.plans') }}" :active="request()->routeIs('spa.plans')" icon="fa-box-archive" class="text-sm">
+                                الخطط
+                            </x-sidebar-link>
+                            <x-sidebar-link href="{{ route('spa.subscriptions') }}" :active="request()->routeIs('spa.subscriptions')" icon="fa-calendar-check" class="text-sm">
+                                الاشتراكات
+                            </x-sidebar-link>
+                            <x-sidebar-link href="{{ route('spa.cards') }}" :active="request()->routeIs('spa.cards')" icon="fa-id-card-clip" class="text-sm">
+                                إدارة الكروت
+                            </x-sidebar-link>
                         </div>
                     </div>
                 </div>

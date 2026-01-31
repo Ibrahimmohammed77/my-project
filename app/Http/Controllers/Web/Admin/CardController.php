@@ -127,7 +127,7 @@ class CardController extends Controller
             $request->get('per_page', 15)
         );
 
-        $groups = CardGroup::active()->get();
+        $groups = CardGroup::all();
         $types = \App\Models\LookupValue::whereHas('master', fn($q) => $q->where('code', 'CARD_TYPE'))->get();
         $statuses = \App\Models\LookupValue::whereHas('master', fn($q) => $q->where('code', 'CARD_STATUS'))->get();
 

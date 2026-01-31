@@ -14,7 +14,7 @@ return new class extends Migration
             $table->unsignedBigInteger('plan_id');
             $table->date('start_date');
             $table->date('end_date');
-            $table->date('renewal_date');
+            $table->date('renewal_date')->nullable();
             $table->boolean('auto_renew')->default(true);
             $table->unsignedBigInteger('subscription_status_id')->nullable();
             $table->timestamps();

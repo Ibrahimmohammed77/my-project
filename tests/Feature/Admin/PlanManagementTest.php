@@ -45,23 +45,38 @@ class PlanManagementTest extends TestCase
         });
     }
 
+    public function test_admin_can_list_plans()
+    {
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
+
+        Plan::factory()->count(5)->create();
+
+        $response = $this->actingAs($admin)->get(route('spa.plans'));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('plans');
+        $this->assertCount(5, $response->viewData('plans'));
+    }
+
     public function test_admin_can_create_plan()
     {
+        $this->withoutExceptionHandling();
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
         
         $response = $this->actingAs($admin)->post(route('admin.plans.store'), [
             'name' => 'Pro Plan',
             'description' => 'Best for pros',
-            'storage_limit' => 50,
-            'price_monthly' => 2000,
-            'price_yearly' => 20000,
+            'storage_limit' => 10240,
+            'price_monthly' => 29.99,
+            'price_yearly' => 299.99,
             'features' => ['feature1', 'feature2'],
             'is_active' => true,
         ]);
 
-        $response->assertRedirect();
-        $response->assertSessionHas('success');
+        $response->assertStatus(200);
+        $response->assertJson(['message' => 'تم إضافة الخطة بنجاح']);
         $this->assertDatabaseHas('plans', ['name' => 'Pro Plan']);
     }
 
@@ -78,29 +93,21 @@ class PlanManagementTest extends TestCase
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
         
-        $plan = Plan::create([
-            'name' => 'Basic Plan',
-            'description' => 'Basic',
-            'storage_limit' => 10,
-            'price_monthly' => 1000,
-            'price_yearly' => 10000,
-            'features' => ['f1'],
-            'is_active' => true
-        ]);
+        $plan = Plan::factory()->create(['name' => 'Old Plan Name']);
 
         $response = $this->actingAs($admin)->put(route('admin.plans.update', $plan), [
             'name' => 'Updated Plan',
             'description' => 'Updated Desc',
-            'storage_limit' => 20,
-            'price_monthly' => 1500,
-            'price_yearly' => 15000,
+            'storage_limit' => 20480,
+            'price_monthly' => 39.99,
+            'price_yearly' => 399.99,
             'features' => ['f1', 'f2'],
             'is_active' => false,
         ]);
 
-        $response->assertRedirect();
-        $response->assertSessionHas('success');
-        $this->assertDatabaseHas('plans', ['name' => 'Updated Plan', 'is_active' => false]);
+        $response->assertStatus(200);
+        $response->assertJson(['message' => 'تم تحديث الخطة بنجاح']);
+        $this->assertDatabaseHas('plans', ['plan_id' => $plan->plan_id, 'name' => 'Updated Plan', 'is_active' => false]);
     }
 
     public function test_admin_can_delete_plan()
@@ -108,20 +115,25 @@ class PlanManagementTest extends TestCase
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
         
-        $plan = Plan::create([
-            'name' => 'To Delete',
-            'description' => 'Desc',
-            'storage_limit' => 1,
-            'price_monthly' => 100,
-            'price_yearly' => 1000,
-            'features' => ['f1'],
-            'is_active' => true
+        $plan = Plan::factory()->create();
+
+        $response = $this->actingAs($admin)->deleteJson(route('admin.plans.destroy', $plan));
+
+        $response->assertStatus(200);
+        $response->assertJson(['message' => 'تم حذف الخطة بنجاح']);
+        $this->assertDatabaseMissing('plans', ['plan_id' => $plan->plan_id]);
+    }
+
+    public function test_validation_rules_for_plan()
+    {
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::where('name', 'admin')->first()->role_id);
+
+        $response = $this->actingAs($admin)->post(route('admin.plans.store'), [
+            'name' => '',
+            'description' => '',
         ]);
 
-        $response = $this->actingAs($admin)->delete(route('admin.plans.destroy', $plan));
-
-        $response->assertRedirect();
-        $response->assertSessionHas('success');
-        $this->assertDatabaseMissing('plans', ['name' => 'To Delete']);
+        $response->assertSessionHasErrors(['name', 'description', 'storage_limit', 'price_monthly', 'price_yearly', 'features']);
     }
 }

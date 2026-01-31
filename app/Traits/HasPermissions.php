@@ -48,7 +48,7 @@ trait HasPermissions
             }
 
             if ($role instanceof Role) {
-                return $this->roles()->where('role_id', $role->role_id)->exists();
+                return $this->roles()->where('roles.role_id', $role->role_id)->exists();
             }
 
             return false;
@@ -75,6 +75,31 @@ trait HasPermissions
                 return false;
             });
         });
+    }
+
+    /**
+     * Assign a role to the user.
+     */
+    public function assignRole($role)
+    {
+        if (is_string($role)) {
+            $role = Role::where('name', $role)->firstOrFail();
+        }
+
+        if (!$this->hasRole($role)) {
+            $this->roles()->attach($role->role_id, ['is_active' => true]);
+            $this->forgetCachedPermissions();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Forget cached permissions.
+     */
+    public function forgetCachedPermissions()
+    {
+        cache()->forget("user_{$this->id}_permissions");
     }
 
     /**

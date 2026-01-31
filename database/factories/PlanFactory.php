@@ -13,13 +13,11 @@ class PlanFactory extends Factory
     {
         return [
             'name' => $this->faker->word() . ' Plan',
+            'description' => $this->faker->sentence(),
             'storage_limit' => 1024 * 1024 * 10, // 10GB
             'price_monthly' => $this->faker->randomFloat(2, 10, 50),
             'price_yearly' => $this->faker->randomFloat(2, 100, 500),
-            'max_albums' => 10,
-            'max_cards' => 100,
-            'max_users' => 5,
-            'max_storage_libraries' => 1,
+            'features' => ['High quality photos', 'Infinite albums'],
             'is_active' => true,
         ];
     }

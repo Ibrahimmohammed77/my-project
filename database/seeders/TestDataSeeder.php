@@ -89,15 +89,21 @@ class TestDataSeeder extends Seeder
             ['email' => 'admin@albums.test'],
             [
                 'name' => 'System Administrator',
+                'username' => 'admin',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
+                'phone' => '0000000000',
+                'phone_verified_at' => now(),
+                'user_status_id' => $activeStatus?->lookup_value_id,
                 'phone_verified_at' => now(),
                 'user_status_id' => $activeStatus?->lookup_value_id,
                 'is_active' => true,
             ]
-        )->tap(function ($user) {
-            $user->assignRole('admin');
-        });
+        );
+
+        $user->assignRole('admin');
+        
+        return $user;
     }
     
     private function createStudios(): array
@@ -112,50 +118,49 @@ class TestDataSeeder extends Seeder
                 ['email' => "studio{$i}@test.com"],
                 [
                     'name' => "Studio Owner {$i}",
+                    'username' => "studio_owner_{$i}",
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
                     'phone' => '0771234567' . $i,
                     'user_status_id' => $activeStatus?->lookup_value_id,
                     'is_active' => true,
                 ]
-            )->tap(function ($user) {
-                $user->assignRole('studio-owner');
-            });
+            );
+            
+            $user->assignRole('studio_owner');
             
             // Create studio
             $studio = Studio::updateOrCreate(
-                ['name' => "Studio {$i}"],
+                ['user_id' => $user->id],
                 [
-                    'name_en' => "Studio {$i}",
-                    'name_ar' => "استوديو {$i}",
-                    'email' => "studio{$i}@test.com",
-                    'phone' => '0771234567' . $i,
                     'address' => "Studio Address {$i}, Test City",
                     'description' => "Professional photography studio number {$i}",
-                    'owner_id' => $user->id,
+                    'city' => 'Test City',
                 ]
             );
             
-            // Assign user to studio
-            $user->studio()->associate($studio)->save();
+
             
             // Create storage library for studio
             $library = StorageLibrary::updateOrCreate(
                 ['name' => "Studio {$i} Main Library"],
                 [
-                    'owner_type' => Studio::class,
-                    'owner_id' => $studio->studio_id,
-                    'total_capacity' => ($this->plans[$plans[$i-1]]?->storage_limit ?? 10737418240),
-                    'used_capacity' => 0,
+                    'studio_id' => $studio->studio_id,
+                    'user_id' => $user->id,
+                    'storage_limit' => ($this->plans[$plans[$i-1]]?->storage_limit ?? 10737418240),
                 ]
             );
             
             // Create storage account
             StorageAccount::updateOrCreate(
-                ['user_id' => $user->id],
                 [
-                    'total_storage' => ($this->plans[$plans[$i-1]]?->storage_limit ?? 10737418240),
-                    'used_storage' => 0,
+                    'owner_type' => User::class,
+                    'owner_id' => $user->id,
+                ],
+                [
+                    'total_space' => ($this->plans[$plans[$i-1]]?->storage_limit ?? 10737418240),
+                    'used_space' => 0,
+                    'status' => 'active',
                 ]
             );
             
@@ -199,44 +204,39 @@ class TestDataSeeder extends Seeder
                 ['email' => "school{$i}@test.com"],
                 [
                     'name' => "School Admin {$i}",
+                    'username' => "school_admin_{$i}",
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
                     'phone' => '0779876543' . $i,
                     'user_status_id' => $activeStatus?->lookup_value_id,
                     'is_active' => true,
                 ]
-            )->tap(function ($user) {
-                $user->assignRole('school-owner');
-            });
+            );
+
+            $user->assignRole('school_owner');
             
-            // Create school (linked to a studio)
+            // Create school
             $studioIndex = ($i - 1) % count($studios);
             $school = School::updateOrCreate(
-                ['name' => "Test School {$i}"],
+                ['user_id' => $user->id],
                 [
-                    'name_en' => "Test School {$i}",
-                    'name_ar' => "مدرسة اختبار {$i}",
-                    'email' => "school{$i}@test.com",
-                    'phone' => '0779876543' . $i,
                     'address' => "School Address {$i}, Test City",
-                    'owner_id' => $user->id,
-                    'studio_id' => $studios[$studioIndex]['studio']->studio_id,
+                    'city' => 'Test City',
+                    'description' => "Test School {$i}",
                     'school_type_id' => $this->lookups['SCHOOL_TYPE'][$schoolTypes[$i-1]]?->lookup_value_id,
                     'school_level_id' => $this->lookups['SCHOOL_LEVEL'][$levels[$i-1]]?->lookup_value_id,
                 ]
             );
             
-            // Assign user to school
-            $user->school()->associate($school)->save();
+
             
             // Create storage library for school (allocated from studio)
             $library = StorageLibrary::updateOrCreate(
                 ['name' => "School {$i} Library"],
                 [
-                    'owner_type' => School::class,
-                    'owner_id' => $school->school_id,
-                    'total_capacity' => 5 * 1024 * 1024 * 1024, // 5GB per school
-                    'used_capacity' => 0,
+                    'school_id' => $school->school_id,
+                    'studio_id' => $studios[$studioIndex]['studio']->studio_id,
+                    'storage_limit' => 5 * 1024 * 1024 * 1024, // 5GB per school
                 ]
             );
             
@@ -261,21 +261,24 @@ class TestDataSeeder extends Seeder
                 ['email' => "customer{$i}@test.com"],
                 [
                     'name' => "Customer {$i}",
+                    'username' => "customer{$i}",
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
                     'phone' => '0775555000' . $i,
                     'user_status_id' => $activeStatus?->lookup_value_id,
                     'is_active' => true,
                 ]
-            )->tap(function ($user) {
-                $user->assignRole('customer');
-            });
+            );
+
+            $user->assignRole('customer');
             
             // Create customer record
             $customer = Customer::updateOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'preferences' => ['notifications' => true, 'email_updates' => true],
+                    'first_name' => "Customer",
+                    'last_name' => "{$i}",
+                    'date_of_birth' => now()->subYears(rand(18, 50)),
                 ]
             );
             
@@ -361,7 +364,6 @@ class TestDataSeeder extends Seeder
                 ['name' => "Studio {$studio->studio_id} - Batch 2026"],
                 [
                     'description' => "Main card batch for 2026",
-                    'total_cards' => 10,
                 ]
             );
             
@@ -398,7 +400,6 @@ class TestDataSeeder extends Seeder
                 ['name' => "School {$school->school_id} - Class 2026"],
                 [
                     'description' => "Student cards for academic year 2026",
-                    'total_cards' => 30,
                 ]
             );
             
@@ -440,14 +441,13 @@ class TestDataSeeder extends Seeder
             foreach (range(1, $photoCount) as $i) {
                 Photo::create([
                     'album_id' => $album->album_id,
-                    'file_name' => "photo_{$album->album_id}_{$i}.jpg",
+                    'original_name' => "photo_{$album->album_id}_{$i}.jpg",
+                    'stored_name' => Str::uuid() . ".jpg",
                     'file_path' => "albums/{$album->album_id}/photo_{$i}.jpg",
                     'file_size' => rand(500000, 5000000),
                     'mime_type' => 'image/jpeg',
                     'width' => rand(1920, 4000),
                     'height' => rand(1080, 3000),
-                    'exif_data' => ['camera' => 'Canon EOS 5D', 'iso' => '400', 'aperture' => 'f/2.8'],
-                    'uploaded_at' => now()->subDays(rand(1, 30)),
                 ]);
             }
         }

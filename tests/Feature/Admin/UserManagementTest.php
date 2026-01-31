@@ -25,20 +25,20 @@ class UserManagementTest extends TestCase
     private function seedData()
     {
         // Create lookup masters
-        $statusMaster = LookupMaster::create(['code' => 'user_status', 'name' => 'User Status']);
-        $typeMaster = LookupMaster::create(['code' => 'user_type', 'name' => 'User Type']);
+        $statusMaster = LookupMaster::create(['code' => 'USER_STATUS', 'name' => 'User Status']);
+        $typeMaster = LookupMaster::create(['code' => 'USER_TYPE', 'name' => 'User Type']);
 
         // Create lookup values
         LookupValue::create([
             'lookup_master_id' => $statusMaster->lookup_master_id,
-            'code' => 'active',
+            'code' => 'ACTIVE',
             'name' => 'Active',
             'is_active' => true
         ]);
 
         LookupValue::create([
             'lookup_master_id' => $typeMaster->lookup_master_id,
-            'code' => 'customer',
+            'code' => 'CUSTOMER',
             'name' => 'Customer',
             'is_active' => true
         ]);
@@ -66,11 +66,13 @@ class UserManagementTest extends TestCase
 
     public function test_admin_can_create_user_with_role()
     {
+        $this->withoutExceptionHandling();
         $admin = User::factory()->create();
         $adminRole = Role::where('name', 'admin')->first();
         $admin->roles()->attach($adminRole->role_id);
 
         $customerRole = Role::where('name', 'customer')->first();
+        $activeStatus = LookupValue::where('code', 'ACTIVE')->first();
 
         $response = $this->actingAs($admin)->post(route('admin.users.store'), [
             'username' => 'newuser',
@@ -79,6 +81,7 @@ class UserManagementTest extends TestCase
             'phone' => '0777777777', // Matches yemeni_phone rule
             'password' => 'Password123!', // Matches strong_password rule
             'role_id' => $customerRole->role_id,
+            'user_status_id' => $activeStatus->lookup_value_id,
             'is_active' => true,
         ]);
 
@@ -98,6 +101,7 @@ class UserManagementTest extends TestCase
     {
         $user = User::factory()->create();
         $customerRole = Role::where('name', 'customer')->first();
+        $activeStatus = LookupValue::where('code', 'ACTIVE')->first();
 
         $response = $this->actingAs($user)->post(route('admin.users.store'), [
             'username' => 'newuser',
@@ -105,6 +109,7 @@ class UserManagementTest extends TestCase
             'email' => 'newuser@example.com',
             'password' => 'Password123!',
             'role_id' => $customerRole->role_id,
+            'user_status_id' => $activeStatus->lookup_value_id,
         ]);
 
         $response->assertStatus(403);
@@ -131,8 +136,14 @@ class UserManagementTest extends TestCase
         $admin = User::factory()->create();
         $adminRole = Role::where('name', 'admin')->first();
         $admin->roles()->attach($adminRole->role_id);
+        
+        $customerRole = Role::where('name', 'customer')->first();
 
-        User::factory()->count(20)->create();
+        // Create users and assign customer role
+        $users = User::factory()->count(20)->create();
+        foreach ($users as $user) {
+            $user->roles()->attach($customerRole->role_id);
+        }
 
         $response = $this->actingAs($admin)->get(route('spa.accounts'));
 
@@ -147,8 +158,13 @@ class UserManagementTest extends TestCase
         $adminRole = Role::where('name', 'admin')->first();
         $admin->roles()->attach($adminRole->role_id);
 
-        User::factory()->create(['name' => 'Unique Search Name']);
-        User::factory()->create(['name' => 'Another User']);
+        $customerRole = Role::where('name', 'customer')->first();
+
+        $u1 = User::factory()->create(['name' => 'Unique Search Name']);
+        $u1->roles()->attach($customerRole->role_id);
+        
+        $u2 = User::factory()->create(['name' => 'Another User']);
+        $u2->roles()->attach($customerRole->role_id);
 
         $response = $this->actingAs($admin)->get(route('spa.accounts', ['search' => 'Unique']));
 
@@ -189,15 +205,18 @@ class UserManagementTest extends TestCase
 
         $customerRole = Role::where('name', 'customer')->first();
         $studioRole = Role::create(['name' => 'studio_owner', 'display_name' => 'Studio Owner']);
+        $activeStatus = LookupValue::where('code', 'ACTIVE')->first();
 
-        $user = User::factory()->create();
+        // Use safe username
+        $user = User::factory()->create(['username' => 'safe_user_1']);
         $user->roles()->attach($customerRole->role_id);
 
         $response = $this->actingAs($admin)->put(route('admin.users.update', $user), [
             'full_name' => 'Updated Name',
-            'username' => $user->username, // Keeping same username
+            'username' => 'safe_user_1', // Keeping same username
             'email' => 'updated@example.com',
             'role_id' => $studioRole->role_id,
+            'user_status_id' => $activeStatus->lookup_value_id,
             'is_active' => false,
         ]);
         
@@ -222,15 +241,17 @@ class UserManagementTest extends TestCase
         $adminRole = Role::where('name', 'admin')->first();
         $admin->roles()->attach($adminRole->role_id);
 
-        $user1 = User::factory()->create(['email' => 'user1@example.com']);
-        $user2 = User::factory()->create(['email' => 'user2@example.com']);
+        $user1 = User::factory()->create(['email' => 'user1@example.com', 'username' => 'user1_safe']);
+        $user2 = User::factory()->create(['email' => 'user2@example.com', 'username' => 'user2_safe']);
         $role = Role::where('name', 'customer')->first();
+        $activeStatus = LookupValue::where('code', 'ACTIVE')->first();
 
         $response = $this->actingAs($admin)->put(route('admin.users.update', $user1), [
             'full_name' => 'Updated Name',
             'username' => $user1->username,
             'email' => 'user2@example.com', // Duplicate
             'role_id' => $role->role_id,
+            'user_status_id' => $activeStatus->lookup_value_id,
         ]);
 
         $response->assertSessionHasErrors(['email']);

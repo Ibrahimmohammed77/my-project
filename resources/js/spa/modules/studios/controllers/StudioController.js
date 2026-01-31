@@ -101,7 +101,7 @@ export class StudioController {
             const matchesSearch = !searchTerm ||
                 (studio.name && studio.name.toLowerCase().includes(searchTerm)) ||
                 (studio.email && studio.email.toLowerCase().includes(searchTerm));
-            const matchesStatus = !statusValue || (studio.status?.code === statusValue);
+            const matchesStatus = !statusValue || (studio.status?.lookup_value_id == statusValue);
             return matchesSearch && matchesStatus;
         });
 

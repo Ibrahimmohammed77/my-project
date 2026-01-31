@@ -49,11 +49,18 @@ function setupGlobalFunctions() {
     // Action handlers
     window.editAccount = (id) => accountController.editAccount(id);
     window.deleteAccount = (id) => accountController.deleteAccount(id);
+    window.closeDetailsModal = () => accountController.closeDetailsModal();
+
+    // Listen for edit request from details modal
+    document.addEventListener('account:edit', (e) => {
+        if (e.detail && e.detail.accountId) {
+            accountController.editAccount(e.detail.accountId);
+        }
+    });
 
     // Form handlers
     window.handleRoleChange = (el) => accountController.handleRoleChange(el);
-    window.updateConditionalFields = (role) =>
-        accountController.view.updateConditionalFields(role);
+    window.updateConditionalFields = (role) => accountController.view.updateConditionalFields(role);
 }
 
 // Auto-initialize on DOM ready

@@ -6,23 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\LookupValue;
-use App\UseCases\Admin\Subscription\GrantSubscriptionUseCase;
-use App\UseCases\Admin\Subscription\ListSubscriptionsUseCase;
+use App\Services\Admin\SubscriptionService;
+use App\Traits\HasApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 class SubscriptionController extends Controller
 {
-    protected $grantSubscriptionUseCase;
-    protected $listSubscriptionsUseCase;
+    use HasApiResponse;
 
-    public function __construct(
-        GrantSubscriptionUseCase $grantSubscriptionUseCase,
-        ListSubscriptionsUseCase $listSubscriptionsUseCase
-    ) {
-        $this->grantSubscriptionUseCase = $grantSubscriptionUseCase;
-        $this->listSubscriptionsUseCase = $listSubscriptionsUseCase;
+    protected $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
     }
 
     /**
@@ -33,7 +31,7 @@ class SubscriptionController extends Controller
         Gate::authorize('manage_subscriptions');
 
         $filters = $request->only(['search', 'plan_id', 'status_id']);
-        $subscriptions = $this->listSubscriptionsUseCase->execute($filters, $request->get('per_page', 15));
+        $subscriptions = $this->subscriptionService->listSubscriptions($filters, $request->get('per_page', 15));
 
         $plans = Plan::where('is_active', true)->get();
         
@@ -63,29 +61,25 @@ class SubscriptionController extends Controller
         ]);
 
         try {
-            $subscription = $this->grantSubscriptionUseCase->execute($validated);
+            $subscription = $this->subscriptionService->grantSubscription($validated);
             
             if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'تم منح الخطة بنجاح',
-                    'data' => ['subscription' => $subscription->load(['user', 'plan', 'status'])]
-                ], 201);
+                return $this->successResponse(
+                    ['subscription' => $subscription->load(['user', 'plan', 'status'])],
+                    'تم منح الاشتراك بنجاح',
+                    201
+                );
             }
 
-            return redirect()->back()->with('success', 'تم منح الخطة بنجاح');
+            return redirect()->back()->with('success', 'تم منح الاشتراك بنجاح');
         } catch (\Exception $e) {
             Log::error('Error granting subscription: ' . $e->getMessage());
             
             if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'حدث خطأ أثناء منح الخطة',
-                    'error' => $e->getMessage()
-                ], 500);
+                return $this->errorResponse('حدث خطأ أثناء منح الاشتراك', 500, $e->getMessage());
             }
 
-            return redirect()->back()->with('error', 'حدث خطأ أثناء منح الخطة: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'حدث خطأ أثناء منح الاشتراك: ' . $e->getMessage());
         }
     }
 
@@ -97,13 +91,10 @@ class SubscriptionController extends Controller
         Gate::authorize('manage_subscriptions');
 
         try {
-            $subscription->delete();
+            $this->subscriptionService->deleteSubscription($subscription);
             
             if (request()->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'تم حذف الاشتراك بنجاح'
-                ]);
+                return $this->successResponse(null, 'تم حذف الاشتراك بنجاح');
             }
             
             return redirect()->back()->with('success', 'تم حذف الاشتراك بنجاح');
@@ -111,14 +102,46 @@ class SubscriptionController extends Controller
             Log::error('Error deleting subscription: ' . $e->getMessage());
             
             if (request()->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'حدث خطأ أثناء حذف الاشتراك',
-                    'error' => $e->getMessage()
-                ], 500);
+                return $this->errorResponse('حدث خطأ أثناء حذف الاشتراك', 500, $e->getMessage());
             }
             
             return back()->with('error', 'حدث خطأ أثناء حذف الاشتراك');
+        }
+    }
+
+    /**
+     * Update the specified subscription.
+     */
+    public function update(Request $request, Subscription $subscription)
+    {
+        Gate::authorize('manage_subscriptions');
+
+        $validated = $request->validate([
+            'plan_id' => 'sometimes|exists:plans,plan_id',
+            'billing_cycle' => 'sometimes|in:monthly,yearly',
+            'auto_renew' => 'boolean',
+            'status_id' => 'sometimes|exists:lookup_values,lookup_value_id',
+        ]);
+
+        try {
+            $updatedSubscription = $this->subscriptionService->updateSubscription($subscription, $validated);
+            
+            if ($request->wantsJson()) {
+                return $this->successResponse(
+                    ['subscription' => $updatedSubscription->load(['user', 'plan', 'status'])],
+                    'تم تحديث الاشتراك بنجاح'
+                );
+            }
+
+            return redirect()->back()->with('success', 'تم تحديث الاشتراك بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error updating subscription: ' . $e->getMessage());
+            
+            if ($request->wantsJson()) {
+                return $this->errorResponse('حدث خطأ أثناء تحديث الاشتراك', 500, $e->getMessage());
+            }
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء تحديث الاشتراك');
         }
     }
 }

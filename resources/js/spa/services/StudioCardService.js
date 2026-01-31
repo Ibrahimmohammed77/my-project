@@ -1,9 +1,9 @@
-import axios from 'axios';
+import ApiClient from '../core/api/ApiClient.js';
 
 export class StudioCardService {
     static async getAll() {
         try {
-            const response = await axios.get('/studio/cards');
+            const response = await ApiClient.get('/studio/cards');
             return response.data.data.cards;
         } catch (error) {
             console.error('Error fetching studio cards:', error);
@@ -13,7 +13,7 @@ export class StudioCardService {
 
     static async getDetail(id) {
         try {
-            const response = await axios.get(`/studio/cards/${id}`);
+            const response = await ApiClient.get(`/studio/cards/${id}`);
             return response.data.data;
         } catch (error) {
             console.error('Error fetching card detail:', error);
@@ -23,7 +23,7 @@ export class StudioCardService {
 
     static async linkAlbums(cardId, albumIds) {
         try {
-            const response = await axios.post(`/studio/cards/${cardId}/link-albums`, {
+            const response = await ApiClient.post(`/studio/cards/${cardId}/link-albums`, {
                 album_ids: albumIds
             });
             return response.data;
@@ -33,3 +33,5 @@ export class StudioCardService {
         }
     }
 }
+
+export default StudioCardService;

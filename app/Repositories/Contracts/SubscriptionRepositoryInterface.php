@@ -7,23 +7,11 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface SubscriptionRepositoryInterface
 {
-    /**
-     * List subscriptions with filters.
-     */
     public function listByAdmin(array $filters = [], int $perPage = 15): LengthAwarePaginator;
-
-    /**
-     * Find a subscription by ID.
-     */
     public function find(int $id): ?Subscription;
-
-    /**
-     * Create or update a subscription.
-     */
     public function store(array $data): Subscription;
-
-    /**
-     * Delete a subscription.
-     */
+    public function update(Subscription $subscription, array $data): Subscription;
     public function delete(Subscription $subscription): bool;
+    public function findByUser(int $userId, array $filters = [], int $perPage = 15): LengthAwarePaginator;
+    public function findActiveByUser(int $userId): ?Subscription;
 }

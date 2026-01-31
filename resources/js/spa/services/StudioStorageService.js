@@ -1,9 +1,9 @@
-import axios from 'axios';
+import ApiClient from '../core/api/ApiClient.js';
 
 export class StudioStorageService {
     static async getAll() {
         try {
-            const response = await axios.get('/studio/storage/libraries');
+            const response = await ApiClient.get('/studio/storage/libraries');
             return response.data.data;
         } catch (error) {
             console.error('Error fetching storage libraries:', error);
@@ -13,7 +13,7 @@ export class StudioStorageService {
 
     static async create(data) {
         try {
-            const response = await axios.post('/studio/storage/libraries', data);
+            const response = await ApiClient.post('/studio/storage/libraries', data);
             return response.data;
         } catch (error) {
             console.error('Error creating storage library:', error);
@@ -23,7 +23,7 @@ export class StudioStorageService {
 
     static async update(id, data) {
         try {
-            const response = await axios.put(`/studio/storage/libraries/${id}`, data);
+            const response = await ApiClient.put(`/studio/storage/libraries/${id}`, data);
             return response.data;
         } catch (error) {
             console.error('Error updating storage library:', error);
@@ -33,7 +33,7 @@ export class StudioStorageService {
 
     static async delete(id) {
         try {
-            const response = await axios.delete(`/studio/storage/libraries/${id}`);
+            const response = await ApiClient.delete(`/studio/storage/libraries/${id}`);
             return response.data;
         } catch (error) {
             console.error('Error deleting storage library:', error);
@@ -43,7 +43,7 @@ export class StudioStorageService {
 
     static async getCustomers() {
         try {
-            const response = await axios.get('/studio/customers');
+            const response = await ApiClient.get('/studio/customers');
             return response.data.data.customers;
         } catch (error) {
             console.error('Error fetching customers:', error);
@@ -51,3 +51,5 @@ export class StudioStorageService {
         }
     }
 }
+
+export default StudioStorageService;

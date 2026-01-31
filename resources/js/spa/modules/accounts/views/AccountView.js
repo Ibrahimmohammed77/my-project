@@ -15,6 +15,7 @@ export class AccountView {
         this.modal = options.modal || DOM.query('#account-modal');
         this.modalTitle = options.modalTitle || DOM.query('#account-modal-title');
         this.form = options.form || DOM.query('#account-form');
+        this.detailsModal = options.detailsModal || DOM.query('#account-details-modal');
     }
 
     /**
@@ -158,6 +159,17 @@ export class AccountView {
             className: 'flex items-center justify-center gap-2'
         });
 
+        const viewBtn = DOM.create('button', {
+            type: 'button',
+            className: 'w-8 h-8 rounded-lg bg-green-50 text-green-500 hover:bg-green-500 hover:text-white transition-all duration-200 flex items-center justify-center shadow-sm',
+            title: 'عرض التفاصيل',
+            dataset: {
+                action: 'view',
+                accountId: account.id
+            }
+        });
+        viewBtn.innerHTML = '<i class="fas fa-eye text-xs"></i>';
+
         const editBtn = DOM.create('button', {
             type: 'button',
             className: 'w-8 h-8 rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-200 flex items-center justify-center shadow-sm',
@@ -180,18 +192,81 @@ export class AccountView {
         });
         deleteBtn.innerHTML = '<i class="fas fa-trash text-xs"></i>';
 
+        actionsDiv.appendChild(viewBtn);
         actionsDiv.appendChild(editBtn);
         actionsDiv.appendChild(deleteBtn);
         actionsCell.appendChild(actionsDiv);
 
-        // Append all cells
+        // Append cells (Matching 4 headers in Blade)
         tr.appendChild(accountCell);
         tr.appendChild(emailCell);
-        tr.appendChild(roleCell);
         tr.appendChild(statusCell);
         tr.appendChild(actionsCell);
 
         return tr;
+    }
+
+    /**
+     * Render pagination UI
+     * @param {Object} meta - Pagination metadata
+     */
+    renderPagination(meta) {
+        const paginationContainer = DOM.query('#pagination-container');
+        if (!paginationContainer) return;
+
+        if (!meta || meta.last_page <= 1) {
+            DOM.empty(paginationContainer);
+            return;
+        }
+
+        // Standard Laravel-style pagination rendering
+        // For simplicity, we can render basic Prev/Next or a full list
+        let html = `
+            <div class="flex items-center justify-between border-t border-gray-100 px-4 py-3 sm:px-6">
+                <div class="flex flex-1 justify-between sm:hidden">
+                    ${meta.current_page > 1 ? `<button onclick="accountController.loadPage(${meta.current_page - 1})" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">السابق</button>` : ''}
+                    ${meta.current_page < meta.last_page ? `<button onclick="accountController.loadPage(${meta.current_page + 1})" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">التالي</button>` : ''}
+                </div>
+                <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            عرض من <span class="font-medium">${meta.from}</span> إلى <span class="font-medium">${meta.to}</span> من أصل <span class="font-medium">${meta.total}</span> نتيجة
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                            <button onclick="accountController.loadPage(${meta.current_page - 1})" ${meta.current_page === 1 ? 'disabled' : ''} class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            ${this.generatePageNumbers(meta)}
+                            <button onclick="accountController.loadPage(${meta.current_page + 1})" ${meta.current_page === meta.last_page ? 'disabled' : ''} class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        `;
+        paginationContainer.innerHTML = html;
+    }
+
+    generatePageNumbers(meta) {
+        let pages = '';
+        const current = meta.current_page;
+        const last = meta.last_page;
+        
+        for (let i = 1; i <= last; i++) {
+            if (i === 1 || i === last || (i >= current - 2 && i <= current + 2)) {
+                pages += `
+                    <button onclick="accountController.loadPage(${i})" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold ${i === current ? 'z-10 bg-accent text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'}">
+                        ${i}
+                    </button>
+                `;
+            } else if (i === current - 3 || i === current + 3) {
+                pages += `<span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">...</span>`;
+            }
+        }
+        return pages;
     }
 
     /**
@@ -206,6 +281,25 @@ export class AccountView {
         }
 
         DOM.removeClass(this.modal, 'hidden');
+
+        // Already pre-restricted in Blade but safe-guarding
+        this.restrictRoleSelection();
+    }
+
+    restrictRoleSelection() {
+        const roleSelect = DOM.query('#role_id');
+        if (!roleSelect) return;
+
+        Array.from(roleSelect.options).forEach(option => {
+            const roleName = option.getAttribute('data-role-name');
+            if (roleName && roleName !== 'customer') {
+                option.disabled = true;
+                option.hidden = true;
+            }
+            if (roleName === 'customer') {
+                option.selected = true;
+            }
+        });
     }
 
     /**
@@ -219,8 +313,71 @@ export class AccountView {
         if (this.form) {
             this.form.reset();
         }
+    }
 
-        this.updateConditionalFields('');
+    openDetailsModal(account) {
+        if (!this.detailsModal) return;
+
+        // Basic Info
+        XssProtection.setTextContent(DOM.query('#detail-full_name'), account.full_name || 'N/A');
+        XssProtection.setTextContent(DOM.query('#detail-username'), `@${account.username || ''}`);
+        XssProtection.setTextContent(DOM.query('#detail-email'), account.email || 'غير متوفر');
+        XssProtection.setTextContent(DOM.query('#detail-phone'), account.phone || 'غير متوفر');
+
+        const statusData = account.status || account.account_status;
+        const statusBadge = DOM.query('#detail-status');
+        if (statusBadge) {
+            const statusCode = statusData?.code || '';
+            statusBadge.className = `px-3 py-1 rounded-full text-xs font-bold border ${
+                statusCode === 'ACTIVE' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'
+            }`;
+            XssProtection.setTextContent(statusBadge, statusData?.name || 'غير محدد');
+        }
+
+        const avatarDiv = DOM.query('#detail-avatar');
+        if (avatarDiv) {
+            const initial = XssProtection.escape(account.full_name?.substring(0, 1)?.toUpperCase() || 'U');
+            XssProtection.setTextContent(avatarDiv, initial);
+        }
+
+        // Roles
+        const rolesDiv = DOM.query('#detail-roles');
+        if (rolesDiv) {
+            DOM.empty(rolesDiv);
+            if (account.roles && account.roles.length > 0) {
+                account.roles.forEach(role => {
+                    const badge = DOM.create('span', {
+                        className: 'px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-600 border border-purple-100'
+                    });
+                    XssProtection.setTextContent(badge, role.name);
+                    rolesDiv.appendChild(badge);
+                });
+            } else {
+                XssProtection.setTextContent(rolesDiv, 'لا توجد أدوار');
+            }
+        }
+
+        // Associated Entity (Hidden as not applicable for pure customers)
+        const entitySection = DOM.query('#associated-entity-section');
+        if (entitySection) {
+            DOM.hide(entitySection);
+        }
+
+        const editBtn = DOM.query('#edit-from-details');
+        if (editBtn) {
+            editBtn.onclick = () => {
+                this.closeDetailsModal();
+                const event = new CustomEvent('account:edit', { detail: { accountId: account.id } });
+                document.dispatchEvent(event);
+            };
+        }
+
+        DOM.removeClass(this.detailsModal, 'hidden');
+    }
+
+    closeDetailsModal() {
+        if (!this.detailsModal) return;
+        DOM.addClass(this.detailsModal, 'hidden');
     }
 
     /**
@@ -249,67 +406,6 @@ export class AccountView {
                 field.value = value;
             }
         });
-
-        // Hide password field for editing
-        const passwordField = document.getElementById('password-field');
-        if (passwordField) {
-            DOM.hide(passwordField);
-        }
-
-        // Update conditional fields
-        if (account.roles && account.roles[0]) {
-            this.updateConditionalFields(account.roles[0].name);
-        }
-    }
-
-    /**
-     * Clear form
-     */
-    clearForm() {
-        if (!this.form) return;
-        
-        this.form.reset();
-        
-        const accountIdInput = document.getElementById('account-id');
-        if (accountIdInput) {
-            accountIdInput.value = '';
-        }
-
-        // Show password field for new account
-        const passwordField = document.getElementById('password-field');
-        if (passwordField) {
-            DOM.show(passwordField);
-        }
-
-        this.updateConditionalFields('');
-    }
-
-    /**
-     * Update conditional fields based on role name
-     * @param {string} roleName - Role code or name
-     */
-    updateConditionalFields(roleName) {
-        if (!roleName) return;
-        
-        const studioFields = DOM.query('#studio-fields');
-        const schoolFields = DOM.query('#school-fields');
-        const subscriberFields = DOM.query('#subscriber-fields');
-        
-        // Hide all first
-        DOM.hide(studioFields);
-        DOM.hide(schoolFields);
-        DOM.hide(subscriberFields);
-        
-        const normalizedRole = roleName.toLowerCase();
-        
-        // Show based on role name
-        if (normalizedRole.includes('studio')) {
-            DOM.show(studioFields);
-        } else if (normalizedRole.includes('school')) {
-            DOM.show(schoolFields);
-        } else if (normalizedRole.includes('customer') || normalizedRole.includes('subscriber')) {
-            DOM.show(subscriberFields);
-        }
     }
 
     /**

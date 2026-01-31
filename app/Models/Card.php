@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class Card extends Model
 {
@@ -33,140 +35,270 @@ class Card extends Model
         'last_used' => 'datetime',
     ];
 
-    /**
-     * إنشاء UUID تلقائياً
-     */
+    protected $appends = [
+        'is_active',
+        'is_expired',
+        'formatted_card_number',
+        'holder_name',
+        'owner_name',
+    ];
+
+    // ==================== BOOT ====================
+
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($card) {
             if (empty($card->card_uuid)) {
-                $card->card_uuid = \Illuminate\Support\Str::uuid()->toString();
+                $card->card_uuid = Str::uuid()->toString();
             }
 
             if (empty($card->card_number)) {
-                $card->card_number = (string) random_int(100000000000, 999999999999);
+                // Generate 9-digit card number
+                $card->card_number = self::generateCardNumber();
             }
         });
     }
 
-    /**
-     * علاقة المجموعة
-     */
-    public function group()
-    {
-        return $this->belongsTo(CardGroup::class, 'card_group_id', 'group_id');
-    }
+    // ==================== STATIC METHODS ====================
 
     /**
-     * علاقة متعددة الأشكال للمالك
+     * Generate a unique 9-digit card number.
      */
-    public function owner()
+    public static function generateCardNumber(): string
+    {
+        do {
+            // Generate 9-digit number starting with 1-9
+            $number = mt_rand(100000000, 999999999);
+            $cardNumber = (string) $number;
+        } while (self::where('card_number', $cardNumber)->exists());
+
+        return $cardNumber;
+    }
+
+    // ==================== RELATIONSHIPS ====================
+
+    public function group(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(CardGroup::class, 'card_group_id');
+    }
+
+    public function owner(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
     }
 
-    /**
-     * علاقة حامل البطاقة (المستخدم)
-     */
-    public function holder()
+    public function holder(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(User::class, 'holder_id', 'id');
+        return $this->belongsTo(User::class, 'holder_id');
     }
 
-    /**
-     * علاقة نوع البطاقة من القيم المحددة
-     */
-    public function type()
+    public function type(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(LookupValue::class, 'card_type_id', 'lookup_value_id');
+        return $this->belongsTo(LookupValue::class, 'card_type_id');
     }
 
-    /**
-     * علاقة حالة البطاقة من القيم المحددة
-     */
-    public function status()
+    public function status(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(LookupValue::class, 'card_status_id', 'lookup_value_id');
+        return $this->belongsTo(LookupValue::class, 'card_status_id');
     }
 
-    /**
-     * علاقة الألبومات التي يمكن للبطاقة الوصول إليها
-     */
-    public function albums()
+    public function albums(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Album::class, 'card_albums', 'card_id', 'album_id')
                     ->withTimestamps();
     }
 
-    /**
-     * التحقق مما إذا كانت البطاقة نشطة
-     */
-    public function getIsActiveAttribute()
+    // ==================== SCOPES ====================
+
+    public function scopeActive(Builder $query): Builder
     {
-        $activeStatus = LookupValue::where('code', 'ACTIVE')->first();
-        return $this->card_status_id == ($activeStatus->lookup_value_id ?? null);
+        return $query->whereHas('status', function ($q) {
+            $q->where('code', 'ACTIVE');
+        });
     }
 
-    /**
-     * التحقق مما إذا كانت البطاقة منتهية الصلاحية
-     */
-    public function getIsExpiredAttribute()
+    public function scopeInactive(Builder $query): Builder
     {
-        if (!$this->expiry_date) {
-            return false;
+        return $query->whereHas('status', function ($q) {
+            $q->where('code', 'INACTIVE');
+        });
+    }
+
+    public function scopeExpired(Builder $query): Builder
+    {
+        return $query->where('expiry_date', '<', now());
+    }
+
+    public function scopeValid(Builder $query): Builder
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('expiry_date')
+              ->orWhere('expiry_date', '>=', now());
+        });
+    }
+
+    public function scopeByGroup(Builder $query, $groupId): Builder
+    {
+        return $query->where('card_group_id', $groupId);
+    }
+
+    public function scopeByType(Builder $query, $type): Builder
+    {
+        if (is_numeric($type)) {
+            return $query->where('card_type_id', $type);
         }
 
-        return $this->expiry_date->isPast();
+        return $query->whereHas('type', function ($q) use ($type) {
+            $q->where('code', $type);
+        });
     }
 
+    public function scopeByStatus(Builder $query, $status): Builder
+    {
+        if (is_numeric($status)) {
+            return $query->where('card_status_id', $status);
+        }
+
+        return $query->whereHas('status', function ($q) use ($status) {
+            $q->where('code', $status);
+        });
+    }
+
+    public function scopeSearch(Builder $query, string $search): Builder
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('card_number', 'like', "%{$search}%")
+              ->orWhere('card_uuid', 'like', "%{$search}%")
+              ->orWhereHas('holder', function ($q) use ($search) {
+                  $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+              });
+        });
+    }
+
+    public function scopeWithCommonRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'group:id,name',
+            'holder:id,name,email,phone',
+            'type:id,code,name',
+            'status:id,code,name',
+            'owner:id,name',
+        ]);
+    }
+
+    // ==================== ACCESSORS ====================
+
+    public function getIsActiveAttribute(): bool
+    {
+        return $this->status->code === 'ACTIVE' ?? false;
+    }
+
+    public function getIsExpiredAttribute(): bool
+    {
+        return $this->expiry_date ? $this->expiry_date->isPast() : false;
+    }
+
+    public function getFormattedCardNumberAttribute(): string
+    {
+        return substr($this->card_number, 0, 3) . '-' .
+               substr($this->card_number, 3, 3) . '-' .
+               substr($this->card_number, 6, 3);
+    }
+
+    public function getHolderNameAttribute(): ?string
+    {
+        return $this->holder->name ?? null;
+    }
+
+    public function getOwnerNameAttribute(): ?string
+    {
+        if ($this->owner) {
+            return $this->owner->name ?? null;
+        }
+
+        return $this->group->name ?? null;
+    }
+
+    // ==================== BUSINESS METHODS ====================
+
     /**
-     * تنشيط البطاقة
+     * تنشيط البطاقة.
      */
-    public function activate()
+    public function activate(): bool
     {
         $activeStatus = LookupValue::where('code', 'ACTIVE')->first();
 
-        $this->update([
-            'card_status_id' => $activeStatus->lookup_value_id,
+        return $this->update([
+            'card_status_id' => $activeStatus->lookup_value_id ?? null,
             'activation_date' => now(),
         ]);
     }
 
     /**
-     * تعطيل البطاقة
+     * تعطيل البطاقة.
      */
-    public function deactivate()
+    public function deactivate(): bool
     {
         $inactiveStatus = LookupValue::where('code', 'INACTIVE')->first();
 
-        $this->update([
-            'card_status_id' => $inactiveStatus->lookup_value_id,
+        return $this->update([
+            'card_status_id' => $inactiveStatus->lookup_value_id ?? null,
         ]);
     }
 
     /**
-     * تحديث وقت الاستخدام الأخير
+     * تحديث وقت الاستخدام الأخير.
      */
-    public function updateLastUsed()
+    public function markAsUsed(): bool
     {
-        $this->update(['last_used' => now()]);
+        return $this->update(['last_used' => now()]);
     }
 
     /**
-     * إضافة ألبوم للبطاقة
+     * ربط الألبوم بالبطاقة.
      */
-    public function addAlbum($albumId)
+    public function attachAlbum(int $albumId): void
     {
-        $this->albums()->attach($albumId);
+        $this->albums()->syncWithoutDetaching($albumId);
     }
 
     /**
-     * إزالة ألبوم من البطاقة
+     * فصل الألبوم عن البطاقة.
      */
-    public function removeAlbum($albumId)
+    public function detachAlbum(int $albumId): void
     {
         $this->albums()->detach($albumId);
+    }
+
+    /**
+     * ربط عدة ألبومات بالبطاقة.
+     */
+    public function syncAlbums(array $albumIds): void
+    {
+        $this->albums()->sync($albumIds);
+    }
+
+    /**
+     * التحقق مما إذا كانت البطاقة صالحة للاستخدام.
+     */
+    public function isValid(): bool
+    {
+        return $this->is_active && !$this->is_expired;
+    }
+
+    /**
+     * الحصول على الأيام المتبقية حتى انتهاء الصلاحية.
+     */
+    public function getDaysUntilExpiry(): ?int
+    {
+        if (!$this->expiry_date) {
+            return null;
+        }
+
+        return now()->diffInDays($this->expiry_date, false);
     }
 }

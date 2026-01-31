@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\Subscription;
-use App\Models\LookupValue;
 use App\Repositories\Contracts\SubscriptionRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -60,30 +59,21 @@ class SubscriptionRepository implements SubscriptionRepositoryInterface
     public function store(array $data): Subscription
     {
         return DB::transaction(function () use ($data) {
-            $activeStatus = LookupValue::where('code', 'ACTIVE')
-                ->whereHas('master', function($q) {
-                    $q->where('code', 'SUBSCRIPTION_STATUS');
-                })->first();
-
-            // Calculate dates
-            $startDate = $data['start_date'] ?? now();
-            $endDate = $data['end_date'] ?? ($data['billing_cycle'] === 'yearly' 
-                ? now()->addYear() 
-                : now()->addMonth());
-            
-            $renewalDate = $data['renewal_date'] ?? $endDate->copy()->subDays(7);
-
             return $this->model->updateOrCreate(
                 ['user_id' => $data['user_id']],
-                [
-                    'plan_id' => $data['plan_id'],
-                    'start_date' => $startDate,
-                    'end_date' => $endDate,
-                    'renewal_date' => $renewalDate,
-                    'auto_renew' => $data['auto_renew'] ?? true,
-                    'subscription_status_id' => $data['subscription_status_id'] ?? $activeStatus->lookup_value_id,
-                ]
+                $data
             );
+        });
+    }
+
+    /**
+     * Update a subscription.
+     */
+    public function update(Subscription $subscription, array $data): Subscription
+    {
+        return DB::transaction(function () use ($subscription, $data) {
+            $subscription->update($data);
+            return $subscription->refresh();
         });
     }
 
@@ -93,5 +83,34 @@ class SubscriptionRepository implements SubscriptionRepositoryInterface
     public function delete(Subscription $subscription): bool
     {
         return $subscription->delete();
+    }
+
+    /**
+     * Find subscriptions by user.
+     */
+    public function findByUser(int $userId, array $filters = [], int $perPage = 15): LengthAwarePaginator
+    {
+        $query = $this->model->where('user_id', $userId)
+            ->with(['plan', 'status'])
+            ->orderBy('created_at', 'desc');
+
+        if (!empty($filters['status_id'])) {
+            $query->where('subscription_status_id', $filters['status_id']);
+        }
+
+        return $query->paginate($perPage);
+    }
+
+    /**
+     * Find active subscription for user.
+     */
+    public function findActiveByUser(int $userId): ?Subscription
+    {
+        return $this->model->where('user_id', $userId)
+            ->where('end_date', '>=', now())
+            ->whereHas('status', function($q) {
+                $q->where('code', 'ACTIVE');
+            })
+            ->first();
     }
 }

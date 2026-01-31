@@ -1,11 +1,11 @@
-import axios from 'axios';
-import { Subscriber } from '../models/Subscriber';
+import ApiClient from '../core/api/ApiClient.js';
+import { Subscriber } from '../models/Subscriber.js';
 
 export class SubscriberService {
     static async getAll() {
         try {
-            const response = await axios.get('/subscribers');
-            return response.data.data.subscribers.map(data => Subscriber.fromJson(data));
+            const response = await ApiClient.get('/admin/subscribers');
+            return response.data?.data?.subscribers?.map(data => Subscriber.fromJson(data)) || [];
         } catch (error) {
             console.error('Error fetching subscribers:', error);
             throw error;
@@ -14,7 +14,8 @@ export class SubscriberService {
 
     static async create(subscriber) {
         try {
-            const response = await axios.post('/subscribers', subscriber.toJson());
+            const data = subscriber instanceof Subscriber ? subscriber.toJson() : subscriber;
+            const response = await ApiClient.post('/admin/subscribers', data);
             return response.data;
         } catch (error) {
             console.error('Error creating subscriber:', error);
@@ -24,7 +25,8 @@ export class SubscriberService {
 
     static async update(id, subscriber) {
         try {
-            const response = await axios.put(`/subscribers/${id}`, subscriber.toJson());
+            const data = subscriber instanceof Subscriber ? subscriber.toJson() : subscriber;
+            const response = await ApiClient.put(`/admin/subscribers/${id}`, data);
             return response.data;
         } catch (error) {
             console.error('Error updating subscriber:', error);
@@ -34,10 +36,13 @@ export class SubscriberService {
 
     static async delete(id) {
         try {
-            await axios.delete(`/subscribers/${id}`);
+            await ApiClient.delete(`/admin/subscribers/${id}`);
+            return true;
         } catch (error) {
             console.error('Error deleting subscriber:', error);
             throw error;
         }
     }
 }
+
+export default SubscriberService;

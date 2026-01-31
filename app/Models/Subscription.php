@@ -61,14 +61,7 @@ class Subscription extends Model
         return $this->hasMany(Invoice::class, 'subscription_id', 'subscription_id');
     }
 
-    /**
-     * نطاق الاشتراكات النشطة (حتى تاريخ اليوم)
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('end_date', '>=', now())
-                     ->orWhere('auto_renew', true);
-    }
+  
 
     /**
      * نطاق الاشتراكات المنتهية
@@ -79,13 +72,7 @@ class Subscription extends Model
                      ->where('auto_renew', false);
     }
 
-    /**
-     * التحقق مما إذا كان الاشتراك نشطاً
-     */
-    public function isActive()
-    {
-        return $this->end_date >= now() || $this->auto_renew;
-    }
+    
 
     /**
      * تجديد الاشتراك
@@ -99,4 +86,39 @@ class Subscription extends Model
         $this->renewal_date = $this->end_date->subDays(7); // تجديد قبل 7 أيام من الانتهاء
         $this->save();
     }
+
+    // في App\Models\Subscription
+
+/**
+ * Check if subscription is active
+ */
+public function isActive(): bool
+{
+    return $this->end_date >= now() && 
+           $this->status && 
+           $this->status->code === 'ACTIVE';
+}
+
+/**
+ * Get days remaining
+ */
+public function getDaysRemainingAttribute(): int
+{
+    if (!$this->isActive()) {
+        return 0;
+    }
+    
+    return now()->diffInDays($this->end_date);
+}
+
+/**
+ * Scope for active subscriptions
+ */
+public function scopeActive($query)
+{
+    return $query->where('end_date', '>=', now())
+                 ->whereHas('status', function($q) {
+                     $q->where('code', 'ACTIVE');
+                 });
+}
 }

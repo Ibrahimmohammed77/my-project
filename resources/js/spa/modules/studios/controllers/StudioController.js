@@ -43,6 +43,14 @@ export class StudioController {
         }
 
         if (this.view.tbody) {
+            DOM.delegate(this.view.tbody, 'click', '[data-action="view"]', (e) => {
+                const btn = e.target.closest('button');
+                if (btn) {
+                    const studioId = parseInt(btn.dataset.studioId, 10);
+                    this.viewStudio(studioId);
+                }
+            });
+
             DOM.delegate(this.view.tbody, 'click', '[data-action="edit"]', (e) => {
                 const btn = e.target.closest('button');
                 if (btn) {
@@ -119,6 +127,24 @@ export class StudioController {
         this.view.populateForm(studio);
         this.view.openModal('تعديل استوديو');
         clearErrors();
+    }
+
+    async viewStudio(studioId) {
+        const studio = this.studios.find(s => s.studio_id === studioId);
+        if (!studio) {
+            Toast.error('الاستوديو غير موجود');
+            return;
+        }
+
+        this.view.openDetailsModal(studio);
+
+        try {
+            const statistics = await StudioService.getStatistics(studioId);
+            this.view.renderStatistics(statistics);
+        } catch (error) {
+            console.error('Failed to load studio statistics:', error);
+            Toast.error('حدث خطأ أثناء تحميل إحصائيات الاستوديو');
+        }
     }
 
     async deleteStudio(studioId) {
@@ -213,6 +239,10 @@ export class StudioController {
     closeModal() {
         this.view.closeModal();
         clearErrors();
+    }
+
+    closeDetailsModal() {
+        this.view.closeDetailsModal();
     }
 }
 

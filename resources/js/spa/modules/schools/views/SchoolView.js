@@ -23,6 +23,9 @@ export class SchoolView {
         this.modal = options.modal || DOM.query('#school-modal');
         this.modalTitle = options.modalTitle || DOM.query('#school-modal-title');
         this.form = options.form || DOM.query('#school-form');
+        this.detailsModal = options.detailsModal || DOM.query('#school-details-modal');
+        this.detailsData = DOM.query('#school-details-data');
+        this.detailsLoading = DOM.query('#school-details-loading');
     }
 
     showLoading() {
@@ -136,6 +139,15 @@ export class SchoolView {
 
         const actionsCell = DOM.create('td', { className: 'px-6 py-4 text-center' });
         const actionsDiv = DOM.create('div', { className: 'flex items-center justify-center gap-2' });
+        
+        const viewBtn = DOM.create('button', {
+            type: 'button',
+            className: 'w-8 h-8 rounded-lg bg-green-50 text-green-500 hover:bg-green-500 hover:text-white transition-all duration-200 flex items-center justify-center shadow-sm',
+            title: 'عرض التفاصيل',
+            dataset: { action: 'view', schoolId: school.school_id }
+        });
+        viewBtn.innerHTML = '<i class="fas fa-eye text-xs"></i>';
+
         const editBtn = DOM.create('button', {
             type: 'button',
             className: 'w-8 h-8 rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-200 flex items-center justify-center shadow-sm',
@@ -143,6 +155,7 @@ export class SchoolView {
             dataset: { action: 'edit', schoolId: school.school_id }
         });
         editBtn.innerHTML = '<i class="fas fa-pen text-xs"></i>';
+        
         const deleteBtn = DOM.create('button', {
             type: 'button',
             className: 'w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-200 flex items-center justify-center shadow-sm',
@@ -150,6 +163,8 @@ export class SchoolView {
             dataset: { action: 'delete', schoolId: school.school_id }
         });
         deleteBtn.innerHTML = '<i class="fas fa-trash text-xs"></i>';
+        
+        actionsDiv.appendChild(viewBtn);
         actionsDiv.appendChild(editBtn);
         actionsDiv.appendChild(deleteBtn);
         actionsCell.appendChild(actionsDiv);
@@ -177,6 +192,120 @@ export class SchoolView {
         if (this.form) this.form.reset();
         const credentialsSection = DOM.query('#credentials-section');
         if (credentialsSection) DOM.show(credentialsSection);
+    }
+
+    openDetailsModal(school) {
+        if (!this.detailsModal) return;
+
+        // Reset display
+        DOM.show(this.detailsLoading);
+        DOM.hide(this.detailsData);
+
+        // Basic Info
+        XssProtection.setTextContent(DOM.query('#detail-name'), school.name || 'N/A');
+        XssProtection.setTextContent(DOM.query('#detail-type-level'), `${school.type?.name || '-'} • ${school.level?.name || '-'}`);
+        XssProtection.setTextContent(DOM.query('#detail-city'), school.city || 'غير محدد');
+        XssProtection.setTextContent(DOM.query('#detail-email'), school.email || 'غير متوفر');
+        XssProtection.setTextContent(DOM.query('#detail-phone'), school.phone || 'غير متوفر');
+
+        const statusBadge = DOM.query('#detail-status');
+        if (statusBadge) {
+            const statusCode = school.status?.code || '';
+            statusBadge.className = `px-3 py-1 rounded-full text-xs font-bold border ${getStatusClass(statusCode)}`;
+            XssProtection.setTextContent(statusBadge, school.status?.name || 'غير محدد');
+        }
+
+        const logoDiv = DOM.query('#detail-logo');
+        if (logoDiv) {
+            if (school.logo_url) {
+                logoDiv.innerHTML = `<img src="${school.logo_url}" class="w-full h-full object-cover">`;
+            } else {
+                XssProtection.setTextContent(logoDiv, (school.name || '').charAt(0) || '-');
+            }
+        }
+
+        const editBtn = DOM.query('#edit-from-details');
+        if (editBtn) {
+            editBtn.onclick = () => {
+                this.closeDetailsModal();
+                // We'll rely on the controller to handle it if needed or just trigger edit
+                const event = new CustomEvent('school:edit', { detail: { schoolId: school.school_id } });
+                document.dispatchEvent(event);
+            };
+        }
+
+        DOM.removeClass(this.detailsModal, 'hidden');
+    }
+
+    closeDetailsModal() {
+        if (!this.detailsModal) return;
+        DOM.addClass(this.detailsModal, 'hidden');
+    }
+
+    renderStatistics(data) {
+        const stats = data.statistics;
+        if (!stats) return;
+
+        DOM.hide(this.detailsLoading);
+        DOM.show(this.detailsData);
+
+        // Counts
+        XssProtection.setTextContent(DOM.query('#stat-albums'), stats.counts.albums_count || 0);
+        XssProtection.setTextContent(DOM.query('#stat-cards'), stats.counts.cards_count || 0);
+        XssProtection.setTextContent(DOM.query('#stat-libraries'), stats.counts.storage_libraries_count || 0);
+
+        // Storage
+        const storage = stats.storage_info;
+        const usedGB = (storage.used_storage / (1024 * 1024 * 1024)).toFixed(2);
+        const totalGB = (storage.total_storage / (1024 * 1024 * 1024)).toFixed(2);
+        
+        XssProtection.setTextContent(DOM.query('#storage-percent'), `${storage.usage_percentage}%`);
+        const progress = DOM.query('#storage-progress');
+        if (progress) progress.style.width = `${storage.usage_percentage}%`;
+        
+        XssProtection.setTextContent(DOM.query('#storage-used'), `${usedGB} GB`);
+        XssProtection.setTextContent(DOM.query('#storage-total'), `من أصل ${totalGB} GB`);
+
+        // Subscription
+        const subCard = DOM.query('#subscription-card');
+        if (subCard && stats.subscription_info) {
+            const info = stats.subscription_info;
+            if (info.has_active_subscription && info.subscription_details) {
+                const sub = info.subscription_details;
+                subCard.className = "p-6 bg-green-50 rounded-2xl border border-green-100 flex flex-col justify-center h-[134px]";
+                subCard.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-green-600 font-bold">باقة نشطة</p>
+                            <h5 class="text-sm font-bold text-gray-900">${sub.plan?.name || 'خطة غير معروفة'}</h5>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-green-200/50 flex items-center justify-between text-[10px] font-bold text-green-700">
+                        <span>تاريخ الانتهاء: ${new Date(sub.ends_at).toLocaleDateString()}</span>
+                        <a href="#" class="hover:underline">عرض الفاتورة</a>
+                    </div>
+                `;
+            } else {
+                subCard.className = "p-6 bg-red-50 rounded-2xl border border-red-100 flex flex-col justify-center h-[134px]";
+                subCard.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center text-white">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-red-600 font-bold">لا يوجد اشتراك</p>
+                            <h5 class="text-sm font-bold text-gray-900">الباقة منتهية أو غير موجودة</h5>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <x-button variant="primary" class="!py-1.5 !px-4 !text-[10px] w-full">ترقية الآن</x-button>
+                    </div>
+                `;
+            }
+        }
     }
 
     populateForm(school) {

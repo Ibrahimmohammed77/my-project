@@ -1,9 +1,9 @@
-import axios from 'axios';
+import ApiClient from '../core/api/ApiClient.js';
 
 export class StudioPhotoReviewService {
     static async getPending() {
         try {
-            const response = await axios.get('/studio/photo-review/pending');
+            const response = await ApiClient.get('/studio/photo-review/pending');
             return response.data.data;
         } catch (error) {
             console.error('Error fetching pending photos:', error);
@@ -13,7 +13,7 @@ export class StudioPhotoReviewService {
 
     static async review(photoId, status, rejectionReason = null) {
         try {
-            const response = await axios.post(`/studio/photo-review/${photoId}/review`, {
+            const response = await ApiClient.post(`/studio/photo-review/${photoId}/review`, {
                 status,
                 rejection_reason: rejectionReason
             });
@@ -24,3 +24,5 @@ export class StudioPhotoReviewService {
         }
     }
 }
+
+export default StudioPhotoReviewService;

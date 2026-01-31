@@ -43,6 +43,14 @@ export class SchoolController {
         }
 
         if (this.view.tbody) {
+            DOM.delegate(this.view.tbody, 'click', '[data-action="view"]', (e) => {
+                const btn = e.target.closest('button');
+                if (btn) {
+                    const schoolId = parseInt(btn.dataset.schoolId, 10);
+                    this.viewSchool(schoolId);
+                }
+            });
+
             DOM.delegate(this.view.tbody, 'click', '[data-action="edit"]', (e) => {
                 const btn = e.target.closest('button');
                 if (btn) {
@@ -119,6 +127,24 @@ export class SchoolController {
         this.view.populateForm(school);
         this.view.openModal('تعديل مدرسة');
         clearErrors();
+    }
+
+    async viewSchool(schoolId) {
+        const school = this.schools.find(s => s.school_id === schoolId);
+        if (!school) {
+            Toast.error('المدرسة غير موجودة');
+            return;
+        }
+
+        this.view.openDetailsModal(school);
+
+        try {
+            const statistics = await SchoolService.getStatistics(schoolId);
+            this.view.renderStatistics(statistics);
+        } catch (error) {
+            console.error('Failed to load school statistics:', error);
+            Toast.error('حدث خطأ أثناء تحميل إحصائيات المدرسة');
+        }
     }
 
     async deleteSchool(schoolId) {
@@ -220,6 +246,10 @@ export class SchoolController {
     closeModal() {
         this.view.closeModal();
         clearErrors();
+    }
+
+    closeDetailsModal() {
+        this.view.closeDetailsModal();
     }
 }
 

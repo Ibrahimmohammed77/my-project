@@ -2,25 +2,24 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
-class CreatePlanRequest extends FormRequest
+class CreatePlanRequest extends BasePlanRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return Gate::allows('manage_plans');
     }
 
-    public function rules(): array
+    public function messages(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'storage_limit' => 'required|integer|min:0',
-            'price_monthly' => 'required|numeric|min:0',
-            'price_yearly' => 'required|numeric|min:0',
-            'features' => 'required|array',
-            'is_active' => 'boolean',
+            'name.required' => 'اسم الخطة مطلوب.',
+            'description.required' => 'وصف الخطة مطلوب.',
+            'storage_limit.required' => 'حد التخزين مطلوب.',
+            'storage_limit.min' => 'حد التخزين يجب أن يكون قيمة موجبة.',
+            'price_monthly.required' => 'السعر الشهري مطلوب.',
+            'price_yearly.required' => 'السعر السنوي مطلوب.',
         ];
     }
 }

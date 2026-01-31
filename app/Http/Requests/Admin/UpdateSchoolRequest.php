@@ -2,48 +2,29 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-
-class UpdateSchoolRequest extends FormRequest
+class UpdateSchoolRequest extends BaseStudioSchoolRequest
 {
-    public function authorize(): bool
+    /**
+     * Get the entity type.
+     */
+    protected function entityType(): string
     {
-        return true;
+        return 'school';
     }
 
-    public function rules(): array
+    /**
+     * Get the required permission.
+     */
+    protected function permission(): string
     {
-        $userId = $this->route('school') ? $this->route('school')->user_id : null;
+        return 'manage_schools';
+    }
 
-        return [
-            'name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($userId),
-            ],
-            'phone' => [
-                'nullable',
-                'string',
-                'yemeni_phone',
-                Rule::unique('users', 'phone')->ignore($userId),
-            ],
-            'city' => 'nullable|string|max:100',
-            'school_type_id' => 'required|exists:lookup_values,lookup_value_id,is_active,1',
-            'school_level_id' => 'required|exists:lookup_values,lookup_value_id,is_active,1',
-            'school_status_id' => 'required|exists:lookup_values,lookup_value_id,is_active,1',
-            'username' => [
-                'nullable',
-                'string',
-                'username_format',
-                'max:255',
-                Rule::unique('users', 'username')->ignore($userId),
-            ],
-            'password' => 'nullable|string|min:8|strong_password',
-            'address' => 'nullable|string',
-        ];
+    /**
+     * Get the status field name.
+     */
+    protected function statusField(): string
+    {
+        return 'school_status_id';
     }
 }

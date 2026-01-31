@@ -9,28 +9,24 @@ trait HasApiResponse
 {
     /**
      * Return a success JSON response.
-     *
-     * @param mixed $data
-     * @param string|null $message
-     * @param int $status
-     * @return JsonResponse
      */
     protected function successResponse($data = [], ?string $message = null, int $status = 200): JsonResponse
     {
-        return response()->json([
+        $response = [
             'success' => true,
             'message' => $message,
-            'data' => $data,
-        ], $status);
+        ];
+
+        // Don't add data key if data is empty
+        if (!empty($data) || (is_array($data) && count($data) > 0)) {
+            $response['data'] = $data;
+        }
+
+        return response()->json($response, $status);
     }
 
     /**
      * Return a standardized paginated response.
-     *
-     * @param LengthAwarePaginator $paginator
-     * @param string $dataKey The key to wrap the data items (e.g., 'users', 'plans')
-     * @param string|null $message
-     * @return JsonResponse
      */
     protected function paginatedResponse(LengthAwarePaginator $paginator, string $dataKey = 'items', ?string $message = null): JsonResponse
     {
@@ -59,11 +55,6 @@ trait HasApiResponse
 
     /**
      * Return an error JSON response.
-     * 
-     * @param string $message
-     * @param int $status
-     * @param mixed $errors
-     * @return JsonResponse
      */
     protected function errorResponse(string $message, int $status = 400, $errors = null): JsonResponse
     {

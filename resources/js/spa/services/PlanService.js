@@ -1,13 +1,14 @@
-import axios from 'axios';
-import { Plan } from '../models/Plan';
+import ApiClient from '../core/api/ApiClient.js';
+import { Plan } from '../models/Plan.js';
 
 export class PlanService {
-    static async getAll() {
+    static async getAll(params = {}) {
         try {
-            const response = await axios.get('/plans');
-            // Check if data is paginated or simple array
-            const plansData = response.data.data.plans.data || response.data.data.plans;
-            return plansData.map(planData => Plan.fromJson(planData));
+            const response = await ApiClient.get('/admin/plans', { params });
+            return {
+                items: response.data?.data?.plans?.map(planData => Plan.fromJson(planData)) || [],
+                meta: response.data?.meta
+            };
         } catch (error) {
             console.error('Error fetching plans:', error);
             throw error;
@@ -16,8 +17,9 @@ export class PlanService {
 
     static async create(plan) {
         try {
-            const response = await axios.post('/admin/plans', plan.toJson());
-            return response.data;
+            const data = plan instanceof Plan ? plan.toJson() : plan;
+            const response = await ApiClient.post('/admin/plans', data);
+            return Plan.fromJson(response.data?.data?.plan);
         } catch (error) {
             console.error('Error creating plan:', error);
             throw error;
@@ -26,8 +28,9 @@ export class PlanService {
 
     static async update(id, plan) {
         try {
-            const response = await axios.put(`/admin/plans/${id}`, plan.toJson());
-            return response.data;
+            const data = plan instanceof Plan ? plan.toJson() : plan;
+            const response = await ApiClient.put(`/admin/plans/${id}`, data);
+            return Plan.fromJson(response.data?.data?.plan);
         } catch (error) {
             console.error('Error updating plan:', error);
             throw error;
@@ -36,10 +39,13 @@ export class PlanService {
 
     static async delete(id) {
         try {
-            await axios.delete(`/admin/plans/${id}`);
+            await ApiClient.delete(`/admin/plans/${id}`);
+            return true;
         } catch (error) {
             console.error('Error deleting plan:', error);
             throw error;
         }
     }
 }
+
+export default PlanService;

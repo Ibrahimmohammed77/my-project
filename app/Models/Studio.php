@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Studio extends Model
 {
@@ -26,68 +27,47 @@ class Studio extends Model
         'settings' => 'array',
     ];
 
-    /**
-     * علاقة المستخدم المالك للاستوديو
-     */
-    public function user()
+    protected $appends = [
+        'owner_name',
+        'owner_email',
+        'owner_phone',
+    ];
+
+    // ==================== RELATIONSHIPS ====================
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
-    /**
-     * علاقة مكتبات التخزين التابعة للاستوديو
-     */
-    public function storageLibraries()
+    public function storageLibraries(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(StorageLibrary::class, 'studio_id', 'studio_id');
+        return $this->hasMany(StorageLibrary::class);
     }
 
-    /**
-     * علاقة العمولات الخاصة بالاستوديو
-     */
-    public function commissions()
+    public function commissions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Commission::class, 'studio_id', 'studio_id');
+        return $this->hasMany(Commission::class);
     }
 
-    /**
-     * علاقة الألبومات المملوكة للاستوديو
-     */
-    public function albums()
+    public function albums(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Album::class, 'owner');
     }
 
-    /**
-     * علاقة البطاقات المملوكة للاستوديو
-     */
-    public function cards()
+    public function cards(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Card::class, 'owner');
     }
 
-    /**
-     * علاقة العملاء (Placeholder)
-     */
-    public function customers()
-    {
-        return User::whereHas('cards', function($q) {
-            $q->where('owner_id', $this->studio_id)
-              ->where('owner_type', self::class);
-        });
-    }
+    // ==================== SCOPES ====================
 
-    /**
-     * Filter studios by search term and status.
-     */
-    public function scopeFilter($query, array $filters)
+    public function scopeFilter(Builder $query, array $filters): Builder
     {
-        $query->when($filters['search'] ?? null, function ($q, $search) {
+        return $query->when($filters['search'] ?? null, function ($q, $search) {
             $q->where(function ($q) use ($search) {
-                // Search in Studio fields
                 $q->where('description', 'like', "%{$search}%")
                   ->orWhere('city', 'like', "%{$search}%")
-                  // Search in related User fields (Name, Email, Phone)
                   ->orWhereHas('user', function ($q) use ($search) {
                       $q->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
@@ -95,12 +75,66 @@ class Studio extends Model
                         ->orWhere('username', 'like', "%{$search}%");
                   });
             });
-        });
-
-        $query->when($filters['status_id'] ?? null, function ($q, $statusId) {
+        })
+        ->when($filters['status_id'] ?? null, function ($q, $statusId) {
             $q->whereHas('user', function ($q) use ($statusId) {
                 $q->where('user_status_id', $statusId);
             });
         });
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->whereHas('user', function ($q) {
+            $q->where('is_active', true);
+        });
+    }
+
+    // ==================== ACCESSORS ====================
+
+    public function getOwnerNameAttribute(): ?string
+    {
+        return $this->user->name ?? null;
+    }
+
+    public function getOwnerEmailAttribute(): ?string
+    {
+        return $this->user->email ?? null;
+    }
+
+    public function getOwnerPhoneAttribute(): ?string
+    {
+        return $this->user->phone ?? null;
+    }
+
+    public function getStatusAttribute(): ?string
+    {
+        return $this->user->status->name ?? null;
+    }
+
+    // ==================== BUSINESS METHODS ====================
+
+    /**
+     * Check if studio has active subscription.
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->user && $this->user->activeSubscription()->exists();
+    }
+
+    /**
+     * Get storage usage statistics.
+     */
+    public function getStorageStats(): array
+    {
+        $total = $this->storageLibraries()->sum('storage_limit');
+        $used = $this->storageLibraries()->sum('used_space');
+
+        return [
+            'total' => $total,
+            'used' => $used,
+            'available' => $total - $used,
+            'percentage' => $total > 0 ? round(($used / $total) * 100, 2) : 0,
+        ];
     }
 }

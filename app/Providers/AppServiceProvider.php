@@ -10,6 +10,7 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\UserRepository;
 use App\Services\AuthServiceInterface;
 use App\Services\AuthService;
+use App\Services\DashboardService;
 use App\Services\NotificationService;
 use App\Services\StorageService;
 use Illuminate\Support\Facades\Validator;
@@ -31,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(NotificationService::class);
         $this->app->singleton(StorageService::class);
+        $this->app->singleton(DashboardService::class);
 
         // Register repositories
         $this->registerRepositories();

@@ -1,3 +1,4 @@
+
 @props(['title', 'count' => null])
 
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 mb-6 relative overflow-hidden">
@@ -12,7 +13,7 @@
             </h2>
         </div>
     </div>
-    
+
     <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto relative z-10">
         {{ $slot }}
     </div>

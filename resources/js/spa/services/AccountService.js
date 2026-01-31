@@ -12,14 +12,17 @@ export class AccountService {
      * Get all accounts
      * @returns {Promise<Array<Account>>} - List of accounts
      */
-    static async getAll() {
-        const response = await ApiClient.get(API_ENDPOINTS.ACCOUNTS.LIST);
+    static async getAll(params = {}) {
+        const response = await ApiClient.get(API_ENDPOINTS.ADMIN.USERS.LIST, { params });
         
-        if (response.data && response.data.data && response.data.data.accounts) {
-            return response.data.data.accounts.map(accountData => Account.fromJson(accountData));
+        if (response.data && response.data.data && response.data.data.users) {
+            return {
+                items: response.data.data.users.map(accountData => Account.fromJson(accountData)),
+                meta: response.data.meta || null
+            };
         }
         
-        return [];
+        return { items: [], meta: null };
     }
 
     /**

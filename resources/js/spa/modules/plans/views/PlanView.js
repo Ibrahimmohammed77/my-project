@@ -11,6 +11,7 @@ export class PlanView {
         this.modalTitle = document.getElementById('modal-title');
         this.idInput = document.getElementById('plan-id');
         this.activeToggle = document.getElementById('is_active');
+        this.detailsModal = document.getElementById('plan-details-modal');
     }
 
     showLoading() {
@@ -101,6 +102,13 @@ export class PlanView {
         const actionsCell = DOM.create('td', { className: 'px-6 py-4 text-center' });
         const actionsDiv = DOM.create('div', { className: 'flex items-center justify-center gap-2' });
 
+        const viewBtn = DOM.create('button', {
+            className: 'p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors',
+            title: 'عرض التفاصيل',
+            onclick: () => window.viewPlan?.(plan.id)
+        });
+        viewBtn.appendChild(DOM.create('i', { className: 'fas fa-eye' }));
+
         const editBtn = DOM.create('button', {
             className: 'p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors',
             title: 'تعديل',
@@ -115,6 +123,7 @@ export class PlanView {
         });
         deleteBtn.appendChild(DOM.create('i', { className: 'fas fa-trash' }));
 
+        actionsDiv.appendChild(viewBtn);
         actionsDiv.appendChild(editBtn);
         actionsDiv.appendChild(deleteBtn);
         actionsCell.appendChild(actionsDiv);
@@ -136,6 +145,47 @@ export class PlanView {
     closeModal() {
         this.modal?.classList.add('hidden');
         this.form?.reset();
+    }
+
+    openDetailsModal(plan) {
+        if (!this.detailsModal) return;
+
+        XssProtection.setTextContent(document.getElementById('detail-name'), plan.name);
+        XssProtection.setTextContent(document.getElementById('detail-price-monthly'), `${plan.price_monthly} ريال`);
+        XssProtection.setTextContent(document.getElementById('detail-price-yearly'), `${plan.price_yearly} ريال`);
+        
+        const storageGB = Math.round((plan.storage_limit || 0) / (1024 * 1024 * 1024));
+        XssProtection.setTextContent(document.getElementById('detail-storage'), `${storageGB} جيجابايت`);
+        XssProtection.setTextContent(document.getElementById('detail-description'), plan.description || 'لا يوجد وصف');
+
+        const statusEl = document.getElementById('detail-status');
+        statusEl.textContent = plan.is_active ? 'نشط' : 'غير نشط';
+        statusEl.className = `text-xs font-bold mt-1 ${plan.is_active ? 'text-green-600' : 'text-red-600'}`;
+
+        const featuresList = document.getElementById('detail-features');
+        featuresList.innerHTML = '';
+        (plan.features || []).forEach(feature => {
+            const li = DOM.create('li', { className: 'flex items-center gap-2 text-sm text-gray-600' });
+            li.innerHTML = '<i class="fas fa-check-circle text-accent text-xs"></i>';
+            const span = DOM.create('span');
+            XssProtection.setTextContent(span, feature);
+            li.appendChild(span);
+            featuresList.appendChild(li);
+        });
+
+        const editBtn = document.getElementById('edit-from-details');
+        if (editBtn) {
+            editBtn.onclick = () => {
+                this.closeDetailsModal();
+                window.editPlan(plan.id);
+            };
+        }
+
+        this.detailsModal.classList.remove('hidden');
+    }
+
+    closeDetailsModal() {
+        this.detailsModal?.classList.add('hidden');
     }
 
     populateForm(plan) {

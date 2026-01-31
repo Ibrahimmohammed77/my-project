@@ -52,6 +52,11 @@ export class AccountController {
 
         // Table actions (using event delegation)
         if (this.view.tbody) {
+            DOM.delegate(this.view.tbody, 'click', '[data-action="view"]', (e) => {
+                const accountId = parseInt(e.target.closest('button').dataset.accountId);
+                this.viewAccount(accountId);
+            });
+
             DOM.delegate(this.view.tbody, 'click', '[data-action="edit"]', (e) => {
                 const accountId = parseInt(e.target.closest('button').dataset.accountId);
                 this.editAccount(accountId);
@@ -71,25 +76,19 @@ export class AccountController {
             });
         }
 
-        // Role change
-        const roleSelect = DOM.query('#role_id');
-        if (roleSelect) {
-            roleSelect.addEventListener('change', (e) => {
-                this.handleRoleChange(e.target);
-            });
-        }
     }
 
     /**
      * Load accounts from server
      */
-    async loadAccounts() {
+    async loadAccounts(page = 1) {
         this.view.showLoading();
 
         try {
-            this.accounts = await AccountService.getAll();
+            const response = await AccountService.getAll({ page });
+            this.accounts = response.items;
+            this.metadata = response.meta;
             this.filterAndRender();
-            
         } catch (error) {
             console.error('Failed to load accounts:', error);
             Toast.error('فشل تحميل الحسابات');
@@ -99,11 +98,20 @@ export class AccountController {
     }
 
     /**
+     * Load specific page
+     * @param {number} page - Page number
+     */
+    async loadPage(page) {
+        if (page < 1 || (this.metadata && page > this.metadata.last_page)) return;
+        await this.loadAccounts(page);
+    }
+
+    /**
      * Filter and render accounts
      */
     filterAndRender() {
         const searchInput = DOM.query('#search');
-        const statusFilter = DOM.query('#user_status_id');
+        const statusFilter = DOM.query('#status-filter'); // Fixed ID from #user_status_id
 
         const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
         const status = statusFilter ? statusFilter.value : '';
@@ -120,6 +128,11 @@ export class AccountController {
         });
 
         this.view.render(filtered);
+        
+        // Update pagination UI if metadata exists
+        if (this.metadata) {
+            this.view.renderPagination(this.metadata);
+        }
     }
 
     /**
@@ -147,13 +160,24 @@ export class AccountController {
         this.currentAccount = account;
         this.view.populateForm(account);
         
-        // Handle role change visibility
-        if (account.roles && account.roles[0]) {
-            this.view.updateConditionalFields(account.roles[0].name);
-        }
 
         this.view.openModal('تعديل الحساب');
         clearErrors();
+    }
+
+    /**
+     * View account details
+     * @param {number} accountId - Account ID
+     */
+    async viewAccount(accountId) {
+        const account = this.accounts.find(a => a.id === accountId);
+        
+        if (!account) {
+            Toast.error('الحساب غير موجود');
+            return;
+        }
+
+        this.view.openDetailsModal(account);
     }
 
     /**
@@ -280,29 +304,17 @@ export class AccountController {
         };
     }
 
-    /**
-     * Handle role change
-     * @param {HTMLElement} selectElement 
-     */
-    handleRoleChange(selectElement) {
-        if (!selectElement || !selectElement.options) return;
-        
-        const selectedOption = selectElement.options[selectElement.selectedIndex];
-        if (!selectedOption) return;
-
-        const roleName = selectedOption.getAttribute('data-role-name');
-        if (!roleName) return;
-        
-        this.view.updateConditionalFields(roleName);
-    }
 
     /**
      * Close modal
      */
     closeModal() {
         this.view.closeModal();
-        this.view.updateConditionalFields(''); // Reset fields
         clearErrors();
+    }
+
+    closeDetailsModal() {
+        this.view.closeDetailsModal();
     }
 }
 
@@ -317,6 +329,12 @@ if (typeof window !== 'undefined') {
     window.closeAccountModal = function() {
         if (window.accountController) {
             window.accountController.closeModal();
+        }
+    };
+
+    window.closeDetailsModal = function() {
+        if (window.accountController) {
+            window.accountController.closeDetailsModal();
         }
     };
 }

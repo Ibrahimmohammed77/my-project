@@ -2,46 +2,29 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-
-class UpdateStudioRequest extends FormRequest
+class UpdateStudioRequest extends BaseStudioSchoolRequest
 {
-    public function authorize(): bool
+    /**
+     * Get the entity type.
+     */
+    protected function entityType(): string
     {
-        return true;
+        return 'studio';
     }
 
-    public function rules(): array
+    /**
+     * Get the required permission.
+     */
+    protected function permission(): string
     {
-        $userId = $this->route('studio') ? $this->route('studio')->user_id : null;
+        return 'manage_studios';
+    }
 
-        return [
-            'name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($userId),
-            ],
-            'phone' => [
-                'nullable',
-                'string',
-                'yemeni_phone',
-                Rule::unique('users', 'phone')->ignore($userId),
-            ],
-            'studio_status_id' => 'required|exists:lookup_values,lookup_value_id,is_active,1',
-            'username' => [
-                'nullable',
-                'string',
-                'username_format',
-                'max:255',
-                Rule::unique('users', 'username')->ignore($userId),
-            ],
-            'password' => 'nullable|string|min:8|strong_password',
-            'city' => 'nullable|string|max:100',
-            'address' => 'nullable|string',
-        ];
+    /**
+     * Get the status field name.
+     */
+    protected function statusField(): string
+    {
+        return 'studio_status_id';
     }
 }

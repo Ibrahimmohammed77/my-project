@@ -1,11 +1,11 @@
-import axios from 'axios';
-import { Role } from '../models/Role';
+import ApiClient from '../core/api/ApiClient.js';
+import { Role } from '../models/Role.js';
 
 export class RoleService {
     static async getAll() {
         try {
-            const response = await axios.get('/roles');
-            return response.data.data.roles.map(roleData => Role.fromJson(roleData));
+            const response = await ApiClient.get('/admin/roles');
+            return response.data?.data?.roles?.map(roleData => Role.fromJson(roleData)) || [];
         } catch (error) {
             console.error('Error fetching roles:', error);
             throw error;
@@ -14,7 +14,8 @@ export class RoleService {
 
     static async create(role) {
         try {
-            const response = await axios.post('/roles', role.toJson());
+            const data = role instanceof Role ? role.toJson() : role;
+            const response = await ApiClient.post('/admin/roles', data);
             return response.data;
         } catch (error) {
             console.error('Error creating role:', error);
@@ -24,7 +25,8 @@ export class RoleService {
 
     static async update(id, role) {
         try {
-            const response = await axios.put(`/roles/${id}`, role.toJson());
+            const data = role instanceof Role ? role.toJson() : role;
+            const response = await ApiClient.put(`/admin/roles/${id}`, data);
             return response.data;
         } catch (error) {
             console.error('Error updating role:', error);
@@ -34,10 +36,13 @@ export class RoleService {
 
     static async delete(id) {
         try {
-            await axios.delete(`/roles/${id}`);
+            await ApiClient.delete(`/admin/roles/${id}`);
+            return true;
         } catch (error) {
             console.error('Error deleting role:', error);
             throw error;
         }
     }
 }
+
+export default RoleService;

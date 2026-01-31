@@ -25,7 +25,80 @@
         <!-- JS renders rows here -->
     </x-table>
 
+    <!-- Plan Details Modal -->
+    <div id="plan-details-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" onclick="closeDetailsModal()"></div>
+
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-2xl bg-white text-right shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
+                <!-- Modal Header -->
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-accent rounded-full"></span>
+                        <span>تفاصيل خطة الاشتراك</span>
+                    </h3>
+                    <button onclick="closeDetailsModal()" class="text-gray-400 hover:text-gray-500 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="px-6 py-6 text-right space-y-6">
+                    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
+                            <i class="fas fa-layer-group text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 id="detail-name" class="text-lg font-bold text-gray-900"></h4>
+                            <p id="detail-status" class="text-xs font-bold mt-1"></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <p class="text-xs text-gray-500 mb-1">السعر الشهري</p>
+                            <p id="detail-price-monthly" class="text-lg font-bold text-gray-900"></p>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <p class="text-xs text-gray-500 mb-1">السعر السنوي</p>
+                            <p id="detail-price-yearly" class="text-lg font-bold text-gray-900"></p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <p class="text-xs text-gray-500 mb-2">مساحة التخزين</p>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-accent w-full"></div>
+                            </div>
+                            <span id="detail-storage" class="text-sm font-bold text-gray-900"></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-xs text-gray-500 mb-2 font-bold">المميزات</p>
+                        <ul id="detail-features" class="space-y-2">
+                            <!-- Features will be injected here -->
+                        </ul>
+                    </div>
+
+                    <div>
+                        <p class="text-xs text-gray-500 mb-2 font-bold">الوصف</p>
+                        <p id="detail-description" class="text-sm text-gray-600 leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex flex-row-reverse gap-3">
+                    <button type="button" onclick="closeDetailsModal()" class="w-full sm:w-auto justify-center rounded-xl border border-gray-200 bg-white px-8 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-gray-900 active:scale-95 transition-all">إغلاق</button>
+                    <button id="edit-from-details" class="w-full sm:w-auto justify-center rounded-xl bg-accent px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-accent/20 hover:bg-accent-hover active:scale-95 transition-all">تعديل الخطة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Plan Modal -->
+
     <div id="plan-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
 

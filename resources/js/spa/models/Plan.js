@@ -1,6 +1,6 @@
 export class Plan {
     constructor(data = {}) {
-        this.id = data.plan_id;
+        this.plan_id = data.plan_id;
         this.name = data.name;
         this.description = data.description;
         this.storage_limit = data.storage_limit;

@@ -1,9 +1,9 @@
-import axios from 'axios';
+import ApiClient from '../core/api/ApiClient.js';
 
 export class StudioAlbumService {
     static async getAll() {
         try {
-            const response = await axios.get('/studio/albums');
+            const response = await ApiClient.get('/studio/albums');
             return response.data.data.albums;
         } catch (error) {
             console.error('Error fetching studio albums:', error);
@@ -13,7 +13,7 @@ export class StudioAlbumService {
 
     static async create(data) {
         try {
-            const response = await axios.post('/studio/albums', data);
+            const response = await ApiClient.post('/studio/albums', data);
             return response.data;
         } catch (error) {
             console.error('Error creating album:', error);
@@ -23,7 +23,7 @@ export class StudioAlbumService {
 
     static async update(id, data) {
         try {
-            const response = await axios.put(`/studio/albums/${id}`, data);
+            const response = await ApiClient.put(`/studio/albums/${id}`, data);
             return response.data;
         } catch (error) {
             console.error('Error updating album:', error);
@@ -33,7 +33,7 @@ export class StudioAlbumService {
 
     static async delete(id) {
         try {
-            const response = await axios.delete(`/studio/albums/${id}`);
+            const response = await ApiClient.delete(`/studio/albums/${id}`);
             return response.data;
         } catch (error) {
             console.error('Error deleting album:', error);
@@ -41,3 +41,5 @@ export class StudioAlbumService {
         }
     }
 }
+
+export default StudioAlbumService;

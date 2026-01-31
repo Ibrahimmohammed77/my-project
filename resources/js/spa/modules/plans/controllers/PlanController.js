@@ -50,6 +50,12 @@ export class PlanController {
         this.view.populateForm(plan);
     }
 
+    viewPlan(id) {
+        const plan = this.plans.find(p => p.id === id);
+        if (!plan) return;
+        this.view.openDetailsModal(plan);
+    }
+
     async deletePlan(id) {
         if (!confirm('هل أنت متأكد من حذف هذه الخطة؟')) return;
         Toast.info('جاري الحذف...');
@@ -120,6 +126,10 @@ export class PlanController {
 
     closeModal() {
         this.view.closeModal();
+    }
+
+    closeDetailsModal() {
+        this.view.closeDetailsModal();
     }
 }
 

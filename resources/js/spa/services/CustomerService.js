@@ -1,10 +1,10 @@
-import axios from 'axios';
-import { Customer } from '../models/Customer';
+import ApiClient from '../core/api/ApiClient.js';
+import { Customer } from '../models/Customer.js';
 
 export class CustomerService {
     static async getAll() {
         try {
-            const response = await axios.get('/customers');
+            const response = await ApiClient.get('/admin/customers');
             return response.data.data.customers.map(data => Customer.fromJson(data));
         } catch (error) {
             console.error('Error fetching customers:', error);
@@ -14,7 +14,8 @@ export class CustomerService {
 
     static async create(customer) {
         try {
-            const response = await axios.post('/customers', customer.toJson());
+            const data = customer instanceof Customer ? customer.toJson() : customer;
+            const response = await ApiClient.post('/admin/customers', data);
             return response.data;
         } catch (error) {
             console.error('Error creating customer:', error);
@@ -24,7 +25,8 @@ export class CustomerService {
 
     static async update(id, customer) {
         try {
-            const response = await axios.put(`/customers/${id}`, customer.toJson());
+            const data = customer instanceof Customer ? customer.toJson() : customer;
+            const response = await ApiClient.put(`/admin/customers/${id}`, data);
             return response.data;
         } catch (error) {
             console.error('Error updating customer:', error);
@@ -34,10 +36,13 @@ export class CustomerService {
 
     static async delete(id) {
         try {
-            await axios.delete(`/customers/${id}`);
+            await ApiClient.delete(`/admin/customers/${id}`);
+            return true;
         } catch (error) {
             console.error('Error deleting customer:', error);
             throw error;
         }
     }
 }
+
+export default CustomerService;

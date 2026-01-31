@@ -3,88 +3,70 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\CreateUserRequest;
-use App\UseCases\Admin\CreateUserUseCase;
-use App\UseCases\Admin\ListUsersUseCase;
-use App\UseCases\Admin\UpdateUserUseCase;
-use App\UseCases\Admin\DeleteUserUseCase;
-use App\Http\Requests\Admin\UpdateUserRequest;
-use App\Models\User;
-use App\Models\Role;
-use App\Models\LookupValue;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\Admin\{CreateUserRequest, UpdateUserRequest};
+use App\Services\Admin\UserService;
+use App\Models\{User, Role, LookupValue};
+use App\Traits\{HasApiResponse, MapsRoleToType};
+use Illuminate\Http\{Request, RedirectResponse, JsonResponse};
 use Illuminate\View\View;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-    use \App\Traits\MapsRoleToType;
-
-    protected $createUserUseCase;
-    protected $listUsersUseCase;
-    protected $updateUserUseCase;
-    protected $deleteUserUseCase;
+    use HasApiResponse, MapsRoleToType;
 
     public function __construct(
-        CreateUserUseCase $createUserUseCase,
-        ListUsersUseCase $listUsersUseCase,
-        UpdateUserUseCase $updateUserUseCase,
-        DeleteUserUseCase $deleteUserUseCase
-    ) {
-        $this->createUserUseCase = $createUserUseCase;
-        $this->listUsersUseCase = $listUsersUseCase;
-        $this->updateUserUseCase = $updateUserUseCase;
-        $this->deleteUserUseCase = $deleteUserUseCase;
-    }
+        protected UserService $userService
+    ) {}
 
     /**
      * Display a listing of the users.
      */
-    public function index(Request $request)
+    public function index(Request $request): View|JsonResponse
     {
-        $filters = $request->only(['search', 'role_id', 'status_id', 'type_id']);
+        $filters = $request->only(['search', 'status_id']);
         
-        // If no role filter is applied, exclude Schools and Studios from general list
-        if (!isset($filters['role_id'])) {
-            $excludedRoles = Role::whereIn('name', ['studio_owner', 'school_owner'])->pluck('role_id')->toArray();
-            $filters['exclude_roles'] = $excludedRoles;
+        // Force filter to only show 'customer' role
+        $customerRole = Role::where('name', 'customer')->first();
+        if ($customerRole) {
+            $filters['role_id'] = $customerRole->role_id;
         }
 
-        $users = $this->listUsersUseCase->execute($filters, $request->get('per_page', 15));
-
-        $roles = Role::where('name', '!=', 'super_admin')
-            ->where('is_active', true)
-            ->get();
-            
-        $statuses = LookupValue::whereHas('master', function ($q) {
-            $q->where('code', 'USER_STATUS');
-        })->where('is_active', true)->get();
-
-        $schoolTypes = LookupValue::whereHas('master', function ($q) {
-            $q->where('code', 'SCHOOL_TYPE');
-        })->where('is_active', true)->get();
-
-        $schoolLevels = LookupValue::whereHas('master', function ($q) {
-            $q->where('code', 'SCHOOL_LEVEL');
-        })->where('is_active', true)->get();
+        $users = $this->userService->listUsers($filters, $request->get('per_page', 15));
 
         if ($request->wantsJson()) {
-            return $this->paginatedResponse($users, 'accounts');
+            return $this->paginatedResponse($users, 'users');
         }
 
-        return view('spa.accounts.index', compact('users', 'roles', 'statuses', 'filters', 'schoolTypes', 'schoolLevels'));
+        return view('spa.accounts.index', $this->getViewData($users, $filters));
+    }
+
+    /**
+     * Search users for selection.
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $query = $request->get('q', $request->get('search'));
+        
+        $users = $this->userService->listUsers([
+            'search' => $query,
+            'is_active' => true
+        ], 10);
+
+        return $this->successResponse([
+            'users' => $users->items()
+        ]);
     }
 
     /**
      * Store a newly created user.
      */
-    public function store(CreateUserRequest $request)
+    public function store(CreateUserRequest $request): JsonResponse|RedirectResponse
     {
         try {
             $data = $request->validated();
-            
-            // Determine User Type from Role
+
             if (isset($data['role_id'])) {
                 $typeId = $this->getUserTypeIdFromRole($data['role_id']);
                 if ($typeId) {
@@ -92,62 +74,50 @@ class UserController extends Controller
                 }
             }
 
-            $user = $this->createUserUseCase->execute($data);
-            
+            $user = $this->userService->createUser($data);
+
             if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'تم إنشاء المستخدم بنجاح',
-                    'data' => ['user' => $user->load(['roles', 'status', 'type'])]
-                ], 201);
+                return $this->successResponse(
+                    ['user' => $user->load(['roles', 'status', 'type'])],
+                    'تم إنشاء المستخدم بنجاح',
+                    201
+                );
             }
-            
+
             return redirect()->route('spa.accounts')->with('success', 'تم إنشاء المستخدم بنجاح');
         } catch (\Exception $e) {
             Log::error('Error creating user: ' . $e->getMessage());
-            
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'حدث خطأ أثناء إنشاء المستخدم',
-                    'error' => $e->getMessage()
-                ], 500);
-            }
-            
-            return back()->with('error', 'حدث خطأ أثناء إنشاء المستخدم')->withInput();
+
+            return $this->handleError($e, $request, 'حدث خطأ أثناء إنشاء المستخدم');
         }
     }
 
     /**
      * Show the form for editing the specified user.
      */
-    public function edit(User $user)
+    public function edit(User $user): View|JsonResponse
     {
-        $roles = Role::all();
-        $statuses = LookupValue::whereHas('master', function ($q) {
-            $q->where('code', 'USER_STATUS');
-        })->get();
+        $data = [
+            'user' => $user->load('roles'),
+            'roles' => Role::all(),
+            'statuses' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'USER_STATUS'))->get()
+        ];
 
         if (request()->wantsJson()) {
-             return response()->json([
-                'user' => $user->load('roles'),
-                'roles' => $roles,
-                'statuses' => $statuses
-            ]);
+            return $this->successResponse($data);
         }
 
-        return view('spa.accounts.edit', compact('user', 'roles', 'statuses'));
+        return view('spa.accounts.edit', $data);
     }
 
     /**
      * Update the specified user in storage.
      */
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, User $user): JsonResponse|RedirectResponse
     {
         try {
             $data = $request->validated();
 
-            // Determine User Type from Role
             if (isset($data['role_id'])) {
                 $typeId = $this->getUserTypeIdFromRole($data['role_id']);
                 if ($typeId) {
@@ -155,60 +125,82 @@ class UserController extends Controller
                 }
             }
 
-            $updatedUser = $this->updateUserUseCase->execute($user, $data);
-            
+            $updatedUser = $this->userService->updateUser($user, $data);
+
             if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'تم تحديث بيانات المستخدم بنجاح',
-                    'data' => ['user' => $updatedUser->load(['roles', 'status', 'type'])]
-                ]);
+                return $this->successResponse(
+                    ['user' => $updatedUser->load(['roles', 'status', 'type'])],
+                    'تم تحديث بيانات المستخدم بنجاح'
+                );
             }
-            
+
             return redirect()->back()->with('success', 'تم تحديث بيانات المستخدم بنجاح');
         } catch (\Exception $e) {
             Log::error('Error updating user: ' . $e->getMessage());
-            
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'حدث خطأ أثناء تحديث بيانات المستخدم',
-                    'error' => $e->getMessage()
-                ], 500);
-            }
-            
-            return back()->with('error', 'حدث خطأ أثناء تحديث بيانات المستخدم')->withInput();
+
+            return $this->handleError($e, $request, 'حدث خطأ أثناء تحديث بيانات المستخدم');
         }
     }
 
     /**
      * Remove the specified user from storage.
      */
-    public function destroy(User $user)
+    public function destroy(User $user): JsonResponse|RedirectResponse
     {
         try {
-            $this->deleteUserUseCase->execute($user);
-            
+            $this->userService->deleteUser($user);
+
             if (request()->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'تم حذف المستخدم بنجاح'
-                ]);
+                return $this->successResponse(
+                    null,
+                    'تم حذف المستخدم بنجاح'
+                );
             }
-            
+
             return redirect()->route('spa.accounts')->with('success', 'تم حذف المستخدم بنجاح');
         } catch (\Exception $e) {
             Log::error('Error deleting user: ' . $e->getMessage());
-            
-            if (request()->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'حدث خطأ أثناء حذف المستخدم',
-                    'error' => $e->getMessage()
-                ], 500);
-            }
-            
-            return back()->with('error', 'حدث خطأ أثناء حذف المستخدم');
+
+            return $this->handleError($e, request(), 'حدث خطأ أثناء حذف المستخدم');
         }
+    }
+
+    /**
+     * Get data for view.
+     */
+    private function getViewData(LengthAwarePaginator $users, array $filters): array
+    {
+        return [
+            'users' => $users,
+            'roles' => Role::where('name', '!=', 'super_admin')
+                ->where('is_active', true)
+                ->get(),
+            'statuses' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'USER_STATUS'))
+                ->where('is_active', true)
+                ->get(),
+            'schoolTypes' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'SCHOOL_TYPE'))
+                ->where('is_active', true)
+                ->get(),
+            'schoolLevels' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'SCHOOL_LEVEL'))
+                ->where('is_active', true)
+                ->get(),
+            'filters' => $filters
+        ];
+    }
+
+    /**
+     * Handle errors consistently.
+     */
+    private function handleError(\Exception $e, Request $request, string $message): JsonResponse|RedirectResponse
+    {
+        if ($request->wantsJson()) {
+            return $this->errorResponse(
+                $message,
+                500,
+                ['error' => config('app.debug') ? $e->getMessage() : null]
+            );
+        }
+
+        return back()->with('error', $message)->withInput();
     }
 }

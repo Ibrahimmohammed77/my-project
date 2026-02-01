@@ -11,11 +11,15 @@ import { showErrors, clearErrors } from '../../../utils/toast.js';
 
 export class SubscriptionController {
     constructor() {
+        console.log('[SubscriptionController] Initializing v1.1 - Force Refresh');
         this.subscriptions = [];
         this.view = new SubscriptionView();
         this.currentSubscription = null;
         this.plans = [];
         this.usersCache = new Map();
+
+        // Force global instance update
+        window.subscriptionController = this;
 
         this.init();
     }
@@ -32,26 +36,22 @@ export class SubscriptionController {
     }
 
     attachEventListeners() {
-        // Search input
-        const searchInput = DOM.query('#search');
-        if (searchInput) {
-            searchInput.addEventListener('input', debounce(() => {
-                this.filterAndRender();
+        // Expose method for manual triggering from Blade
+        window.subscriptionController = this;
+
+        // Plan filter input
+        const planFilterInput = DOM.query('#plan-filter-input');
+        if (planFilterInput) {
+            planFilterInput.addEventListener('input', debounce((e) => {
+                this.searchPlans(e.target.value, 'filter');
             }, 300));
         }
 
-        // Filters
-        const planFilter = DOM.query('#plan-filter');
-        if (planFilter) {
-            planFilter.addEventListener('change', () => {
-                this.filterAndRender();
-            });
-        }
-
+        // Status Filter
         const statusFilter = DOM.query('#status-filter');
         if (statusFilter) {
             statusFilter.addEventListener('change', () => {
-                this.filterAndRender();
+                this.triggerFilter(); // Trigger server-side filter
             });
         }
 
@@ -82,11 +82,27 @@ export class SubscriptionController {
             });
         }
 
-        // User search
-        const userSearchInput = document.getElementById('user-search');
-        if (userSearchInput) {
-            userSearchInput.addEventListener('input', debounce((e) => {
-                this.searchUsers(e.target.value);
+        // User filter search input
+        const userFilterInput = document.getElementById('user-filter-input');
+        if (userFilterInput) {
+            userFilterInput.addEventListener('input', debounce((e) => {
+                this.searchUsers(e.target.value, this.filterRole, 'filter');
+            }, 300));
+        }
+
+        // Modal user search input
+        const modalUserInput = document.getElementById('modal-user-input');
+        if (modalUserInput) {
+            modalUserInput.addEventListener('input', debounce((e) => {
+                this.searchUsers(e.target.value, this.modalRole, 'modal');
+            }, 300));
+        }
+
+        // Modal plan search input
+        const modalPlanInput = document.getElementById('modal-plan-input');
+        if (modalPlanInput) {
+            modalPlanInput.addEventListener('input', debounce((e) => {
+                this.searchPlans(e.target.value, 'modal');
             }, 300));
         }
 
@@ -106,48 +122,28 @@ export class SubscriptionController {
         });
     }
 
+    setFilterRole(role) {
+        this.filterRole = role;
+        this.selectedFilterUser = null; // Reset specific user filter
+        this.triggerFilter(); // Re-render table with new role filter
+    }
+
+    setModalRole(role) {
+        this.modalRole = role;
+    }
+
     async loadPlans() {
         try {
             this.plans = await SubscriptionService.getPlans();
-            this.populatePlanOptions();
+            this.view.populatePlanDropdown(this.plans, 'filter'); // Populate filter
+            this.view.populatePlanDropdown(this.plans, 'modal'); // Populate modal
         } catch (error) {
             console.error('Failed to load plans:', error);
             Toast.error('فشل تحميل الخطط');
         }
     }
 
-    populatePlanOptions() {
-        const planSelect = document.getElementById('plan_id');
-        const planFilter = document.getElementById('plan-filter');
-
-        // Clear existing options except first
-        if (planSelect) {
-            while (planSelect.options.length > 1) {
-                planSelect.remove(1);
-            }
-            this.plans.forEach(plan => {
-                const option = document.createElement('option');
-                option.value = plan.plan_id;
-                option.textContent = plan.name;
-                option.setAttribute('data-price-monthly', plan.price_monthly || 0);
-                option.setAttribute('data-price-yearly', plan.price_yearly || 0);
-                planSelect.appendChild(option);
-            });
-        }
-
-        if (planFilter) {
-            while (planFilter.options.length > 1) {
-                planFilter.remove(1);
-            }
-            this.plans.forEach(plan => {
-                const option = document.createElement('option');
-                option.value = plan.plan_id;
-                option.textContent = plan.name;
-                planFilter.appendChild(option);
-            });
-        }
-    }
-
+    
     async loadPage(page) {
         if (page < 1 || (this.metadata && page > this.metadata.last_page)) return;
         await this.loadSubscriptions(page);
@@ -174,12 +170,21 @@ export class SubscriptionController {
     getFilters() {
         const filters = {};
 
-        const searchInput = DOM.query('#search');
-        if (searchInput?.value) filters.search = searchInput.value;
+        // If specific user selected
+        if (this.selectedFilterUser) {
+            filters.user_id = this.selectedFilterUser.id;
+        } else if (this.filterRole) {
+            // Or just role
+            filters.roles = [this.filterRole];
+        }
 
-        const planFilter = DOM.query('#plan-filter');
-        if (planFilter?.value) filters.plan_id = planFilter.value;
+        // Plan Filter
+        const planFilterLabel = document.getElementById('plan-filter-label');
+        if (planFilterLabel && planFilterLabel.dataset.planId) {
+            filters.plan_id = planFilterLabel.dataset.planId;
+        }
 
+        // Status Filter
         const statusFilter = DOM.query('#status-filter');
         if (statusFilter?.value) filters.status_id = statusFilter.value;
 
@@ -187,55 +192,105 @@ export class SubscriptionController {
     }
 
     filterAndRender() {
-        const searchInput = DOM.query('#search');
-        const planFilter = DOM.query('#plan-filter');
+        // Backend filtering is preferred, but for client-side search/filter updates:
         const statusFilter = DOM.query('#status-filter');
-
-        const searchTerm = (searchInput?.value || '').toLowerCase();
-        const planValue = planFilter?.value || '';
         const statusValue = statusFilter?.value || '';
 
-        const filtered = this.subscriptions.filter(subscription => {
-            const matchesSearch = !searchTerm ||
-                (subscription.user?.name && subscription.user.name.toLowerCase().includes(searchTerm)) ||
-                (subscription.user?.email && subscription.user.email.toLowerCase().includes(searchTerm));
+        // If we are relying on backend pagination, we should reload.
+        // But for consistency with previous implementation, we will filter loaded items too.
 
-            const matchesPlan = !planValue ||
-                (subscription.plan_id && subscription.plan_id.toString() === planValue);
+        let filtered = this.subscriptions;
 
-            const matchesStatus = !statusValue ||
-                (subscription.status?.lookup_value_id && subscription.status.lookup_value_id.toString() === statusValue);
+        if (statusValue) {
+            filtered = filtered.filter(s => s.status?.lookup_value_id && s.status.lookup_value_id.toString() === statusValue);
+        }
 
-            return matchesSearch && matchesPlan && matchesStatus;
-        });
+        // If role/user filters changed, we optimally should reload from server.
+        // For now, let's trigger a server reload if this method is called from a filter change event.
+        // Since getFilters() reads the current state, loadSubscriptions() is the right call.
+        // But to avoid infinite loops, we need to be careful.
+
+        // Actually, let's just render what we have if it matches, to feel "instant",
+        // AND trigger a background fetch? Or just rely on loadSubscriptions being called explicitly?
+        // Let's call loadSubscriptions for filter changes.
+
+        // Wait, filterAndRender is bound to status change.
+        // Let's modify logic:
 
         this.view.render(filtered);
 
-        // Update pagination UI if it exists in view
         if (this.metadata && typeof this.view.renderPagination === 'function') {
             this.view.renderPagination(this.metadata);
         }
     }
 
-    async searchUsers(query) {
-        if (query.length < 2) {
-            this.view.hideUserResults();
+    // Override filterAndRender to actually fetch data for real filtering
+    async triggerFilter() {
+        await this.loadSubscriptions(1);
+    }
+
+    async searchUsers(query, role, context) {
+        console.log(`[SubscriptionController] searchUsers called with query: '${query}', role: '${role}', context: '${context}'`);
+        const spinnerId = context === 'filter' ? 'user-filter-spinner' : 'modal-user-spinner';
+        
+        // Only require 2 chars if NO role is selected
+        if (!role && query.length < 2) {
+            console.log('[SubscriptionController] Query too short and no role selected, clearing results.');
+            this.view.renderUserResults([], context); // Clear results
             return;
         }
 
-        // Check cache first
-        if (this.usersCache.has(query)) {
-            this.view.showUserResults(this.usersCache.get(query));
-            return;
-        }
+        this.view.toggleSpinner(spinnerId, true);
 
         try {
-            const users = await SubscriptionService.searchUsers(query);
-            this.usersCache.set(query, users);
-            this.view.showUserResults(users);
+            // Determine roles to search
+            const roles = role ? role : null;
+            
+            console.log(`[SubscriptionController] Calling SubscriptionService.searchUsers with query: '${query}', roles:`, roles);
+            const users = await SubscriptionService.searchUsers(query, roles);
+            console.log(`[SubscriptionController] Received ${users.length} users from service.`);
+            
+            if (users.length === 0) {
+                 // Optional: Toast.info('لم يتم العثور على مستخدمين');
+                 console.warn('[SubscriptionController] No users found for criteria.');
+            }
+
+            this.view.renderUserResults(users, context);
         } catch (error) {
-            console.error('Error searching users:', error);
-            this.view.hideUserResults();
+            console.error('[SubscriptionController] Error searching users:', error);
+            Toast.error('حدث خطأ أثناء البحث عن المستخدمين');
+            
+            // Critical: Clear "Loading..." state from container
+            const containerId = context === 'filter' ? 'user-filter-results' : 'modal-user-results';
+            const container = document.getElementById(containerId);
+            if(container) {
+                container.innerHTML = `
+                    <div class="p-4 text-center text-red-500 text-xs">
+                        <i class="fas fa-exclamation-circle mb-1"></i>
+                        <br>
+                        فشل جلب البيانات. يرجى المحاولة مرة أخرى.
+                    </div>
+                `;
+            }
+        } finally {
+            this.view.toggleSpinner(spinnerId, false);
+        }
+    }
+
+    async searchPlans(query, context) {
+        const spinnerId = context === 'filter' ? 'plan-filter-spinner' : 'modal-plan-spinner'; // Assuming modal plan search might exist
+        this.view.toggleSpinner(spinnerId, true);
+
+        try {
+            // Filter plans already loaded
+            const filteredPlans = this.plans.filter(plan =>
+                plan.name.toLowerCase().includes(query.toLowerCase())
+            );
+            this.view.renderPlanResults(filteredPlans, context);
+        } catch (error) {
+            console.error('Error searching plans:', error);
+        } finally {
+            this.view.toggleSpinner(spinnerId, false);
         }
     }
 
@@ -333,6 +388,10 @@ export class SubscriptionController {
     getFormData() {
         if (!this.view.form) return {};
         const formData = DOM.getFormData(this.view.form);
+        
+        // Explicitly convert checkbox value to boolean
+        formData.auto_renew = !!formData.auto_renew;
+        
         return formData;
     }
 

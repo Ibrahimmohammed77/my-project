@@ -55,9 +55,17 @@ export class SubscriptionService {
         }
     }
 
-    static async searchUsers(query) {
+    static async searchUsers(query, role = null) {
         try {
-            const response = await ApiClient.get('/admin/users/search', { params: { q: query } });
+            const params = { q: query };
+            
+            if (role) {
+                params.roles = [role];
+            } else {
+                params.roles = ['customer', 'studio_owner', 'school_owner'];
+            }
+
+            const response = await ApiClient.get('/admin/users/search', { params });
             return response.data?.data?.users || [];
         } catch (error) {
             console.error('Error searching users:', error);
@@ -65,9 +73,10 @@ export class SubscriptionService {
         }
     }
 
+
     static async getPlans() {
         try {
-            const response = await ApiClient.get('/admin/plans', { params: { is_active: true } });
+            const response = await ApiClient.get('/admin/plans', { params: { is_active: 1, per_page: 100 } });
             return response.data?.data?.plans || [];
         } catch (error) {
             console.error('Error fetching plans:', error);

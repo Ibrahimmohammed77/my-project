@@ -5,8 +5,8 @@
 @section('content')
     <x-page-header 
         title="إدارة الاستوديوهات" 
-        subtitle="إدارة بيانات الاستوديوهات المشتركة في النظام، تفعيل الحسابات ومتابعة استهلاك المساحة."
-        :breadcrumbs="[['label' => 'إدارة الحسابات', 'url' => route('spa.accounts')], ['label' => 'الاستوديوهات']]"
+        subtitle=""
+        :breadcrumbs="[['label' => 'إدارة الأستوديوهات', 'url' => route('spa.studios')], ['label' => 'الاستوديوهات']]"
     >
         <!-- Search -->
         <div class="relative min-w-[240px]">

@@ -5,8 +5,8 @@
 @section('content')
     <x-page-header 
         title="إدارة المدارس" 
-        subtitle="إدارة بيانات المدارس، تنظيم مجموعات الكروت وتوزيعها على الفروع والأقسام."
-        :breadcrumbs="[['label' => 'إدارة الحسابات', 'url' => route('spa.accounts')], ['label' => 'المدارس']]"
+        subtitle=""
+        :breadcrumbs="[['label' => 'إدارة الحسابات', 'url' => route('spa.schools')], ['label' => 'المدارس']]"
     >
         <!-- Search -->
         <div class="relative min-w-[240px]">

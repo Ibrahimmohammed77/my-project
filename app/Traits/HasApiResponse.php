@@ -22,7 +22,9 @@ trait HasApiResponse
             $response['data'] = $data;
         }
 
-        return response()->json($response, $status);
+        return response()->json($response, $status)
+            ->header('Vary', 'X-Requested-With')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     }
 
     /**
@@ -50,7 +52,8 @@ trait HasApiResponse
                 'prev' => $paginator->previousPageUrl(),
                 'next' => $paginator->nextPageUrl(),
             ]
-        ]);
+        ])->header('Vary', 'X-Requested-With')
+          ->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     }
 
     /**
@@ -67,6 +70,8 @@ trait HasApiResponse
             $response['errors'] = $errors;
         }
 
-        return response()->json($response, $status);
+        return response()->json($response, $status)
+            ->header('Vary', 'X-Requested-With')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     }
 }

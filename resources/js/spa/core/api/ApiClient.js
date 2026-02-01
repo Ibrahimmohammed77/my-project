@@ -35,6 +35,14 @@ export class ApiClient {
                     config.headers['X-CSRF-TOKEN'] = csrfToken;
                 }
 
+                // Add cache-busting timestamp for GET requests
+                if (config.method === 'get') {
+                    config.params = {
+                        ...config.params,
+                        _t: Date.now()
+                    };
+                }
+
                 // Log request in development
                 if (process.env.NODE_ENV === 'development') {
                     console.log(`[API] ${config.method.toUpperCase()} ${config.url}`, config.data);

@@ -18,6 +18,7 @@ class StorageLibrary extends Model
         'user_id',
         'name',
         'description',
+        'hidden_album_id',
         'storage_limit',
     ];
 
@@ -63,6 +64,38 @@ class StorageLibrary extends Model
     public function albums()
     {
         return $this->hasMany(Album::class, 'storage_library_id', 'storage_library_id');
+    }
+
+    /**
+     * علاقة الألبوم المخفي
+     */
+    public function hiddenAlbum()
+    {
+        return $this->belongsTo(Album::class, 'hidden_album_id', 'album_id');
+    }
+
+    /**
+     * علاقة الكروت المرتبطة بمكتبة التخزين
+     */
+    public function cards()
+    {
+        return $this->hasMany(Card::class, 'storage_library_id', 'storage_library_id');
+    }
+
+    /**
+     * التحقق من وجود ألبوم مخفي
+     */
+    public function hasHiddenAlbum(): bool
+    {
+        return !is_null($this->hidden_album_id);
+    }
+
+    /**
+     * الحصول على عدد الكروت
+     */
+    public function getCardCountAttribute(): int
+    {
+        return $this->cards()->count();
     }
 
     /**

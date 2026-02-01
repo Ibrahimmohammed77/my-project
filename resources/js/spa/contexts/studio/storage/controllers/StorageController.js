@@ -1,13 +1,11 @@
-import StudioStorageService from '../../../../shared/services/StudioStorageService.js';
+import { StorageLibraryService } from '../../../../shared/services/StorageLibraryService.js';
 import { StorageView } from '../views/StorageView.js';
 import { Toast } from '../../../../core/ui/Toast.js';
-import { InputValidator } from '../../../../core/security/InputValidator.js';
 
 export class StorageController {
     constructor() {
         this.view = new StorageView();
         this.libraries = [];
-        this.customers = [];
         this.init();
     }
 
@@ -15,7 +13,7 @@ export class StorageController {
         this.view.bindSearch(this.handleSearch.bind(this));
         this.view.bindSubmit(this.handleSubmit.bind(this));
 
-        // Global functions for view events if needed (or cleaner event delegation)
+        // Global functions for view events
         window.storageController = this;
         window.showCreateModal = () => this.view.openCreateModal();
         window.closeModal = () => this.view.closeModal();
@@ -25,29 +23,20 @@ export class StorageController {
 
     async loadData() {
         try {
-            [this.libraries, this.customers] = await Promise.all([
-                StudioStorageService.getAll(),
-                StudioStorageService.getCustomers()
-            ]);
-            
+            this.libraries = await StorageLibraryService.getAll();
             this.view.renderTable(this.libraries);
-            this.view.populateSubscribers(this.customers);
         } catch (error) {
-            Toast.error('خطأ في تحميل البيانات');
+            console.error('Error loading libraries:', error);
+            Toast.error('خطأ في تحميل مكتبات التخزين');
         }
     }
 
     async handleSubmit(data, id) {
-        // Validation
+        // Simple validation
         const errors = {};
-        if (!InputValidator.validate(data.name, 'required')) {
+        
+        if (!data.name || data.name.trim() === '') {
             errors.name = ['اسم المكتبة مطلوب'];
-        }
-        if (!data.storage_limit || Number(data.storage_limit) <= 0) {
-            errors.storage_limit = ['المساحة يجب أن تكون أكبر من 0'];
-        }
-        if (!id && !data.subscriber_id) {
-            errors.subscriber_id = ['يجب اختيار مشترك'];
         }
 
         if (Object.keys(errors).length > 0) {
@@ -58,22 +47,22 @@ export class StorageController {
         try {
             this.view.setLoading(true);
             let response;
+            
             if (id) {
-                response = await StudioStorageService.update(id, data);
+                response = await StorageLibraryService.update(id, data);
             } else {
-                response = await StudioStorageService.create(data);
+                response = await StorageLibraryService.create(data);
             }
 
-            if (response.success) {
-                Toast.success(response.message);
-                this.view.closeModal();
-                await this.loadData(); // Reload to refresh data
-            }
+            Toast.success(id ? 'تم تحديث المكتبة بنجاح' : 'تم إنشاء المكتبة والألبوم المخفي بنجاح');
+            this.view.closeModal();
+            await this.loadData();
         } catch (error) {
+            console.error('Error saving library:', error);
             if (error.response?.status === 422) {
                 import('../../../../utils/toast.js').then(({ showErrors }) => showErrors(error.response.data.errors));
             } else {
-                Toast.error(error.response?.data?.message || 'خطأ في حفظ البيانات');
+                Toast.error(error.response?.data?.message || 'خطأ في حفظ المكتبة');
             }
         } finally {
             this.view.setLoading(false);
@@ -81,20 +70,19 @@ export class StorageController {
     }
 
     edit(id) {
-        const lib = this.libraries.find(l => l.id == id);
+        const lib = this.libraries.find(l => l.storage_library_id == id);
         if (lib) this.view.openEditModal(lib);
     }
 
     async delete(id) {
-        if (!confirm('هل أنت متأكد من حذف هذه المكتبة؟')) return;
+        if (!confirm('هل أنت متأكد من حذف هذه المكتبة؟\nملاحظة: سيتم حذف الألبوم المخفي المرتبط بها أيضاً.')) return;
 
         try {
-            const response = await StudioStorageService.delete(id);
-            if (response.success) {
-                Toast.success(response.message);
-                await this.loadData();
-            }
+            await StorageLibraryService.delete(id);
+            Toast.success('تم حذف المكتبة بنجاح');
+            await this.loadData();
         } catch (error) {
+            console.error('Error deleting library:', error);
             Toast.error(error.response?.data?.message || 'لا يمكن حذف المكتبة');
         }
     }
@@ -103,7 +91,8 @@ export class StorageController {
         const lower = query.toLowerCase();
         const filtered = this.libraries.filter(lib => 
             lib.name.toLowerCase().includes(lower) || 
-            (lib.user && (lib.user.full_name || lib.user.username).toLowerCase().includes(lower))
+            (lib.description && lib.description.toLowerCase().includes(lower)) ||
+            (lib.hidden_album && lib.hidden_album.name.toLowerCase().includes(lower))
         );
         this.view.renderTable(filtered);
     }

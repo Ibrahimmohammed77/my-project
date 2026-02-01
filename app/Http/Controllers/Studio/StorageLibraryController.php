@@ -41,27 +41,30 @@ class StorageLibraryController extends Controller
     }
 
     /**
-     * Store a new storage library (allocate storage).
+     * Store a new storage library with automatic hidden album creation.
      */
     public function store(Request $request)
     {
         $studio = Auth::user()->studio;
 
         $validated = $request->validate([
-            'subscriber_id' => 'required|exists:users,id',
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'storage_limit' => 'required|numeric|min:0', // in Megabytes
+            'storage_limit' => 'nullable|numeric|min:0', // in Megabytes
         ]);
 
-        // Convert MB to Bytes
-        $validated['storage_limit'] = (int)($validated['storage_limit'] * 1024 * 1024);
+        // Convert MB to Bytes if provided
+        if (isset($validated['storage_limit'])) {
+            $validated['storage_limit'] = (int)($validated['storage_limit'] * 1024 * 1024);
+        }
 
         try {
-            $library = $this->allocateStorageUseCase->execute($studio, $validated);
+            $useCase = app(\App\UseCases\Studio\CreateStorageLibraryWithHiddenAlbumUseCase::class);
+            $library = $useCase->execute($studio, $validated);
+            
             return response()->json([
                 'success' => true,
-                'message' => 'تم إنشاء مكتبة التخزين وتخصيص المساحة بنجاح',
+                'message' => 'تم إنشاء مكتبة التخزين والألبوم المخفي بنجاح',
                 'data' => $library
             ]);
         } catch (\Exception $e) {

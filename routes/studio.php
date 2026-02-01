@@ -12,6 +12,8 @@ Route::middleware('can:is-studio-owner')->as('studio.')->prefix('studio')->group
         ->parameters(['cards' => 'card:card_id']);
     Route::post('cards/{card:card_id}/link-albums', [\App\Http\Controllers\Studio\CardController::class, 'linkAlbums'])
         ->name('cards.link-albums');
+    Route::post('cards/{card:card_id}/assign-to-library', [\App\Http\Controllers\Studio\CardController::class, 'assignToLibrary'])
+        ->name('cards.assign-to-library');
 
     // Studio Profile
     Route::get('profile', [\App\Http\Controllers\Studio\ProfileController::class, 'edit'])->name('profile.edit');

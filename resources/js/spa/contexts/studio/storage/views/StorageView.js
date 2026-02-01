@@ -6,8 +6,6 @@ export class StorageView {
         this.form = document.getElementById('storage-form');
         this.modalTitle = document.getElementById('modal-title');
         this.libraryIdInput = document.getElementById('library-id');
-        this.subscriberSelect = document.getElementById('subscriber_id');
-        this.subscriberWrapper = document.getElementById('subscriber-wrapper');
         
         this.submitBtn = this.form?.querySelector('button[type="submit"]');
         this.originalContent = this.submitBtn?.innerHTML;
@@ -53,9 +51,9 @@ export class StorageView {
         }
 
         libraries.forEach(lib => {
-            const limitMB = (lib.storage_limit / 1048576).toFixed(2);
-            const usedMB = (lib.storage_used / 1048576).toFixed(2);
-            const percent = lib.storage_limit > 0 ? Math.min(100, (lib.storage_used / lib.storage_limit) * 100).toFixed(1) : 0;
+            const limitMB = lib.storage_limit ? (lib.storage_limit / 1048576).toFixed(2) : 'غير محدود';
+            const usedMB = (lib.used_storage / 1048576 || 0).toFixed(2);
+            const percent = lib.storage_limit > 0 ? Math.min(100, ((lib.used_storage || 0) / lib.storage_limit) * 100).toFixed(1) : 0;
             
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50/50 transition-colors group border-b border-gray-100';
@@ -67,16 +65,23 @@ export class StorageView {
                         <span class="text-[11px] text-gray-400"></span>
                     </div>
                 </td>
-                <td class="py-4 px-4 text-sm text-gray-600"></td>
+                <td class="py-4 px-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-folder-open text-blue-500 text-xs"></i>
+                        <span class="text-sm text-gray-600"></span>
+                    </div>
+                </td>
                 <td class="py-4 px-4">
                     <div class="flex flex-col gap-1.5 min-w-[120px]">
                         <div class="flex justify-between text-[10px] font-bold">
-                            <span class="text-gray-400">${usedMB} MB / ${limitMB} MB</span>
-                            <span class="${percent > 90 ? 'text-red-500' : 'text-accent'}">${percent}%</span>
+                            <span class="text-gray-400">${usedMB} MB ${lib.storage_limit ? '/ ' + limitMB + ' MB' : ''}</span>
+                            ${lib.storage_limit ? `<span class="${percent > 90 ? 'text-red-500' : 'text-accent'}">${percent}%</span>` : ''}
                         </div>
-                        <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-accent rounded-full transition-all duration-500" style="width: ${percent}%"></div>
-                        </div>
+                        ${lib.storage_limit ? `
+                            <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-accent rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                            </div>
+                        ` : '<span class="text-xs text-green-600">✓ غير محدود</span>'}
                     </div>
                 </td>
                 <td class="py-4 px-4 text-[11px] text-gray-500">${new Date(lib.created_at).toLocaleDateString('ar-EG')}</td>
@@ -95,11 +100,11 @@ export class StorageView {
             // HTML Escape
             tr.querySelector('td:nth-child(1) span:nth-child(1)').textContent = lib.name;
             tr.querySelector('td:nth-child(1) span:nth-child(2)').textContent = lib.description || 'بدون وصف';
-            tr.children[1].textContent = lib.user?.full_name || lib.user?.username || 'غير معروف';
+            tr.querySelector('td:nth-child(2) span').textContent = lib.hidden_album?.name || 'ألبوم مخفي';
 
             // Events
-            tr.querySelector('.edit-btn').addEventListener('click', () => window.storageController.edit(lib.id));
-            tr.querySelector('.delete-btn').addEventListener('click', () => window.storageController.delete(lib.id));
+            tr.querySelector('.edit-btn').addEventListener('click', () => window.storageController.edit(lib.storage_library_id));
+            tr.querySelector('.delete-btn').addEventListener('click', () => window.storageController.delete(lib.storage_library_id));
 
             this.tableBody.appendChild(tr);
         });
@@ -113,37 +118,29 @@ export class StorageView {
                         <i class="fa-solid fa-hard-drive text-gray-300 text-3xl"></i>
                     </div>
                     <h4 class="text-gray-800 font-bold">لا يوجد مكتبات تخزين</h4>
-                    <p class="text-gray-500 text-sm mt-1">قم بإنشاء مكتبة جديدة لتخصيص مساحة للمشتركين</p>
+                    <p class="text-gray-500 text-sm mt-1">قم بإنشاء مكتبة جديدة - سيتم إنشاء ألبوم مخفي تلقائياً</p>
                 </td>
             </tr>
         `;
-    }
-
-    populateSubscribers(customers) {
-        if (!this.subscriberSelect) return;
-        this.subscriberSelect.innerHTML = '<option value="">اختر مشتركاً</option>' + 
-            customers.map(c => `<option value="${c.id}">${c.full_name || c.username}</option>`).join('');
     }
 
     openCreateModal() {
         this.form.reset();
         this.libraryIdInput.value = '';
         if(this.modalTitle) this.modalTitle.textContent = 'تخصيص مساحة جديدة';
-        if(this.subscriberWrapper) this.subscriberWrapper.classList.remove('hidden');
-        if(this.subscriberSelect) this.subscriberSelect.required = true;
         this.modal.classList.remove('hidden');
     }
 
     openEditModal(lib) {
         this.form.reset();
-        this.libraryIdInput.value = lib.id;
+        this.libraryIdInput.value = lib.storage_library_id;
         if(this.modalTitle) this.modalTitle.textContent = 'تعديل بيانات المكتبة';
-        if(this.subscriberWrapper) this.subscriberWrapper.classList.add('hidden');
-        if(this.subscriberSelect) this.subscriberSelect.required = false;
 
         document.getElementById('name').value = lib.name;
         document.getElementById('description').value = lib.description || '';
-        document.getElementById('storage_limit').value = lib.storage_limit / (1024 * 1024); // Convert Bytes to MB
+        if (lib.storage_limit) {
+            document.getElementById('storage_limit').value = lib.storage_limit / (1024 * 1024); // Convert Bytes to MB
+        }
 
         this.modal.classList.remove('hidden');
     }

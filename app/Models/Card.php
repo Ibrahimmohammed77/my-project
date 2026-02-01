@@ -18,6 +18,7 @@ class Card extends Model
         'card_uuid',
         'card_number',
         'card_group_id',
+        'storage_library_id',
         'owner_type',
         'owner_id',
         'holder_id',
@@ -84,6 +85,11 @@ class Card extends Model
         return $this->belongsTo(CardGroup::class, 'card_group_id');
     }
 
+    public function storageLibrary(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(StorageLibrary::class, 'storage_library_id');
+    }
+
     public function owner(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
@@ -144,6 +150,11 @@ class Card extends Model
         return $query->where('card_group_id', $groupId);
     }
 
+    public function scopeByStorageLibrary(Builder $query, $libraryId): Builder
+    {
+        return $query->where('storage_library_id', $libraryId);
+    }
+
     public function scopeByType(Builder $query, $type): Builder
     {
         if (is_numeric($type)) {
@@ -183,6 +194,7 @@ class Card extends Model
     {
         return $query->with([
             'group:group_id,name',
+            'storageLibrary:storage_library_id,name',
             'holder:id,name,email,phone',
             'type:lookup_value_id,code,name',
             'status:lookup_value_id,code,name',
@@ -194,6 +206,7 @@ class Card extends Model
     {
         return $this->load([
             'group:group_id,name',
+            'storageLibrary:storage_library_id,name',
             'holder:id,name,email,phone',
             'type:lookup_value_id,code,name',
             'status:lookup_value_id,code,name',

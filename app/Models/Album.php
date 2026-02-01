@@ -21,6 +21,7 @@ class Album extends Model
         'description',
         'is_default',
         'is_visible',
+        'is_hidden',
         'view_count',
         'settings',
     ];
@@ -28,6 +29,7 @@ class Album extends Model
     protected $casts = [
         'is_default' => 'boolean',
         'is_visible' => 'boolean',
+        'is_hidden' => 'boolean',
         'view_count' => 'integer',
         'settings' => 'array',
     ];
@@ -95,6 +97,23 @@ class Album extends Model
     public function scopeVisible($query)
     {
         return $query->where('is_visible', true);
+    }
+
+    /**
+     * نطاق الألبومات المخفية
+     */
+    public function scopeHidden($query)
+    {
+        return $query->where('is_hidden', true);
+    }
+
+    /**
+     * نطاق الألبومات المرئية فقط (ليست مخفية)
+     */
+    public function scopeVisibleOnly($query)
+    {
+        return $query->where('is_visible', true)
+                     ->where('is_hidden', false);
     }
 
     /**

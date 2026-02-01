@@ -60,16 +60,9 @@ class AuthController extends Controller implements HasMiddleware
         try {
             $data = $request->validated();
             $login = $request->input('login');
+            $user = $this->authService->findUserByLogin($login);
 
-            // Determine login type
-            $loginType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : (is_numeric($login) ? 'phone' : 'username');
-
-            $credentials = [
-                $loginType => $login,
-                'password' => $request->input('password')
-            ];
-
-            if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            if ($user && Auth::attempt(['email' => $user->email, 'password' => $request->input('password')], $request->boolean('remember'))) {
                 $user = Auth::user();
 
                 if (!$user->is_active) {
@@ -233,12 +226,12 @@ class AuthController extends Controller implements HasMiddleware
 
             if ($success) {
                 return redirect()->route('login')
-                    ->with('success', 'تم إعادة تعيين كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.');
+                    ->with('success', 'تم إعادة تعيين كلمة السر بنجاح. يمكنك تسجيل الدخول الآن.');
             }
 
             return back()
                 ->withInput()
-                ->with('error', 'فشل في إعادة تعيين كلمة المرور.');
+                ->with('error', 'فشل في إعادة تعيين كلمة السر.');
         } catch (\Exception $e) {
             Log::error('Reset password error: ' . $e->getMessage());
 
@@ -358,13 +351,13 @@ class AuthController extends Controller implements HasMiddleware
             ]);
 
             return back()
-                ->with('success', 'تم تغيير كلمة المرور بنجاح.');
+                ->with('success', 'تم تغيير كلمة السر بنجاح.');
         } catch (\Exception $e) {
             Log::error('Change password error: ' . $e->getMessage());
 
             return back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء تغيير كلمة المرور.');
+                ->with('error', 'حدث خطأ أثناء تغيير كلمة السر.');
         }
     }
 }

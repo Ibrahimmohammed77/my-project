@@ -11,6 +11,13 @@ class UpdateUserRequest extends BaseUserRequest
 
     protected function passwordRules(): array
     {
-        return ['nullable', 'string', 'min:8', 'strong_password'];
+        return ['nullable', 'string', 'min:4'];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'password.min' => 'كلمة السر يجب أن لا تقل عن 4 أحرف.',
+        ];
     }
 }

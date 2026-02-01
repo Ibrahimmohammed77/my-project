@@ -35,6 +35,14 @@ export class ApiClient {
                     config.headers['X-CSRF-TOKEN'] = csrfToken;
                 }
 
+                // Add cache-busting timestamp for GET requests
+                if (config.method === 'get') {
+                    config.params = {
+                        ...config.params,
+                        _t: Date.now()
+                    };
+                }
+
                 // Log request in development
                 if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
                     console.log(`[API] ${config.method.toUpperCase()} ${config.url}`, config.data);
@@ -52,8 +60,8 @@ export class ApiClient {
         this.client.interceptors.response.use(
             (response) => {
                 // Log response in development
-                if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-                    console.log('[API] Response:', response.data);
+                 if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+                    console.log(`[API] ${config.method.toUpperCase()} ${config.url}`, config.data);
                 }
 
                 return response;
@@ -64,7 +72,7 @@ export class ApiClient {
                 // Handle CSRF token mismatch (419)
                 if (error.response?.status === 419 && !originalRequest._retry) {
                     originalRequest._retry = true;
-                    
+
                     try {
                         await CsrfProtection.refreshToken();
                         return this.client(originalRequest);

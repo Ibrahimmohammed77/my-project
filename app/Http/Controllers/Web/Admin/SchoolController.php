@@ -36,7 +36,7 @@ class SchoolController extends Controller
             'levels' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'SCHOOL_LEVEL'))->get(),
         ];
 
-        if ($request->wantsJson()) {
+        if ($request->ajax()) {
             return $this->paginatedResponse($schools, 'schools');
         }
 
@@ -76,7 +76,7 @@ class SchoolController extends Controller
             'schoolLevels' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'SCHOOL_LEVEL'))->get(),
         ];
 
-        if (request()->wantsJson()) {
+        if (request()->ajax()) {
             return $this->successResponse($data);
         }
 

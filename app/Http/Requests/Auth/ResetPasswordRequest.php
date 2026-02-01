@@ -26,9 +26,9 @@ class ResetPasswordRequest extends FormRequest
             'token.required' => 'التوكن مطلوب.',
             'email.required' => 'البريد الإلكتروني مطلوب.',
             'email.email' => 'يرجى إدخال بريد إلكتروني صحيح.',
-            'password.required' => 'كلمة المرور مطلوبة.',
-            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
-            'password.min' => 'كلمة المرور يجب أن لا تقل عن 8 أحرف.',
+            'password.required' => 'كلمة السر مطلوبة.',
+            'password.confirmed' => 'تأكيد كلمة السر غير متطابق.',
+            'password.min' => 'كلمة السر يجب أن لا تقل عن 8 أحرف.',
         ];
     }
 }

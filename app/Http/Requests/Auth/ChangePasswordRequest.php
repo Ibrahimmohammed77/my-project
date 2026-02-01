@@ -19,7 +19,7 @@ class ChangePasswordRequest extends FormRequest
         return [
             'current_password' => ['required', function ($attribute, $value, $fail) use ($user) {
                 if (!Hash::check($value, $user->password)) {
-                    $fail('كلمة المرور الحالية غير صحيحة.');
+                    $fail('كلمة السر الحالية غير صحيحة.');
                 }
             }],
             'password' => ['required', 'confirmed', 'min:8', 'different:current_password'],
@@ -29,11 +29,11 @@ class ChangePasswordRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'current_password.required' => 'كلمة المرور الحالية مطلوبة.',
-            'password.required' => 'كلمة المرور الجديدة مطلوبة.',
-            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
-            'password.min' => 'كلمة المرور الجديدة يجب أن لا تقل عن 8 أحرف.',
-            'password.different' => 'كلمة المرور الجديدة يجب أن تكون مختلفة عن الحالية.',
+            'current_password.required' => 'كلمة السر الحالية مطلوبة.',
+            'password.required' => 'كلمة السر الجديدة مطلوبة.',
+            'password.confirmed' => 'تأكيد كلمة السر غير متطابق.',
+            'password.min' => 'كلمة السر الجديدة يجب أن لا تقل عن 8 أحرف.',
+            'password.different' => 'كلمة السر الجديدة يجب أن تكون مختلفة عن الحالية.',
         ];
     }
 }

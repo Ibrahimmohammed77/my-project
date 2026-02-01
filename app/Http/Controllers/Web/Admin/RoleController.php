@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\RoleRequest;
 use App\Models\Role;
 use App\UseCases\Admin\Role\ManageRoleUseCase;
 use Illuminate\Support\Facades\Gate;
+use App\Traits\HasApiResponse;
 
 class RoleController extends Controller
 {

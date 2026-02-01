@@ -20,9 +20,16 @@ class NotificationService
         $type = LookupValue::where('code', $typeCode)->first();
 
         if (!$type) {
+            $master = \App\Models\LookupMaster::where('code', 'NOTIFICATION_TYPE')->first();
+            
+            if (!$master) {
+                // Fallback or log error
+                throw new \Exception('Lookup master for NOTIFICATION_TYPE not found.');
+            }
+
             // Create default type if not exists
             $type = LookupValue::create([
-                'lookup_master_id' => LookupValue::where('code', 'notification_type')->first()->lookup_master_id,
+                'lookup_master_id' => $master->lookup_master_id,
                 'code' => $typeCode,
                 'name' => ucfirst(str_replace('_', ' ', $typeCode)),
                 'description' => 'نوع إشعار ' . $typeCode,

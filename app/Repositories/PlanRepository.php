@@ -25,7 +25,9 @@ class PlanRepository implements PlanRepositoryInterface
         }
 
         if (isset($filters['is_active'])) {
-            $query->where('is_active', $filters['is_active']);
+            $val = $filters['is_active'];
+            $isActive = ($val === 'true' || $val === true || $val === '1' || $val === 1) ? 1 : 0;
+            $query->where('is_active', $isActive);
         }
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);

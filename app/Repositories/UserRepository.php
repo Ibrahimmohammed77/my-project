@@ -162,10 +162,17 @@ class UserRepository implements UserRepositoryInterface
             });
         }
 
-        // Filter by role
+        // Filter by role ID
         if (!empty($filters['role_id'])) {
             $query->whereHas('roles', function ($q) use ($filters) {
                 $q->where('roles.role_id', $filters['role_id']);
+            });
+        }
+
+        // Filter by role names (array)
+        if (!empty($filters['roles']) && is_array($filters['roles'])) {
+            $query->whereHas('roles', function ($q) use ($filters) {
+                $q->whereIn('roles.name', $filters['roles']);
             });
         }
 

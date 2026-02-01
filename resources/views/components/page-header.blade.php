@@ -66,7 +66,7 @@
                 </div>
 
                 <!-- Actions Slot -->
-                <div class="flex flex-wrap items-center gap-3 self-end lg:self-center">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto lg:justify-end">
                     {{ $slot }}
                 </div>
             </div>

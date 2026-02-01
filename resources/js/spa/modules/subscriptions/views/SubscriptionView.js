@@ -357,42 +357,272 @@ export class SubscriptionView {
         if (this.userResults) DOM.hide(this.userResults);
     }
 
-    createUserResultElement(user) {
-        const div = DOM.create('div', {
-            className: 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors'
-        });
+    renderUserResults(users, context) {
+        console.log(`[SubscriptionView] Rendering ${users.length} users for context: ${context}`);
+        
+        const containerId = context === 'filter' ? 'user-filter-results' : 'modal-user-results';
+        const container = document.getElementById(containerId);
+        
+        if (!container) {
+            console.error(`[SubscriptionView] Container #${containerId} not found!`);
+            return;
+        }
 
-        const innerDiv = DOM.create('div', { className: 'flex items-center gap-3' });
+        // Force visibility
+        container.style.display = 'block';
+        
+        DOM.empty(container);
+
+        if (!users || users.length === 0) {
+            console.log('[SubscriptionView] No users to display.');
+            container.innerHTML = '<div class="p-4 text-center text-gray-400 text-xs">لا توجد نتائج</div>';
+            return;
+        }
+
+        users.forEach(user => {
+            try {
+                const el = this.createUserResultItem(user, context);
+                container.appendChild(el);
+            } catch (err) {
+                console.error('[SubscriptionView] Error rendering user item:', user, err);
+            }
+        });
+        
+        console.log(`[SubscriptionView] Successfully appended ${container.children.length} items to container.`);
+    }
+
+    createUserResultItem(user, context) {
+        const div = DOM.create('div', {
+            className: 'flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors group border-b border-gray-50 last:border-0',
+        });
+        
+        // Click handler
+        div.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent bubbling issues
+            
+            if (context === 'filter') {
+                // Set filter logic
+                const label = document.getElementById('user-filter-label');
+                if (label) label.textContent = `المستخدم: ${user.name}`;
+                
+                const dropdown = document.getElementById('user-filter-dropdown');
+                if (dropdown) dropdown.classList.add('hidden');
+                
+                if (window.subscriptionController) {
+                    window.subscriptionController.selectedFilterUser = user;
+                    window.subscriptionController.triggerFilter();
+                }
+            } else {
+                // Modal logic
+                this.setSelectedUser(user);
+                
+                const dropdown = document.getElementById('modal-user-dropdown');
+                if (dropdown) dropdown.classList.add('hidden');
+            }
+        };
+
+        const userName = user.name || 'مستخدم غير معروف';
+        const userInitial = userName.charAt(0).toUpperCase();
 
         const avatar = DOM.create('div', {
-            className: 'w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center'
+            className: 'w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs font-bold shrink-0'
         });
-        avatar.innerHTML = '<i class="fas fa-user text-blue-600"></i>';
+        avatar.textContent = userInitial;
 
-        const info = DOM.create('div', { className: 'flex-1' });
-
-        const name = DOM.create('div', { className: 'font-medium text-gray-900' });
-        XssProtection.setTextContent(name, user.name || 'غير محدد');
-
-        const email = DOM.create('div', { className: 'text-xs text-gray-500' });
-        XssProtection.setTextContent(email, user.email || '');
+        const info = DOM.create('div', { className: 'flex-1 min-w-0' });
+        const name = DOM.create('div', { className: 'text-sm font-medium text-gray-900 truncate' });
+        name.textContent = userName;
+        
+        const roleAndEmail = DOM.create('div', { className: 'text-xs text-gray-500 truncate' });
+        const roleName = this.getRoleName(user);
+        roleAndEmail.textContent = `${roleName} • ${user.email || ''}`;
 
         info.appendChild(name);
-        info.appendChild(email);
-
-        const selectBtn = DOM.create('button', {
-            type: 'button',
-            className: 'text-xs px-3 py-1.5 bg-accent text-white rounded-lg hover:bg-accent-hover transition-all active:scale-95',
-            onclick: () => this.onUserSelect?.(user)
-        });
-        XssProtection.setTextContent(selectBtn, 'اختيار');
-
-        innerDiv.appendChild(avatar);
-        innerDiv.appendChild(info);
-        innerDiv.appendChild(selectBtn);
-        div.appendChild(innerDiv);
+        info.appendChild(roleAndEmail);
+        div.appendChild(avatar);
+        div.appendChild(info);
 
         return div;
+    }
+    
+    getRoleName(user) {
+         const roleMap = {
+            'customer': 'عميل',
+            'school_owner': 'مدرسة',
+            'studio_owner': 'استوديو'
+        };
+        return user.roles && user.roles.length > 0 ? (roleMap[user.roles[0].name] || user.roles[0].name) : '';
+    }
+
+    renderPlanResults(plans, context) {
+        console.log(`[SubscriptionView] Rendering ${plans.length} plans for context: ${context}`);
+        
+        const containerId = context === 'filter' ? 'plan-filter-results' : 'modal-plan-results';
+        const container = document.getElementById(containerId);
+        
+        if (!container) return;
+        
+        // Force visibility
+        if(context === 'modal') {
+             const dropdown = document.getElementById('modal-plan-dropdown');
+             if(dropdown && !dropdown.classList.contains('hidden')) {
+                  // ensure results container is visible
+                  container.style.display = 'block';
+             }
+        }
+
+        DOM.empty(container);
+
+        if (plans.length === 0) {
+            container.innerHTML = '<div class="p-4 text-center text-gray-400 text-xs">لا توجد خطط</div>';
+            return;
+        }
+
+        const createPlanItem = (plan) => {
+            const btn = DOM.create('button', {
+                className: 'w-full text-right px-3 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors flex justify-between items-center group border-b border-gray-50 last:border-0',
+                type: 'button'
+            });
+            
+            const nameSpan = DOM.create('span', { className: 'font-bold text-gray-800' });
+            nameSpan.textContent = plan.name;
+            
+            const priceSpan = DOM.create('span', { className: 'text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md group-hover:bg-white transition-colors' });
+            priceSpan.textContent = `${plan.price_monthly} / شهر`;
+
+            btn.appendChild(nameSpan);
+            btn.appendChild(priceSpan);
+            
+            btn.onclick = () => {
+                if(context === 'filter') {
+                     this.selectPlanFilter(plan.plan_id, plan.name);
+                } else {
+                     this.selectPlanModal(plan);
+                }
+            };
+            return btn;
+        };
+
+        // "All" option for filter only
+        if (context === 'filter') {
+            const allBtn = DOM.create('button', {
+                className: 'w-full text-right px-3 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors mb-1',
+                textContent: 'الكل'
+            });
+            allBtn.onclick = () => this.selectPlanFilter(null, 'الكل');
+            container.appendChild(allBtn);
+        }
+
+        plans.forEach(plan => {
+            container.appendChild(createPlanItem(plan));
+        });
+    }
+    
+    selectPlanFilter(planId, planName) {
+        const label = document.getElementById('plan-filter-label');
+        if(label) {
+            label.textContent = `الخطة: ${planName}`;
+            label.dataset.planId = planId || '';
+        }
+        
+        const dropdown = document.getElementById('plan-filter-dropdown');
+        if(dropdown) dropdown.classList.add('hidden');
+        
+        if(window.subscriptionController) {
+            window.subscriptionController.triggerFilter();
+        }
+    }
+
+    selectPlanModal(plan) {
+        // Update Label
+        const label = document.getElementById('modal-plan-label');
+        if(label) label.textContent = plan.name;
+        
+        // Update Hidden Input
+        const input = document.getElementById('plan_id');
+        if(input) {
+             input.value = plan.plan_id;
+             // Store prices for dynamic calculation
+             input.dataset.priceMonthly = plan.price_monthly;
+             input.dataset.priceYearly = plan.price_yearly;
+        }
+
+        // Close Dropdown
+        const dropdown = document.getElementById('modal-plan-dropdown');
+        if(dropdown) dropdown.classList.add('hidden');
+        
+        // Trigger generic change event for price update if needed
+        // Since we are not using a select change event anymore, we must call update directly
+        if(window.subscriptionController && window.subscriptionController.view) {
+             window.subscriptionController.view.updatePrice();
+             window.subscriptionController.view.updateEndDate();
+        }
+    }
+
+    populatePlanDropdown(plans, context) {
+        this.renderPlanResults(plans, context);
+    }
+    
+    // Legacy method mostly, kept for safety but functionality moved to renderPlanResults
+    populatePlanOptions(plans) {
+        // Maybe populate modal data for initial search?
+        // We can just call renderPlanResults with modal context
+        this.renderPlanResults(plans, 'modal');
+    }
+
+    toggleSpinner(id, show) {
+        const spinner = document.getElementById(id);
+        if (spinner) {
+            if (show) DOM.removeClass(spinner, 'hidden');
+            else DOM.addClass(spinner, 'hidden');
+        }
+    }
+    
+    setSelectedUser(user) {
+        this.selectedUserData = user;
+
+        const userIdInput = document.getElementById('user_id');
+        if (userIdInput) userIdInput.value = user.id;
+
+        // Custom UI update
+        const display = document.getElementById('modal-selected-user-display');
+        const trigger = document.getElementById('modal-user-trigger');
+        const nameEl = document.getElementById('modal-selected-user-name');
+        const emailEl = document.getElementById('modal-selected-user-email');
+        
+        if(nameEl) nameEl.textContent = user.name;
+        if(emailEl) emailEl.textContent = user.email;
+        
+        if(display) {
+            display.classList.remove('hidden');
+            display.classList.add('flex');
+        }
+        if(trigger) trigger.classList.add('hidden');
+
+        // Logic for old UI components just in case
+        const oldSelectedUser = document.getElementById('selected-user');
+         if(oldSelectedUser) DOM.show(oldSelectedUser);
+    }
+    
+    clearUserSelection() {
+        this.selectedUserData = null;
+        const userIdInput = document.getElementById('user_id');
+        if (userIdInput) userIdInput.value = '';
+        
+        // Reset Custom UI
+        const display = document.getElementById('modal-selected-user-display');
+        const trigger = document.getElementById('modal-user-trigger');
+        
+        if(display) {
+            display.classList.add('hidden');
+            display.classList.remove('flex');
+        }
+        if(trigger) trigger.classList.remove('hidden');
+        
+        // Reset Dropdown state
+        // We might want to reset the "Role Selection" view too?
+        // Let's rely on the toggle logic resetting it
     }
 
     updatePrice() {
@@ -479,6 +709,16 @@ export class SubscriptionView {
         if (billingCycleSelect) {
             billingCycleSelect.addEventListener('change', callback);
         }
+    }
+
+    showSearchSpinner() {
+        const spinner = document.getElementById('user-search-spinner');
+        if (spinner) DOM.removeClass(spinner, 'hidden');
+    }
+
+    hideSearchSpinner() {
+        const spinner = document.getElementById('user-search-spinner');
+        if (spinner) DOM.addClass(spinner, 'hidden');
     }
 }
 

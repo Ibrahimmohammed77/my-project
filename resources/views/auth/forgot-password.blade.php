@@ -3,49 +3,68 @@
 @section('title', 'نسيت كلمة المرور')
 
 @section('content')
-<div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-white/20">
-    <h2 class="text-2xl font-bold text-white text-center mb-6">استعادة كلمة المرور</h2>
-    
-    @if(session('reset_code_sent'))
-        <div class="mb-4 p-4 bg-green-500/20 border border-green-400/30 rounded-xl text-white text-sm">
-            <p>✓ تم إرسال رمز التحقق بنجاح!</p>
-            @if(session('reset_code_debug'))
-                <p class="mt-2 font-mono bg-black/20 p-2 rounded">رمز التحقق (للتطوير): {{ session('reset_code_debug') }}</p>
+<div class="max-w-md w-full mx-auto">
+    <div class="bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-8 sm:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden group">
+        <!-- Decoration -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-accent/10 rounded-full blur-3xl group-hover:bg-accent/20 transition-colors duration-700"></div>
+        
+        <div class="relative z-10">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-accent/20 rounded-3xl flex items-center justify-center mx-auto mb-6 transform group-hover:rotate-12 transition-transform duration-500">
+                    <i class="fa-solid fa-key text-3xl text-accent-light"></i>
+                </div>
+                <h2 class="text-3xl font-black text-white mb-3">استعادة الوصول 🔐</h2>
+                <p class="text-blue-100/70 text-base font-medium">أدخل بريدك الإلكتروني لتعيين كلمة مرور جديدة</p>
+            </div>
+            
+            @if(session('reset_code_sent'))
+                <div class="mb-8 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl text-green-100 text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
+                    <p>تم إرسال رمز التحقق بنجاح!</p>
+                </div>
             @endif
-        </div>
-    @endif
 
-    @if($errors->any())
-        <div class="mb-4 p-4 bg-red-500/20 border border-red-400/30 rounded-xl text-white text-sm">
-            @foreach($errors->all() as $error)
-                <p>{{ $error }}</p>
-            @endforeach
+            @if($errors->any())
+                <div class="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-100 text-sm flex items-start gap-3">
+                    <i class="fa-solid fa-circle-exclamation text-red-400 text-lg"></i>
+                    <div class="space-y-1">
+                        @foreach($errors->all() as $error)
+                            <p>{{ $error }}</p>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+            
+            <form action="{{ route('password.send-code') }}" method="post" class="space-y-6">
+                @csrf
+                
+                <div class="group/input">
+                    <label class="block text-sm font-bold text-blue-100 mb-2 mr-1">البريد الإلكتروني</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-blue-200/50 group-focus-within/input:text-accent transition-colors">
+                            <i class="fa-regular fa-envelope"></i>
+                        </div>
+                        <input 
+                            type="email" 
+                            name="email" 
+                            class="w-full px-4 py-4 pr-11 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-blue-200/30 focus:border-accent focus:ring-4 focus:ring-accent/10 outline-none transition-all backdrop-blur-md font-medium" 
+                            placeholder="name@example.com"
+                            value="{{ old('email') }}"
+                            required
+                        >
+                    </div>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="w-full bg-accent hover:bg-accent-hover text-white px-6 py-4 rounded-2xl font-black shadow-lg shadow-accent/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-3 group/btn"
+                >
+                    <span>إرسال رمز التحقق</span>
+                    <i class="fa-solid fa-paper-plane text-sm group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </form>
         </div>
-    @endif
-    
-    <form action="{{ route('password.send-code') }}" method="post" class="space-y-4">
-        @csrf
-        
-        <div>
-            <label class="block text-sm font-semibold text-white mb-2">البريد الإلكتروني</label>
-            <input 
-                type="email" 
-                name="email" 
-                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:border-white focus:ring-2 focus:ring-white/20 outline-none transition-all backdrop-blur-sm" 
-                placeholder="example@domain.com"
-                value="{{ old('email') }}"
-                required
-            >
-            <p class="text-xs text-blue-200 mt-2">أدخل البريد الإلكتروني المسجل في حسابك لاستلام رابط استعادة كلمة المرور</p>
-        </div>
-        
-        <button 
-            type="submit" 
-            class="w-full bg-white hover:bg-blue-50 text-primary px-6 py-3 rounded-xl font-bold shadow-lg transition-all active:scale-95"
-        >
-            إرسال رمز التحقق
-        </button>
-    </form>
+    </div>
 </div>
 
 <div class="text-center mt-6">

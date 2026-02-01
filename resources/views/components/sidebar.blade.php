@@ -1,5 +1,5 @@
-<aside class="fixed inset-y-0 right-0 z-50 w-72 bg-[#0F172A] text-white shadow-2xl transition-transform duration-300 lg:static lg:translate-x-0 flex flex-col relative overflow-hidden group/sidebar"
-    :class="sidebarOpen ? 'translate-x-0' : 'translate-x-full'"
+<aside class="fixed inset-y-0 right-0 z-50 w-72 bg-[#0F172A] text-white shadow-2xl transition-transform duration-300 lg:static lg:translate-x-0 flex flex-col overflow-hidden group/sidebar"
+    :class="isMobile ? (sidebarOpen ? 'translate-x-0' : 'translate-x-full') : ''"
     x-data="{
         contentOpen: false,
         identityOpen: true,
@@ -29,7 +29,7 @@
         </div>
 
         <!-- Navigation -->
-        <div class="flex-1 overflow-y-auto px-4 space-y-2 py-4 scrollbar-none">
+        <div class="flex-1 overflow-y-auto px-4 space-y-2 py-4 scrollbar-none scroll-smooth">
 
             <!-- Dashboard -->
             <div class="mb-6">

@@ -29,7 +29,7 @@
         </div>
 
         <!-- Navigation -->
-        <div class="flex-1 overflow-y-auto px-4 space-y-2 py-4 scrollbar-none">
+        <div class="flex-1 overflow-y-auto px-4 space-y-2 py-4 scrollbar-none scroll-smooth">
 
             <!-- Dashboard -->
             <div class="mb-6">

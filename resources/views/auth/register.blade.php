@@ -11,9 +11,12 @@
             
             <!-- Mobile Header -->
             <div class="text-center lg:text-right mb-12">
-                <a href="/" class="inline-block lg:hidden mb-10 transform hover:scale-105 transition-transform duration-300">
-                    <img src="{{ asset('images/logo-cutout.png') }}" class="h-24 w-auto drop-shadow-xl" alt="صوركم">
-                </a>
+                <div class="lg:hidden flex justify-center mb-8">
+                    <a href="/" class="relative inline-block transform hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-accent/20 rounded-full blur-xl animate-pulse"></div>
+                        <img src="{{ asset('images/logo-new.jpg') }}" class="relative h-20 w-20 rounded-full object-cover border-4 border-white shadow-2xl" alt="صوركم">
+                    </a>
+                </div>
                 <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 mb-3 leading-tight text-center lg:text-right">أنشئ حسابك الجديد 🚀</h2>
                 <p class="text-base sm:text-lg text-gray-500 font-medium leading-relaxed text-center lg:text-right">
                     وابدأ في رحلة حفظ ذكرياتك بأمان وسهولة

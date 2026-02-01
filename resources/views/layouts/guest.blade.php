@@ -57,10 +57,22 @@
     
     @stack('styles')
 </head>
-<body class="h-full font-sans antialiased text-gray-900 overflow-x-hidden">
+<body class="h-full font-sans antialiased text-gray-900 overflow-x-hidden selection:bg-accent/20 selection:text-accent">
     
-    @yield('content')
-    
+    <div class="min-h-screen relative flex flex-col items-center justify-center p-4">
+        <!-- Background Layer -->
+        <div class="fixed inset-0 z-0">
+            <div class="absolute inset-0 bg-[#0F172A]"></div>
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+            <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="relative z-10 w-full transition-all duration-500">
+            @yield('content')
+        </div>
+    </div>
     @stack('scripts')
 </body>
 </html>

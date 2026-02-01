@@ -3,20 +3,20 @@
 @section('title', 'إنشاء حساب جديد')
 
 @section('content')
-<div class="min-h-screen flex bg-white">
+<div class="fixed inset-0 z-50 flex overflow-y-auto bg-white">
     
     <!-- Right Side: Register Form -->
     <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24 relative z-10 transition-all duration-500 ease-in-out">
         <div class="mx-auto w-full max-w-lg">
             
             <!-- Mobile Header -->
-            <div class="text-center lg:text-right mb-10">
-                <a href="/" class="inline-block lg:hidden mb-8 transform hover:scale-105 transition-transform duration-300">
-                    <img src="{{ asset('images/logo-cutout.png') }}" class="h-20 w-auto drop-shadow-md" alt="صوركم">
+            <div class="text-center lg:text-right mb-12">
+                <a href="/" class="inline-block lg:hidden mb-10 transform hover:scale-105 transition-transform duration-300">
+                    <img src="{{ asset('images/logo-cutout.png') }}" class="h-24 w-auto drop-shadow-xl" alt="صوركم">
                 </a>
-                <h2 class="text-4xl font-extrabold tracking-tight text-gray-900 mb-2">أنشئ حسابك الجديد </h2>
-                <p class="text-lg text-gray-500">
-                    وابدأ في حفظ ذكرياتك
+                <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 mb-3 leading-tight text-center lg:text-right">أنشئ حسابك الجديد 🚀</h2>
+                <p class="text-base sm:text-lg text-gray-500 font-medium leading-relaxed text-center lg:text-right">
+                    وابدأ في رحلة حفظ ذكرياتك بأمان وسهولة
                 </p>
             </div>
 

@@ -18,14 +18,12 @@
                 <i class="fas fa-bars text-lg"></i>
             </button>
             
-            <div class="hidden md:block">
-                <div class="flex flex-col">
-                    <h2 class="text-xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
-                        <span class="w-1.5 h-6 bg-accent rounded-full"></span>
-                        @yield('title')
-                    </h2>
-                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">لوحة التحكم</p>
-                </div>
+            <div class="flex flex-col">
+                <h2 class="text-lg md:text-xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
+                    <span class="w-1.5 h-6 bg-accent rounded-full hidden md:inline-block"></span>
+                    @yield('title')
+                </h2>
+                <p class="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">لوحة التحكم</p>
             </div>
 
             <!-- Enhanced Search Bar -->

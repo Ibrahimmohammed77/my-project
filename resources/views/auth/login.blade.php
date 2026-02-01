@@ -3,18 +3,19 @@
 @section('title', 'تسجيل الدخول')
 
 @section('content')
-<div class="min-h-screen flex">
+<div class="fixed inset-0 z-50 flex overflow-y-auto bg-white">
+
 
     <!-- Right Side: Login Form -->
-    <div class="flex-1 flex items-center justify-center p-4 sm:p-12 lg:p-20 bg-white relative z-10">
-        <div class="w-full max-w-md space-y-8">
+    <div class="flex-1 flex items-center justify-center p-6 sm:p-12 lg:p-20 bg-white relative z-10">
+        <div class="w-full max-w-md space-y-10">
             <div class="text-center md:text-right">
-                <a href="/" class="inline-block md:hidden mb-6">
-                    <img src="{{ asset('images/logo-cutout.png') }}" class="h-16 w-auto" alt="صوركم">
+                <a href="/" class="inline-block lg:hidden mb-10 transform hover:scale-105 transition-transform duration-300">
+                    <img src="{{ asset('images/logo-cutout.png') }}" class="h-20 w-auto drop-shadow-md" alt="صوركم">
                 </a>
-                <h2 class="text-3xl font-bold tracking-tight text-gray-900">مرحباً بعودتك! 👋</h2>
-                <p class="mt-2 text-sm text-gray-600">
-                    الرجاء إدخال بياناتك لتسجيل الدخول
+                <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 leading-tight">مرحباً بعودتك! 👋</h2>
+                <p class="mt-3 text-base text-gray-500 font-medium leading-relaxed">
+                    الرجاء إدخال بياناتك لتسجيل الدخول إلى حسابك
                 </p>
             </div>
 

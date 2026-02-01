@@ -10,6 +10,21 @@
                 <p class="text-sm text-gray-500 mt-1">قم بتحديث معلومات الاستوديو الخاص بك</p>
             </div>
 
+            <!-- Profile Image Section -->
+            <div class="px-8 pt-8 flex justify-center">
+                <div class="relative w-32 h-32 group">
+                    @php $profileImage = Auth::user()->profile_image ? asset('storage/'.Auth::user()->profile_image) : null; @endphp
+                    <img id="profile-image-preview" src="{{ $profileImage ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=EBF4FF&color=7F9CF5' }}" 
+                         alt="Studio Logo" 
+                         class="w-full h-full rounded-2xl object-cover border-4 border-white shadow-lg group-hover:shadow-xl transition-all">
+                    
+                    <label for="profile_image" class="absolute -bottom-2 -right-2 w-10 h-10 bg-accent text-white rounded-xl flex items-center justify-center cursor-pointer shadow-lg hover:bg-accent-dark transition-colors border-2 border-white">
+                        <i class="fas fa-camera text-sm"></i>
+                        <input type="file" id="profile_image" name="profile_image" class="hidden" accept="image/*">
+                    </label>
+                </div>
+            </div>
+
             <div class="p-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-form.input name="name" label="اسم الاستوديو" icon="fa-building" value="{{ Auth::user()->name }}" required />

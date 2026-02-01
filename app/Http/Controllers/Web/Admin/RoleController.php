@@ -24,7 +24,8 @@ class RoleController extends Controller
     {
         Gate::authorize('manage_roles');
 
-        $roles = $this->manageRoleUseCase->listRoles();
+        // Load permissions relationship for frontend display
+        $roles = $this->manageRoleUseCase->listRoles()->load('permissions');
 
         if (request()->wantsJson()) {
             return $this->successResponse(['roles' => $roles], 'تم استرجاع الأدوار بنجاح');

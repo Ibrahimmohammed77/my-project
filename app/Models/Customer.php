@@ -64,4 +64,37 @@ class Customer extends Model
     {
         return $this->morphMany(Card::class, 'owner');
     }
+
+    /**
+     * علاقة مكتبات التخزين الخاصة بالعميل
+     */
+    public function storageLibraries()
+    {
+        return $this->hasMany(StorageLibrary::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * التحقق من وجود اشتراك نشط
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->user && $this->user->activeSubscription()->exists();
+    }
+
+    /**
+     * الحصول على استخدام المساحة التخزينية
+     */
+    public function getStorageUsage(): array
+    {
+        $libraries = $this->storageLibraries;
+        $totalStorage = $libraries->sum('storage_limit');
+        $usedStorage = $libraries->sum('used_space');
+
+        return [
+            'total' => $totalStorage,
+            'used' => $usedStorage,
+            'available' => max(0, $totalStorage - $usedStorage),
+            'percentage' => $totalStorage > 0 ? round(($usedStorage / $totalStorage) * 100, 2) : 0,
+        ];
+    }
 }

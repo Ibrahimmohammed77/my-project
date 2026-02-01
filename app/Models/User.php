@@ -256,6 +256,9 @@ class User extends Authenticatable
             if ($user->isDirty('email')) {
                 $user->email = strtolower($user->email);
             }
+            if ($user->isDirty('username')) {
+                $user->username = strtolower($user->username);
+            }
         });
     }
 

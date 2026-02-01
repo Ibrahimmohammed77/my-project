@@ -16,7 +16,9 @@ export class ProfileController {
     async handleSubmit(data) {
         // Basic Validation
         const errors = {};
-        if (!InputValidator.validate(data.name, 'required')) {
+        const name = data instanceof FormData ? data.get('name') : data.name;
+
+        if (!InputValidator.validate(name, 'required')) {
             errors.name = ['اسم المدرسة مطلوب'];
         }
 
@@ -27,13 +29,22 @@ export class ProfileController {
 
         try {
             this.view.setLoading(true);
+
+            // Handle Method Spoofing for File Uploads in PHP
+            if (data instanceof FormData) {
+                data.append('_method', 'PUT');
+            } else {
+                // Should use FormData ideally, but fallback just in case
+                data = { ...data, _method: 'PUT' };
+            }
+
             const response = await ProfileService.update(data);
-            
+
             if (response.data.success) {
                 Toast.success(response.data.message || 'تم تحديث الملف الشخصي بنجاح');
             }
         } catch (error) {
-             if (error.response?.status === 422) {
+            if (error.response?.status === 422) {
                 import('../../../../utils/toast.js').then(({ showErrors }) => showErrors(error.response.data.errors));
             } else {
                 Toast.error(error.response?.data?.message || 'خطأ في تحديث البيانات');

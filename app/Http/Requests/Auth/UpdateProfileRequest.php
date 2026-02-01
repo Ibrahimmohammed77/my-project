@@ -19,6 +19,7 @@ class UpdateProfileRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email,' . $user->id],
             'phone' => ['required', 'string', 'max:13', 'regex:/^(009677|9677|\\+9677|07)([0-9]{8})$/', 'unique:users,phone,' . $user->id],
+            'profile_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ];
     }
 

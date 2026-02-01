@@ -16,5 +16,13 @@ export class SchoolAlbumService {
     static async delete(id) {
         return await ApiClient.delete(`/school/albums/${id}`);
     }
+
+    static async uploadPhotos(albumId, formData) {
+        return await ApiClient.post(`/school/albums/${albumId}/photos`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    }
 }
 

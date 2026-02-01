@@ -29,7 +29,14 @@
                             @else
                                 bg-gray-50 text-gray-600
                             @endif">
-                            <i class="fas fa-{{ $this->getActivityIcon($activity) }} text-sm"></i>
+                            <i class="fas fa-{{ match(true) {
+                                in_array($activity->action ?? '', ['login', 'user_logged_in']) => 'sign-in-alt',
+                                in_array($activity->action ?? '', ['logout', 'user_logged_out']) => 'sign-out-alt',
+                                in_array($activity->action ?? '', ['create', 'store', 'user_created', 'register']) => 'plus',
+                                in_array($activity->action ?? '', ['update', 'edit', 'user_updated']) => 'pen',
+                                in_array($activity->action ?? '', ['delete', 'destroy', 'user_deleted']) => 'trash',
+                                default => 'circle'
+                            } }} text-sm"></i>
                         </div>
                     </div>
 

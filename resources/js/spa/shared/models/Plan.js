@@ -27,5 +27,17 @@ export class Plan {
             is_active: this.is_active
         };
     }
+
+    get storage_limit_gb() {
+        return this.storage_limit ? (this.storage_limit / 1024).toFixed(2) : '0';
+    }
+
+    get formatted_price_monthly() {
+        return typeof this.price_monthly === 'number' ? this.price_monthly.toFixed(2) : this.price_monthly;
+    }
+
+    get formatted_price_yearly() {
+        return typeof this.price_yearly === 'number' ? this.price_yearly.toFixed(2) : this.price_yearly;
+    }
 }
 

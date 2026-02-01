@@ -51,9 +51,19 @@ class ProfileController extends Controller
             $user->update(['name' => $validated['name']]);
         }
 
-        // Handle logo upload if needed in future (placeholder logic)
+        // Handle profile image upload
+        if ($request->hasFile('profile_image')) {
+            // Delete old image if exists
+            if ($user->profile_image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_image);
+            }
+
+            // Store new image
+            $path = $request->file('profile_image')->store('profile-photos', 'public');
+            $user->update(['profile_image' => $path]);
+        }
         
-        $data = $request->except(['email', 'phone', 'user_id', 'school_id', '_token', '_method', 'logo']);
+        $data = $request->except(['email', 'phone', 'user_id', 'school_id', '_token', '_method', 'logo', 'profile_image']);
         $school->update($data);
 
         if ($request->wantsJson()) {

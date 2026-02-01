@@ -177,4 +177,39 @@ class AlbumController extends Controller
 
         return redirect()->route('studio.albums.index')->with('success', 'تم حذف الألبوم بنجاح');
     }
+    /**
+     * Upload photos to the album.
+     */
+    public function uploadPhotos(Request $request, $id, \App\UseCases\Photos\UploadPhotoUseCase $uploadPhotoUseCase)
+    {
+        $studio = Auth::user()->studio;
+        $album = $studio->albums()->findOrFail($id);
+        
+        $this->authorize('update', $album);
+
+        $request->validate([
+            'photos' => 'required|array',
+            'photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:10240', // 10MB max
+            'caption' => 'nullable|string|max:255',
+        ]);
+
+        $uploadedPhotos = [];
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $file) {
+                $uploadedPhotos[] = $uploadPhotoUseCase->execute($album, $file, [
+                    'caption' => $request->caption,
+                ]);
+            }
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم رفع الصور بنجاح',
+                'data' => $uploadedPhotos
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'تم رفع الصور بنجاح');
+    }
 }

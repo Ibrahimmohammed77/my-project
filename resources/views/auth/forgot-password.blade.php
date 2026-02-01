@@ -27,16 +27,16 @@
         @csrf
         
         <div>
-            <label class="block text-sm font-semibold text-white mb-2">البريد الإلكتروني أو رقم الهاتف</label>
+            <label class="block text-sm font-semibold text-white mb-2">البريد الإلكتروني</label>
             <input 
-                type="text" 
-                name="contact" 
+                type="email" 
+                name="email" 
                 class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:border-white focus:ring-2 focus:ring-white/20 outline-none transition-all backdrop-blur-sm" 
-                placeholder="example@domain.com أو +966500000000"
-                value="{{ old('contact') }}"
+                placeholder="example@domain.com"
+                value="{{ old('email') }}"
                 required
             >
-            <p class="text-xs text-blue-200 mt-2">أدخل البريد الإلكتروني أو رقم الهاتف المسجل في حسابك</p>
+            <p class="text-xs text-blue-200 mt-2">أدخل البريد الإلكتروني المسجل في حسابك لاستلام رابط استعادة كلمة المرور</p>
         </div>
         
         <button 

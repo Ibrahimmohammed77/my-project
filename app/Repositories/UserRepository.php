@@ -103,7 +103,7 @@ class UserRepository implements UserRepositoryInterface
         return $this->model->where(function ($query) use ($login) {
                 $query->where('email', $login)
                     ->orWhere('phone', $login)
-                    ->orWhere('username', $login);
+                    ->orWhereRaw('LOWER(username) = ?', [$login]);
             })
             ->first();
     }

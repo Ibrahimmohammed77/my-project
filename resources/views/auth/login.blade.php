@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="min-h-screen flex">
-    
+
     <!-- Right Side: Login Form -->
     <div class="flex-1 flex items-center justify-center p-4 sm:p-12 lg:p-20 bg-white relative z-10">
         <div class="w-full max-w-md space-y-8">
@@ -31,7 +31,8 @@
                 </div>
             </div>
 
-            <form id="login-form" class="mt-8 space-y-6">
+            <form id="login-form" method="post" class="mt-8 space-y-6">
+                @csrf
                 <div class="space-y-5">
                     <div>
                         <label for="login" class="block text-sm font-bold text-gray-700 mb-2">اسم المستخدم / البريد / الهاتف</label>
@@ -39,12 +40,12 @@
                             <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400">
                                 <i class="fa-regular fa-envelope"></i>
                             </div>
-                            <input 
-                                id="login" 
-                                name="login" 
-                                type="text" 
-                                required 
-                                class="block w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pr-11 pl-4 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm sm:leading-6 transition-all duration-200 outline-none" 
+                            <input
+                                id="login"
+                                name="login"
+                                type="text"
+                                required
+                                class="block w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pr-11 pl-4 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm sm:leading-6 transition-all duration-200 outline-none"
                                 placeholder="مثال: admin@soarak.com"
                             >
                         </div>
@@ -59,12 +60,12 @@
                             <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400">
                                 <i class="fa-solid fa-lock"></i>
                             </div>
-                            <input 
-                                id="password" 
-                                name="password" 
-                                type="password" 
-                                required 
-                                class="block w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pr-11 pl-4 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm sm:leading-6 transition-all duration-200 outline-none" 
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                required
+                                class="block w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pr-11 pl-4 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm sm:leading-6 transition-all duration-200 outline-none"
                                 placeholder="••••••••"
                             >
                         </div>
@@ -82,13 +83,13 @@
                     <span>تسجيل الدخول</span>
                     <i class="fa-solid fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
                 </button>
-                
+
                 <p class="mt-2 text-center text-sm text-gray-500">
                     ليس لديك حساب؟
                     <a href="{{ route('register') }}" class="font-bold text-accent hover:text-accent-hover transition-colors">إنشاء حساب جديد</a>
                 </p>
             </form>
-            
+
             <div class="mt-10 border-t border-gray-100 pt-6">
                 <div class="grid grid-cols-2 gap-3">
                     <a href="/" class="flex justify-center items-center gap-2 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-primary transition-all">
@@ -101,7 +102,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Left Side: Visual / Background -->
     <div class="hidden lg:block relative flex-1 bg-primary overflow-hidden">
         <!-- Background Image with Overlay -->
@@ -109,22 +110,22 @@
             <img class="h-full w-full object-cover opacity-30 mix-blend-overlay" src="{{ asset('images/auth-bg-login.jpg') }}" alt="Background">
             <div class="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-accent/80 mix-blend-multiply"></div>
         </div>
-        
+
         <!-- Decorative Elements -->
         <div class="absolute top-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
         <div class="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-        
+
         <!-- Content -->
         <div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-12 text-white">
             <div class="mb-8 p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl animate-float">
                 <img src="{{ asset('images/logo-cutout.png') }}" alt="Logo" class="h-32 w-auto drop-shadow-lg">
             </div>
-            
+
             <h1 class="text-4xl font-bold mb-6">منصة صوركم</h1>
             <p class="text-lg text-blue-100 max-w-md leading-relaxed">
-                استمتع بتجربة فريدة في حفظ وإدارة ذكرياتك. نظام متكامل يجمع بين الأمان، السهولة، 
+                استمتع بتجربة فريدة في حفظ وإدارة ذكرياتك. نظام متكامل يجمع بين الأمان، السهولة،
             </p>
-            
+
             <!-- Features Micro-grid -->
             <div class="grid grid-cols-3 gap-6 mt-12 w-full max-w-lg">
                 <div class="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">

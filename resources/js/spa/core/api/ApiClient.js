@@ -36,7 +36,7 @@ export class ApiClient {
                 }
 
                 // Log request in development
-                if (process.env.NODE_ENV === 'development') {
+                if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
                     console.log(`[API] ${config.method.toUpperCase()} ${config.url}`, config.data);
                 }
 
@@ -52,7 +52,7 @@ export class ApiClient {
         this.client.interceptors.response.use(
             (response) => {
                 // Log response in development
-                if (process.env.NODE_ENV === 'development') {
+                if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
                     console.log('[API] Response:', response.data);
                 }
 

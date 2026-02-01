@@ -44,7 +44,7 @@ class RegisterRequest extends FormRequest
                 'string',
                 'max:13',
                 'unique:users,phone',
-                'regex:/^(009677|9677|\\+9677|07)([0-9]{8})$/',
+                'regex:/^(?:\+967|00967|967|0)?7\d{8}$/',
             ],
             'password' => [
                 'required',
@@ -68,7 +68,7 @@ class RegisterRequest extends FormRequest
         return [
             'username.regex' => 'اسم المستخدم يجب أن يحتوي على حروف إنجليزية وأرقام وشرطة سفلية فقط.',
             'phone.regex' => 'رقم الهاتف يجب أن يكون برقم يمني صحيح.',
-            'password.confirmed' => 'كلمات المرور غير متطابقة.',
+            'password.confirmed' => 'كلمات السر غير متطابقة.',
             'gender_id.exists' => 'الجنس المحدد غير صحيح.',
         ];
     }
@@ -100,6 +100,8 @@ class RegisterRequest extends FormRequest
             return '+' . $phone;
         } elseif (str_starts_with($phone, '0')) {
              return '+967' . substr($phone, 1);
+        } elseif (preg_match('/^7\d{8}$/', $phone)) {
+             return '+967' . $phone;
         }
 
         return $phone;

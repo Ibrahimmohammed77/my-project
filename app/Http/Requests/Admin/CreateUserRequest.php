@@ -24,8 +24,8 @@ class CreateUserRequest extends BaseUserRequest
             'email.required' => 'البريد الإلكتروني مطلوب.',
             'email.email' => 'البريد الإلكتروني غير صالح.',
             'email.unique' => 'البريد الإلكتروني مستخدم بالفعل.',
-            'password.required' => 'كلمة المرور مطلوبة.',
-            'password.min' => 'كلمة المرور يجب أن لا تقل عن 4 أحرف.',
+            'password.required' => 'كلمة السر مطلوبة.',
+            'password.min' => 'كلمة السر يجب أن لا تقل عن 4 أحرف.',
             'role_id.required' => 'يجب تحديد دور للمستخدم.',
             'role_id.exists' => 'الدور المحدد غير موجود.',
         ];

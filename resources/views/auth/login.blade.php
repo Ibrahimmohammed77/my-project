@@ -44,8 +44,7 @@
                                 name="login" 
                                 type="text" 
                                 required 
-                                class="block w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pr-11 pl-4 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm sm:leading-6 transition-all duration-200 outline-none" 
-                                placeholder="مثال: admin@soarak.com"
+                                placeholder="البريد، الهاتف أو اسم المستخدم"
                             >
                         </div>
                     </div>
@@ -65,7 +64,7 @@
                                 type="password" 
                                 required 
                                 class="block w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pr-11 pl-4 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm sm:leading-6 transition-all duration-200 outline-none" 
-                                placeholder="••••••••"
+                                placeholder="كلمة السر"
                             >
                         </div>
                     </div>

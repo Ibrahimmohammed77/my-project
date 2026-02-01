@@ -61,12 +61,9 @@ class AuthService implements AuthServiceInterface
         });
     }
 
-    /**
-     * Login user with email, phone, or username.
-     */
     public function login(string $login, string $password, bool $remember = false): array
     {
-        $user = $this->userRepository->findByLogin($login);
+        $user = $this->findUserByLogin($login);
 
         if (!$user || !Hash::check($password, $user->password)) {
             throw new \Exception('بيانات الاعتماد غير صحيحة.');
@@ -97,6 +94,14 @@ class AuthService implements AuthServiceInterface
             'token_type' => 'Bearer',
             'expires_in' => config('sanctum.expiration', 525600),
         ];
+    }
+
+    /**
+     * Find user by any of the login identifiers.
+     */
+    public function findUserByLogin(string $login): ?\App\Models\User
+    {
+        return $this->userRepository->findByLogin($login);
     }
 
     /**
@@ -376,7 +381,7 @@ class AuthService implements AuthServiceInterface
                 $user->id,
                 'كود التحقق',
                 $message,
-                $verificationType->lookup_value_id,
+                $verificationType->code,
                 ['code' => $user->verification_code]
             );
         }

@@ -34,7 +34,7 @@ class StudioController extends Controller
             'statuses' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'USER_STATUS'))->get(),
         ];
 
-        if ($request->wantsJson()) {
+        if ($request->ajax()) {
             return $this->paginatedResponse($studios, 'studios');
         }
 

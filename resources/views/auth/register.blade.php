@@ -14,9 +14,9 @@
                 <a href="/" class="inline-block lg:hidden mb-8 transform hover:scale-105 transition-transform duration-300">
                     <img src="{{ asset('images/logo-cutout.png') }}" class="h-20 w-auto drop-shadow-md" alt="صوركم">
                 </a>
-                <h2 class="text-4xl font-extrabold tracking-tight text-gray-900 mb-2">انضم إلينا اليوم! </h2>
+                <h2 class="text-4xl font-extrabold tracking-tight text-gray-900 mb-2">أنشئ حسابك الجديد </h2>
                 <p class="text-lg text-gray-500">
-                    أنشئ حسابك الجديد وابدأ في حفظ ذكرياتك
+                    وابدأ في حفظ ذكرياتك
                 </p>
             </div>
 
@@ -90,7 +90,7 @@
                 <!-- Security -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="group">
-                        <label for="password" class="block text-sm font-bold text-gray-700 mb-2 group-focus-within:text-accent transition-colors">كلمة المرور</label>
+                        <label for="password" class="block text-sm font-bold text-gray-700 mb-2 group-focus-within:text-accent transition-colors">كلمة السر</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400 group-focus-within:text-accent transition-colors">
                                 <i class="fa-solid fa-lock"></i>
@@ -101,7 +101,7 @@
                         </div>
                     </div>
                     <div class="group">
-                        <label for="password_confirmation" class="block text-sm font-bold text-gray-700 mb-2 group-focus-within:text-accent transition-colors">تأكيد كلمة المرور</label>
+                        <label for="password_confirmation" class="block text-sm font-bold text-gray-700 mb-2 group-focus-within:text-accent transition-colors">تأكيد كلمة السر</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400 group-focus-within:text-accent transition-colors">
                                 <i class="fa-solid fa-check-double"></i>

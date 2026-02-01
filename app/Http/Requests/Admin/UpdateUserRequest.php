@@ -17,7 +17,7 @@ class UpdateUserRequest extends BaseUserRequest
     public function messages(): array
     {
         return [
-            'password.min' => 'كلمة المرور يجب أن لا تقل عن 4 أحرف.',
+            'password.min' => 'كلمة السر يجب أن لا تقل عن 4 أحرف.',
         ];
     }
 }

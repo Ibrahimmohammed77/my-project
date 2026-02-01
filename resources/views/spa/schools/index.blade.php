@@ -3,7 +3,11 @@
 @section('header', 'إدارة المدارس')
 
 @section('content')
-    <x-page-header title="إدارة المدارس">
+    <x-page-header 
+        title="إدارة المدارس" 
+        subtitle="إدارة بيانات المدارس، تنظيم مجموعات الكروت وتوزيعها على الفروع والأقسام."
+        :breadcrumbs="[['label' => 'إدارة الحسابات', 'url' => route('spa.accounts')], ['label' => 'المدارس']]"
+    >
         <!-- Search -->
         <div class="relative min-w-[240px]">
             <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
@@ -199,7 +203,7 @@
                 <h3 class="text-sm font-bold text-gray-700 mb-2">بيانات الدخول</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-form.input name="username" label="اسم المستخدم" icon="fa-user" placeholder="اتركه فارغاً للتوليد التلقائي" />
-                    <x-form.input name="password" label="كلمة المرور" type="password" icon="fa-lock" placeholder="اتركها فارغة لاستخدام الافتراضي" />
+                    <x-form.input name="password" label="كلمة السر" type="password" icon="fa-lock" placeholder="اتركها فارغة لاستخدام الافتراضي" />
                 </div>
             </div>
 

@@ -34,8 +34,8 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'login.required' => 'البريد الإلكتروني أو رقم الهاتف أو اسم المستخدم مطلوب.',
-            'password.required' => 'كلمة المرور مطلوبة.',
+            'login.required' => 'البريد أو الهاتف أو اسم المستخدم مطلوب.',
+            'password.required' => 'كلمة السر مطلوبة.',
         ];
     }
 
@@ -58,8 +58,8 @@ class LoginRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'login' => 'بيانات الدخول',
-            'password' => 'كلمة المرور',
+            'login' => 'البريد أو الهاتف أو اسم المستخدم',
+            'password' => 'كلمة السر',
         ];
     }
 }

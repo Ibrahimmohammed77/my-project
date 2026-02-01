@@ -171,8 +171,8 @@ abstract class BaseStudioSchoolRequest extends FormRequest
             'username.username_format' => 'صيغة اسم المستخدم غير صالحة.',
             'username.max' => 'اسم المستخدم يجب أن لا يتجاوز 255 حرفًا.',
 
-            'password.required' => 'كلمة المرور مطلوبة.',
-            'password.min' => 'كلمة المرور يجب أن لا تقل عن 4 أحرف.',
+            'password.required' => 'كلمة السر مطلوبة.',
+            'password.min' => 'كلمة السر يجب أن لا تقل عن 4 أحرف.',
 
             'city.max' => 'المدينة يجب أن لا تتجاوز 100 حرف.',
             'address.max' => 'العنوان يجب أن لا يتجاوز 500 حرف.',

@@ -35,7 +35,7 @@ class UserController extends Controller
 
         $users = $this->userService->listUsers($filters, $request->get('per_page', 15));
 
-        if ($request->wantsJson()) {
+        if ($request->ajax()) {
             return $this->paginatedResponse($users, 'users');
         }
 
@@ -76,7 +76,7 @@ class UserController extends Controller
 
             $user = $this->userService->createUser($data);
 
-            if ($request->wantsJson()) {
+            if ($request->ajax()) {
                 return $this->successResponse(
                     ['user' => $user->load(['roles', 'status', 'type'])],
                     'تم إنشاء المستخدم بنجاح',
@@ -103,7 +103,7 @@ class UserController extends Controller
             'statuses' => LookupValue::whereHas('master', fn($q) => $q->where('code', 'USER_STATUS'))->get()
         ];
 
-        if (request()->wantsJson()) {
+        if (request()->ajax()) {
             return $this->successResponse($data);
         }
 
@@ -127,7 +127,7 @@ class UserController extends Controller
 
             $updatedUser = $this->userService->updateUser($user, $data);
 
-            if ($request->wantsJson()) {
+            if ($request->ajax()) {
                 return $this->successResponse(
                     ['user' => $updatedUser->load(['roles', 'status', 'type'])],
                     'تم تحديث بيانات المستخدم بنجاح'
@@ -150,7 +150,7 @@ class UserController extends Controller
         try {
             $this->userService->deleteUser($user);
 
-            if (request()->wantsJson()) {
+            if (request()->ajax()) {
                 return $this->successResponse(
                     null,
                     'تم حذف المستخدم بنجاح'
@@ -193,7 +193,7 @@ class UserController extends Controller
      */
     private function handleError(\Exception $e, Request $request, string $message): JsonResponse|RedirectResponse
     {
-        if ($request->wantsJson()) {
+        if ($request->ajax()) {
             return $this->errorResponse(
                 $message,
                 500,

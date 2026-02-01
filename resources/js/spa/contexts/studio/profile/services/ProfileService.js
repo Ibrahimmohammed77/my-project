@@ -7,7 +7,8 @@ export class ProfileService {
      * @returns {Promise}
      */
     static async update(data) {
-        return await ApiClient.put('/studio/profile', data);
+        // Using POST with _method: PUT for file upload support in PHP
+        return await ApiClient.post('/studio/profile', data);
     }
 }
 

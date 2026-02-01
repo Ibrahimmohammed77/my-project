@@ -50,7 +50,7 @@ export class AlbumView {
     renderTable(albums) {
         if (!this.tableBody) return;
         this.tableBody.innerHTML = '';
-        
+
         if (albums.length === 0) {
             this.renderEmpty();
             return;
@@ -59,7 +59,7 @@ export class AlbumView {
         albums.forEach(album => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50/50 transition-colors group border-b border-gray-100';
-            
+
             tr.innerHTML = `
                 <td class="py-4 px-4 font-bold text-gray-800"></td>
                 <td class="py-4 px-4 text-sm text-gray-600"></td>
@@ -67,6 +67,9 @@ export class AlbumView {
                 <td class="py-4 px-4 text-[11px] text-gray-500">${new Date(album.created_at).toLocaleDateString('ar-EG')}</td>
                 <td class="py-4 px-4">
                     <div class="flex gap-2 justify-center">
+                        <button class="upload-btn w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-green-500 hover:border-green-500 transition-all flex items-center justify-center shadow-soft" title="رفع صور">
+                            <i class="fa-solid fa-cloud-upload-alt text-xs"></i>
+                        </button>
                         <button class="edit-btn w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-accent hover:border-accent transition-all flex items-center justify-center shadow-soft">
                             <i class="fa-solid fa-pen text-xs"></i>
                         </button>
@@ -80,6 +83,7 @@ export class AlbumView {
             tr.children[0].textContent = album.name;
             tr.children[1].textContent = album.description || '-';
 
+            tr.querySelector('.upload-btn').addEventListener('click', () => window.albumController.openUpload(album.album_id));
             tr.querySelector('.edit-btn').addEventListener('click', () => window.albumController.edit(album.album_id));
             tr.querySelector('.delete-btn').addEventListener('click', () => window.albumController.delete(album.album_id));
 
@@ -115,7 +119,7 @@ export class AlbumView {
 
         document.getElementById('name').value = album.name;
         document.getElementById('description').value = album.description || '';
-        
+
         // Handle Card Selection if form has card select (multiselect?)
         // Assuming blade renders a multiselect for cards?
         // Or check legacy functionality.
@@ -127,11 +131,28 @@ export class AlbumView {
         // If select from list, I need to fetch cards.
         // For now, support Name/Description.
         // If View has input for cards, it will be included in FormData.
-        
+
         this.modal.classList.remove('hidden');
     }
 
     closeModal() {
         this.modal.classList.add('hidden');
+    }
+
+    openUploadModal(albumId) {
+        const uploadModal = document.getElementById('upload-modal');
+        const uploadAlbumIdInput = document.getElementById('upload-album-id');
+        if (uploadModal && uploadAlbumIdInput) {
+            uploadAlbumIdInput.value = albumId;
+            uploadModal.classList.remove('hidden');
+        }
+    }
+
+    closeUploadModal() {
+        const uploadModal = document.getElementById('upload-modal');
+        if (uploadModal) {
+            uploadModal.classList.add('hidden');
+            document.getElementById('upload-form')?.reset();
+        }
     }
 }

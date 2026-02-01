@@ -30,7 +30,7 @@
             <span class="font-medium">ماسح QR</span>
         </a>
 
-        <div class="my-6 border-t border-white/10"></div>
+
         
         <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">إدارة الحسابات</p>
 

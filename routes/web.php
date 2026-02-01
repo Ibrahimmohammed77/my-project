@@ -59,6 +59,9 @@ Route::prefix('pages')->as('pages.')->group(function () {
     Route::view('/features', 'pages.features')->name('features');
 });
 
+// CSRF Token for SPA
+Route::get('/csrf-token', [AuthController::class, 'getCsrfToken'])->name('csrf-token');
+
 // ==================== ERROR PAGES ====================
 Route::fallback(function () {
     return view('errors.404');

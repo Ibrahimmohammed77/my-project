@@ -111,14 +111,17 @@ public function getDaysRemainingAttribute(): int
     return now()->diffInDays($this->end_date);
 }
 
-/**
- * Scope for active subscriptions
- */
-public function scopeActive($query)
-{
-    return $query->where('end_date', '>=', now())
-                 ->whereHas('status', function($q) {
-                     $q->where('code', 'ACTIVE');
-                 });
-}
+    /**
+     * Scope for active subscriptions
+     */
+    /**
+     * Scope for active subscriptions
+     */
+    public function scopeActiveSubscription($query)
+    {
+        return $query->where('end_date', '>=', now())
+                     ->whereHas('status', function($q) {
+                         $q->where('code', 'ACTIVE');
+                     });
+    }
 }

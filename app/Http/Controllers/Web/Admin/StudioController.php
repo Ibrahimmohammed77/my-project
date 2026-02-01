@@ -24,9 +24,9 @@ class StudioController extends Controller
      */
     public function index(Request $request): View|JsonResponse
     {
-        $studios = Studio::with('user.status')
+        $studios = Studio::with(['user.status', 'user.type', 'user.roles'])
             ->filter($request->only('search', 'status_id', 'city'))
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->paginate($request->get('per_page', 15));
 
         $data = [

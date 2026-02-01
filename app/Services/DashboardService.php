@@ -164,10 +164,12 @@ class DashboardService
 
         return Cache::remember("user_{$user->id}_recent_activities", 60, function () use ($user, $limit) {
             return ActivityLog::query()
-                ->where('causer_id', $user->id)
-                ->orWhere('subject_id', $user->id)
-                ->orWhere('subject_type', User::class)
-                ->with('causer:id,name')
+                ->where('user_id', $user->id)
+                ->orWhere(function ($q) use ($user) {
+                    $q->where('resource_id', $user->id)
+                      ->where('resource_type', 'user');
+                })
+                ->with('user:id,name')
                 ->latest()
                 ->limit($limit)
                 ->get();
@@ -224,8 +226,8 @@ class DashboardService
     {
         return Cache::remember('admin_dashboard_stats', 300, function () {
             try {
-                $paidStatusId = LookupValue::where('code', 'paid')->value('lookup_value_id');
-                $pendingStatusId = LookupValue::where('code', 'pending')->value('lookup_value_id');
+                $paidStatusId = LookupValue::where('code', 'PAID')->value('lookup_value_id');
+                $pendingStatusId = LookupValue::where('code', 'PENDING')->value('lookup_value_id');
 
                 return [
                     'total_users' => User::count(),
@@ -233,11 +235,12 @@ class DashboardService
                     'new_users_today' => User::whereDate('created_at', today())->count(),
                     'total_studios' => Studio::count(),
                     'total_schools' => School::count(),
-                    'total_subscriptions' => Subscription::active()->count(),
+                    'total_subscriptions' => Subscription::activeSubscription()->count(),
                     'total_revenue' => $paidStatusId ? (float) Invoice::where('invoice_status_id', $paidStatusId)->sum('total_amount') : 0,
                     'pending_invoices' => $pendingStatusId ? Invoice::where('invoice_status_id', $pendingStatusId)->count() : 0,
                 ];
             } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Dashboard Stats Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
                 report($e);
                 return $this->getDefaultAdminStats();
             }

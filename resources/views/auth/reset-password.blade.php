@@ -17,30 +17,20 @@
     <form action="{{ route('password.update') }}" method="post" class="space-y-4">
         @csrf
         
+        <!-- Token (Hidden) -->
+        <input type="hidden" name="token" value="{{ $token }}">
+
         <div>
-            <label class="block text-sm font-semibold text-white mb-2">البريد الإلكتروني أو رقم الهاتف</label>
+            <label class="block text-sm font-semibold text-white mb-2">البريد الإلكتروني</label>
             <input 
-                type="text" 
-                name="contact" 
+                type="email" 
+                name="email" 
                 class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:border-white focus:ring-2 focus:ring-white/20 outline-none transition-all backdrop-blur-sm" 
-                placeholder="example@domain.com أو +966500000000"
-                value="{{ old('contact', session('contact')) }}"
+                placeholder="example@domain.com"
+                value="{{ old('email', $email) }}"
+                readonly
                 required
             >
-        </div>
-        
-        <div>
-            <label class="block text-sm font-semibold text-white mb-2">رمز التحقق</label>
-            <input 
-                type="text" 
-                name="reset_code" 
-                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:border-white focus:ring-2 focus:ring-white/20 outline-none transition-all backdrop-blur-sm text-center text-2xl tracking-widest font-mono" 
-                placeholder="000000"
-                maxlength="6"
-                pattern="[0-9]{6}"
-                required
-            >
-            <p class="text-xs text-blue-200 mt-2">أدخل الرمز المكون من 6 أرقام المرسل إليك</p>
         </div>
         
         <div>

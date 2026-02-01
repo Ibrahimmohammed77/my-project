@@ -12,8 +12,8 @@ export class ProfileView {
         this.form.addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(this.form);
-            const data = Object.fromEntries(formData.entries());
-            handler(data);
+            // Pass FormData directly to support file uploads
+            handler(formData);
         });
     }
 

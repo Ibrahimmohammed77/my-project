@@ -60,8 +60,8 @@ export class ApiClient {
         this.client.interceptors.response.use(
             (response) => {
                 // Log response in development
-                 if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-                    console.log(`[API] ${config.method.toUpperCase()} ${config.url}`, config.data);
+                if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+                    console.log(`[API] ${response.config.method.toUpperCase()} ${response.config.url}`, response.data);
                 }
 
                 return response;
@@ -84,8 +84,14 @@ export class ApiClient {
 
                 // Handle unauthorized (401)
                 if (error.response?.status === 401) {
-                    console.warn('[API] Unauthorized - redirecting to login');
-                    window.location.href = '/login';
+                    // Don't redirect if we are already on the login page or if this is a login attempt
+                    const isAuthPage = window.location.pathname.includes('/login') || window.location.pathname.includes('/register');
+                    const isLoginRequest = originalRequest.url.includes('/login');
+
+                    if (!isAuthPage && !isLoginRequest) {
+                        console.warn('[API] Unauthorized - redirecting to login');
+                        window.location.href = '/login';
+                    }
                     return Promise.reject(error);
                 }
 

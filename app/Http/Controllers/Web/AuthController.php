@@ -317,7 +317,20 @@ class AuthController extends Controller implements HasMiddleware
     {
         try {
             $user = Auth::user();
-            $user->update($request->validated());
+            $data = $request->validated();
+
+            if ($request->hasFile('profile_image')) {
+                // Delete old image if exists
+                if ($user->profile_image) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_image);
+                }
+
+                // Store new image
+                $path = $request->file('profile_image')->store('profile-photos', 'public');
+                $data['profile_image'] = $path;
+            }
+
+            $user->update($data);
 
             return back()
                 ->with('success', 'تم تحديث الملف الشخصي بنجاح.');

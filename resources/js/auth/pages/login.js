@@ -10,9 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             // Reset state
-            if(submitBtn) {
+            if (submitBtn) {
                 submitBtn.disabled = true;
                 // Store original content
                 if (!submitBtn.dataset.originalContent) {
@@ -20,45 +20,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
             }
-            if(errorMessage) errorMessage.classList.add('hidden');
-            
+            if (errorMessage) errorMessage.classList.add('hidden');
+
             const formData = {
                 login: document.getElementById('login').value,
                 password: document.getElementById('password').value,
                 remember: document.getElementById('remember').checked
             };
-            
+
             try {
                 const response = await AuthService.login(formData);
-                
+
                 if (response.success) {
-                    if(submitBtn) {
+                    if (submitBtn) {
                         submitBtn.innerHTML = '<i class="fa-solid fa-check ml-2"></i> تم بنجاح';
                         submitBtn.classList.remove('bg-primary');
                         submitBtn.classList.add('bg-green-600');
                     }
-                    
+
                     setTimeout(() => {
                         window.location.href = response.redirect || '/dashboard';
                     }, 500);
+                } else {
+                    throw { response: { data: response } };
                 }
             } catch (error) {
+                console.error('[Login] Error:', error);
+
                 // Show error
                 let errorMsg = 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.';
-                
+
                 if (error.response?.data?.message) {
                     errorMsg = error.response.data.message;
                 } else if (error.response?.data?.errors) {
                     errorMsg = Object.values(error.response.data.errors).flat().join('<br>');
                 }
-                
-                if(errorText) errorText.innerHTML = errorMsg;
-                if(errorMessage) errorMessage.classList.remove('hidden');
-                
+
+                if (errorText) errorText.innerHTML = errorMsg;
+                if (errorMessage) {
+                    errorMessage.classList.remove('hidden');
+                    errorMessage.style.display = 'block'; // Force display
+                }
+
                 // Reset button
-                if(submitBtn) {
+                if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = submitBtn.dataset.originalContent;
+                    if (submitBtn.dataset.originalContent) {
+                        submitBtn.innerHTML = submitBtn.dataset.originalContent;
+                    }
                 }
             }
         });

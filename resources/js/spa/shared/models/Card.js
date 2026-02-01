@@ -20,5 +20,24 @@ export class Card {
     get isActive() {
         return this.status?.code === 'ACTIVE';
     }
+
+    get is_expired() {
+        if (!this.expiryDate) return false;
+        return new Date(this.expiryDate) < new Date();
+    }
+
+    get formatted_card_number() {
+        if (!this.number) return '';
+        const s = this.number.toString();
+        return `${s.slice(0, 3)}-${s.slice(3, 6)}-${s.slice(6, 9)}`;
+    }
+
+    get holder_name() {
+        return this.holder?.name || '-';
+    }
+
+    get owner_name() {
+        return this.owner?.name || '-';
+    }
 }
 

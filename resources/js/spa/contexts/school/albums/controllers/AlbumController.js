@@ -13,10 +13,12 @@ export class AlbumController {
     async init() {
         this.view.bindSearch(this.handleSearch.bind(this));
         this.view.bindSubmit(this.handleSubmit.bind(this));
-        
+        this.bindUploadForm();
+
         window.albumController = this;
         window.showCreateModal = () => this.view.openCreateModal();
         window.closeModal = () => this.view.closeModal();
+        window.closeUploadModal = () => this.view.closeUploadModal();
 
         await this.loadAlbums();
     }
@@ -53,7 +55,7 @@ export class AlbumController {
                 await this.loadAlbums();
             }
         } catch (error) {
-             if (error.response?.status === 422) {
+            if (error.response?.status === 422) {
                 import('../../../../utils/toast.js').then(({ showErrors }) => showErrors(error.response.data.errors));
             } else {
                 Toast.error(error.response?.data?.message || 'خطأ في حفظ البيانات');
@@ -88,6 +90,37 @@ export class AlbumController {
         this.searchTimeout = setTimeout(() => {
             this.loadAlbums(query);
         }, 500);
+    }
+
+    openUpload(albumId) {
+        this.view.openUploadModal(albumId);
+    }
+
+    bindUploadForm() {
+        const uploadForm = document.getElementById('upload-form');
+        if (!uploadForm) return;
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(uploadForm);
+            const albumId = document.getElementById('upload-album-id').value;
+
+            if (!formData.get('photos[]') || formData.getAll('photos[]').length === 0) {
+                Toast.error('الرجاء اختيار صور للرفع');
+                return;
+            }
+
+            try {
+                const response = await SchoolAlbumService.uploadPhotos(albumId, formData);
+                if (response.data.success) {
+                    Toast.success(response.data.message);
+                    this.view.closeUploadModal();
+                    await this.loadAlbums();
+                }
+            } catch (error) {
+                Toast.error(error.response?.data?.message || 'خطأ في رفع الصور');
+            }
+        });
     }
 }
 

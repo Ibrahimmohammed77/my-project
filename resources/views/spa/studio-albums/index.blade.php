@@ -61,6 +61,8 @@
         </x-slot>
     </x-modal>
 
+    <x-album-upload-modal />
+
 @push('scripts')
     @vite('resources/js/spa/contexts/studio/albums/index.js')
 @endpush

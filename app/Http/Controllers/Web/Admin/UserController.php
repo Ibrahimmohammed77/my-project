@@ -48,10 +48,12 @@ class UserController extends Controller
     public function search(Request $request): JsonResponse
     {
         $query = $request->get('q', $request->get('search'));
-        
+        $roles = $request->get('roles'); // Support optional role filtering
+
         $users = $this->userService->listUsers([
             'search' => $query,
-            'is_active' => true
+            'is_active' => true,
+            'roles' => $roles
         ], 10);
 
         return $this->successResponse([

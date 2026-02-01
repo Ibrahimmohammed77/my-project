@@ -17,6 +17,10 @@ Route::post('resend-verification', [AuthController::class, 'resendVerification']
 Route::get('change-password', [AuthController::class, 'showChangePasswordForm'])->name('password.change');
 Route::post('change-password', [AuthController::class, 'changePassword']);
 
+// Card Redemption
+Route::post('cards/redeem', [\App\Http\Controllers\CardRedemptionController::class, 'redeem'])->name('cards.redeem');
+Route::get('my-cards', [\App\Http\Controllers\CardRedemptionController::class, 'myCards'])->name('cards.my');
+
 // Profile Completion
 Route::get('profile/completion', function () {
     return view('auth.profile-completion');

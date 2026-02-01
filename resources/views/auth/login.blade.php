@@ -40,6 +40,7 @@
                             <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400">
                                 <i class="fa-regular fa-envelope"></i>
                             </div>
+<<<<<<< HEAD
                             <input
                                 id="login"
                                 name="login"
@@ -47,6 +48,14 @@
                                 required
                                 class="block w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pr-11 pl-4 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm sm:leading-6 transition-all duration-200 outline-none"
                                 placeholder="مثال: admin@soarak.com"
+=======
+                            <input 
+                                id="login" 
+                                name="login" 
+                                type="text" 
+                                required 
+                                placeholder="البريد، الهاتف أو اسم المستخدم"
+>>>>>>> d35620e126590b4dc6065914478140e9d42d23cd
                             >
                         </div>
                     </div>
@@ -60,6 +69,7 @@
                             <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400">
                                 <i class="fa-solid fa-lock"></i>
                             </div>
+<<<<<<< HEAD
                             <input
                                 id="password"
                                 name="password"
@@ -67,6 +77,15 @@
                                 required
                                 class="block w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pr-11 pl-4 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm sm:leading-6 transition-all duration-200 outline-none"
                                 placeholder="••••••••"
+=======
+                            <input 
+                                id="password" 
+                                name="password" 
+                                type="password" 
+                                required 
+                                class="block w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pr-11 pl-4 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm sm:leading-6 transition-all duration-200 outline-none" 
+                                placeholder="كلمة السر"
+>>>>>>> d35620e126590b4dc6065914478140e9d42d23cd
                             >
                         </div>
                     </div>

@@ -10,6 +10,7 @@ use App\Models\StorageLibrary;
 use App\UseCases\School\Album\CreateSchoolAlbumUseCase;
 use App\UseCases\School\Album\LinkSchoolAlbumToCardUseCase;
 use App\UseCases\School\Album\UpdateSchoolAlbumUseCase;
+use App\Helpers\StorageLibraryHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,6 +36,15 @@ class AlbumController extends Controller
     public function index(Request $request)
     {
         $school = Auth::user()->school;
+        
+        // Ensure storage library exists (fallback)
+        try {
+            StorageLibraryHelper::ensureStorageLibraryForSchool($school);
+        } catch (\Exception $e) {
+            // If this fails, user will get proper error when trying to create album
+            \Log::warning('Could not ensure storage library for school ' . $school->school_id . ': ' . $e->getMessage());
+        }
+        
         $query = $school->albums()->withCount('photos')->latest();
 
         if ($request->has('search')) {

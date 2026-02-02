@@ -66,11 +66,11 @@
 
         @if($activities->count() > 0)
             <div class="mt-6 pt-4 border-t border-gray-200">
-                <a href="{{ route('activity-logs.index') }}"
+                {{-- <a href="{{ route('activity-logs.index') }}"
                    class="text-sm text-primary-600 hover:text-primary-700 font-medium">
                     عرض جميع النشاطات
                     <i class="fas fa-arrow-left mr-1"></i>
-                </a>
+                </a> --}}
             </div>
         @endif
     </div>

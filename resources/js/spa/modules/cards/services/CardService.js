@@ -73,6 +73,16 @@ export class CardService {
         }
         return null;
     }
+
+    /**
+     * Assign card to storage library
+     */
+    static async assignToLibrary(cardId, storageLibraryId) {
+        const response = await ApiClient.post(`/studio/cards/${cardId}/assign-to-library`, {
+            storage_library_id: storageLibraryId
+        });
+        return Card.fromJson(response.data?.data);
+    }
 }
 
 export default CardService;

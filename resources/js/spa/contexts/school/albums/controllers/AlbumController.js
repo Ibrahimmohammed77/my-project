@@ -35,7 +35,7 @@ export class AlbumController {
     }
 
     async handleSubmit(data, id) {
-        if (!InputValidator.validate(data.name, 'required')) {
+        if (!InputValidator.validateRequired(data.name)) {
             import('../../../../utils/toast.js').then(({ showErrors }) => showErrors({ name: ['اسم الألبوم مطلوب'] }));
             return;
         }

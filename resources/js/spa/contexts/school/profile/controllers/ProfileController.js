@@ -18,7 +18,7 @@ export class ProfileController {
         const errors = {};
         const name = data instanceof FormData ? data.get('name') : data.name;
 
-        if (!InputValidator.validate(name, 'required')) {
+        if (!InputValidator.validateRequired(name)) {
             errors.name = ['اسم المدرسة مطلوب'];
         }
 

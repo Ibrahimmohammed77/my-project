@@ -26,7 +26,7 @@ class CreateSchoolAlbumUseCase
         // Discover Storage Library
         $storageLibrary = StorageLibrary::where('school_id', $school->school_id)->first();
         if (!$storageLibrary) {
-             throw new Exception('لم يتم العثور على مكتبة تخزين مخصصة للمدرسة. يرجى التواصل مع الإدارة.');
+             throw new Exception('لم يتم العثور على مكتبة تخزين للمدرسة. يرجى تحديث الصفحة أو التواصل مع الإدارة إذا استمرت المشكلة.');
         }
 
         return DB::transaction(function () use ($school, $data, $storageLibrary) {

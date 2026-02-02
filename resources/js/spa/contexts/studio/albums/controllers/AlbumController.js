@@ -41,7 +41,7 @@ export class AlbumController {
         // Validation
         const errors = {};
         
-        if (!InputValidator.validate(data.name, 'required')) {
+        if (!InputValidator.validateRequired(data.name)) {
             errors.name = ['اسم الألبوم مطلوب'];
         } else if (data.name.length > 255) {
             errors.name = ['اسم الألبوم يجب أن لا يتجاوز 255 حرفاً'];

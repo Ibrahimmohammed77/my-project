@@ -85,4 +85,37 @@ class CardController extends Controller
         }
     }
 
+    /**
+     * ربط الكرت بمكتبة التخزين (مساحة)
+     */
+    public function assignToLibrary(Request $request, Card $card)
+    {
+        $this->authorize('update', $card);
+        
+        $validated = $request->validate([
+            'storage_library_id' => 'required|exists:storage_libraries,storage_library_id',
+        ]);
+
+        try {
+            $studio = Auth::user()->studio;
+            
+            // التحقق من أن المكتبة تابعة للاستوديو
+            $library = $studio->storageLibraries()->findOrFail($validated['storage_library_id']);
+            
+            $useCase = app(\App\UseCases\Studio\AssignCardToLibraryUseCase::class);
+            $card = $useCase->execute($card, $library);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم ربط الكرت بمكتبة التخزين بنجاح',
+                'data' => $card
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 422);
+        }
+    }
+
 }

@@ -36,27 +36,27 @@
 
         <form id="storage-form" class="space-y-4">
             <input type="hidden" id="library-id" name="id">
-            
-            <div id="subscriber-wrapper">
-                <label class="block text-sm font-bold text-gray-700 mb-1">المشترك</label>
-                <select name="subscriber_id" id="subscriber_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm transition-all appearance-none">
-                    <option value="">اختر مشتركاً</option>
-                </select>
-            </div>
 
-            <x-form.input name="name" id="name" label="اسم المكتبة" icon="fa-folder" placeholder="مثلاً: صور التخرج 2024" required />
+            <x-form.input name="name" id="name" label="اسم المكتبة" icon="fa-folder" placeholder="مثلاً: مكتبة صور التخرج 2024" required />
             
-            <x-form.input type="number" name="storage_limit" id="storage_limit" label="المساحة المخصصة (ميجا بايت)" icon="fa-database" placeholder="مثلاً: 100" required step="0.1" />
-            <p class="text-[10px] text-gray-400 -mt-2">نصيحة: 1024MB = 1GB</p>
+            <x-form.input type="number" name="storage_limit" id="storage_limit" label="المساحة المخصصة (ميجا بايت)" icon="fa-database" placeholder="اختياري - اتركه فارغاً لغير محدود" step="0.1" />
+            <p class="text-[10px] text-gray-400 -mt-2">💡 نصيحة: 1024MB = 1GB | سيتم إنشاء ألبوم مخفي تلقائياً</p>
 
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">ملاحظات</label>
-                <textarea name="description" id="description" rows="3" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm transition-all" placeholder="أي ملاحظات إضافية..."></textarea>
+                <label class="block text-sm font-bold text-gray-700 mb-1">الوصف</label>
+                <textarea name="description" id="description" rows="3" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent outline-none text-sm transition-all" placeholder="وصف اختياري للمكتبة..."></textarea>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-700">
+                <i class="fas fa-info-circle"></i>
+                <strong>ملاحظة:</strong> سيتم إنشاء ألبوم مخفي تلقائياً عند إنشاء المكتبة. يمكنك ربط الكروت بهذه المكتبة لاحقاً.
             </div>
 
             <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
                 <x-button type="button" onclick="closeModal()" variant="secondary">إلغاء</x-button>
-                <x-button type="submit" variant="primary">حفظ البيانات</x-button>
+                <x-button type="submit" variant="primary">
+                    <i class="fas fa-save"></i> حفظ البيانات
+                </x-button>
             </div>
         </form>
     </x-modal>

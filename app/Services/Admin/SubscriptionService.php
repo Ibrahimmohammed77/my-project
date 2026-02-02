@@ -7,6 +7,7 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Models\LookupValue;
 use App\Models\ActivityLog;
+use App\Helpers\StorageLibraryHelper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -58,6 +59,16 @@ class SubscriptionService
 
             $subscription = $this->subscriptionRepository->store($subscriptionData);
 
+            // إنشاء مكتبة تخزين تلقائيًا للمدارس والاستوديوهات
+            try {
+                if ($user->hasRole('school-owner') && $user->school) {
+                    StorageLibraryHelper::ensureStorageLibraryForSchool($user->school);
+                } 
+            } catch (\Exception $e) {
+                // Log error but don't fail the subscription
+                \Log::warning('Failed to create storage library for user ' . $user->id . ': ' . $e->getMessage());
+            }
+
             // تسجيل النشاط
             ActivityLog::logCurrent(
                 'subscription_granted',
@@ -67,6 +78,38 @@ class SubscriptionService
             );
 
             return $subscription;
+        });
+    }
+
+    /**
+     * تحديث اشتراك
+     */
+    public function updateSubscription($subscription, array $data)
+    {
+        return DB::transaction(function () use ($subscription, $data) {
+            $updatedSubscription = $this->subscriptionRepository->update($subscription, $data);
+            
+            $user = $subscription->user;
+            
+            // إنشاء مكتبة تخزين تلقائيًا للمدارس والاستوديوهات إذا لم تكن موجودة
+            try {
+                if ($user->hasRole('school-owner') && $user->school) {
+                    StorageLibraryHelper::ensureStorageLibraryForSchool($user->school);
+                }
+            } catch (\Exception $e) {
+                // Log error but don't fail the update
+                \Log::warning('Failed to create storage library for user ' . $user->id . ': ' . $e->getMessage());
+            }
+
+            // تسجيل النشاط
+            ActivityLog::logCurrent(
+                'subscription_updated',
+                \App\Models\Subscription::class,
+                $subscription->subscription_id,
+                ['changes' => $data]
+            );
+
+            return $updatedSubscription;
         });
     }
 

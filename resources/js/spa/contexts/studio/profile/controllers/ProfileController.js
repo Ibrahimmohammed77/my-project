@@ -25,7 +25,7 @@ export class ProfileController {
         const website = data instanceof FormData ? data.get('website') : data.website;
 
         // name: string, max 255
-        if (!InputValidator.validate(name, 'required')) {
+        if (!InputValidator.validateRequired(name)) {
             errors.name = ['اسم الاستوديو مطلوب'];
         } else if (name && name.length > 255) {
             errors.name = ['اسم الاستوديو يجب أن لا يتجاوز 255 حرفاً'];
